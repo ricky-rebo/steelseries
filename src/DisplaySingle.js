@@ -1,4 +1,4 @@
-import createLcdBackgroundImage from './createLcdBackgroundImage'
+import createLcdBackgroundImage from './tools/createLcdBackgroundImage'
 import {
   roundedRectangle,
   createBuffer,
@@ -9,9 +9,9 @@ import {
   getCanvasContext,
   lcdFontName,
   stdFontName
-} from './tools'
+} from './tools/tools'
 
-import { LcdColor } from './definitions'
+import { LcdColor } from './tools/definitions'
 
 const DisplaySingle = function (canvas, parameters) {
   parameters = parameters || {}

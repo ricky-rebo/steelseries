@@ -1,7 +1,7 @@
-import drawFrame from './drawFrame'
-import drawBackground from './drawBackground'
-import drawRadialCustomImage from './drawRadialCustomImage'
-import drawForeground from './drawForeground'
+import drawFrame from './tools/drawFrame'
+import drawBackground from './tools/drawBackground'
+import drawRadialCustomImage from './tools/drawRadialCustomImage'
+import drawForeground from './tools/drawForeground'
 import {
   createBuffer,
   getCanvasContext,
@@ -9,14 +9,14 @@ import {
   PI,
   RAD_FACTOR,
   stdFontName
-} from './tools'
+} from './tools/tools'
 
 import {
   BackgroundColor,
   ColorDef,
   FrameDesign,
   ForegroundType
-} from './definitions'
+} from './tools/definitions'
 
 const Stopwatch = function (canvas, parameters) {
   parameters = parameters || {}

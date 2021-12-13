@@ -1,11 +1,11 @@
-import Tween from './tween.js'
-import drawLinearBackgroundImage from './drawLinearBackgroundImage'
-import drawLinearForegroundImage from './drawLinearForegroundImage'
-import drawLinearFrameImage from './drawLinearFrameImage'
-import createLedImage from './createLedImage'
-import createLcdBackgroundImage from './createLcdBackgroundImage'
-import createMeasuredValueImage from './createMeasuredValueImage'
-import drawTitleImage from './drawTitleImage'
+import Tween from './tools/tween.js'
+import drawLinearBackgroundImage from './tools/drawLinearBackgroundImage'
+import drawLinearForegroundImage from './tools/drawLinearForegroundImage'
+import drawLinearFrameImage from './tools/drawLinearFrameImage'
+import createLedImage from './tools/createLedImage'
+import createLcdBackgroundImage from './tools/createLcdBackgroundImage'
+import createMeasuredValueImage from './tools/createMeasuredValueImage'
+import drawTitleImage from './tools/drawTitleImage'
 import {
   calcNiceNumber,
   createBuffer,
@@ -15,7 +15,7 @@ import {
   doc,
   lcdFontName,
   stdFontName
-} from './tools'
+} from './tools/tools'
 
 import {
   BackgroundColor,
@@ -24,7 +24,7 @@ import {
   LedColor,
   FrameDesign,
   LabelNumberFormat
-} from './definitions'
+} from './tools/definitions'
 
 const LinearBargraph = function (canvas, parameters) {
   parameters = parameters || {}

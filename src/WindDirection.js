@@ -1,11 +1,11 @@
-import Tween from './tween.js'
-import drawPointerImage from './drawPointerImage'
-import drawFrame from './drawFrame'
-import drawBackground from './drawBackground'
-import drawRadialCustomImage from './drawRadialCustomImage'
-import drawForeground from './drawForeground'
-import createLcdBackgroundImage from './createLcdBackgroundImage'
-import drawRoseImage from './drawRoseImage'
+import Tween from './tools/tween.js'
+import drawPointerImage from './tools/drawPointerImage'
+import drawFrame from './tools/drawFrame'
+import drawBackground from './tools/drawBackground'
+import drawRadialCustomImage from './tools/drawRadialCustomImage'
+import drawForeground from './tools/drawForeground'
+import createLcdBackgroundImage from './tools/createLcdBackgroundImage'
+import drawRoseImage from './tools/drawRoseImage'
 import {
   createBuffer,
   getShortestAngle,
@@ -16,7 +16,7 @@ import {
   RAD_FACTOR,
   lcdFontName,
   stdFontName
-} from './tools'
+} from './tools/tools'
 
 import {
   BackgroundColor,
@@ -27,7 +27,7 @@ import {
   FrameDesign,
   PointerType,
   ForegroundType
-} from './definitions'
+} from './tools/definitions'
 
 const WindDirection = function (canvas, parameters) {
   parameters = parameters || {}

@@ -1,4 +1,4 @@
-import { rgbToHsl, doc } from './tools'
+import { rgbToHsl, doc } from './tools/tools'
 
 const Lightbulb = function (canvas, parameters) {
   parameters = parameters || {}

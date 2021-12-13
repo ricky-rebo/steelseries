@@ -1,9 +1,9 @@
-import Tween from './tween.js'
-import drawFrame from './drawFrame'
-import drawBackground from './drawBackground'
-import drawRadialCustomImage from './drawRadialCustomImage'
-import drawForeground from './drawForeground'
-import drawRoseImage from './drawRoseImage'
+import Tween from './tools/tween.js'
+import drawFrame from './tools/drawFrame'
+import drawBackground from './tools/drawBackground'
+import drawRadialCustomImage from './tools/drawRadialCustomImage'
+import drawForeground from './tools/drawForeground'
+import drawRoseImage from './tools/drawRoseImage'
 import {
   createBuffer,
   getShortestAngle,
@@ -11,7 +11,7 @@ import {
   getCanvasContext,
   HALF_PI,
   RAD_FACTOR
-} from './tools'
+} from './tools/tools'
 
 import {
   BackgroundColor,
@@ -21,7 +21,7 @@ import {
   FrameDesign,
   PointerType,
   ForegroundType
-} from './definitions'
+} from './tools/definitions'
 
 const Compass = function (canvas, parameters) {
   parameters = parameters || {}

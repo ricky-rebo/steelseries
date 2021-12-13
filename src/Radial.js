@@ -1,15 +1,15 @@
-import Tween from './tween.js'
-import drawPointerImage from './drawPointerImage'
-import drawFrame from './drawFrame'
-import drawBackground from './drawBackground'
-import drawRadialCustomImage from './drawRadialCustomImage'
-import drawForeground from './drawForeground'
-import createKnobImage from './createKnobImage'
-import createLedImage from './createLedImage'
-import createLcdBackgroundImage from './createLcdBackgroundImage'
-import createMeasuredValueImage from './createMeasuredValueImage'
-import createTrendIndicator from './createTrendIndicator'
-import drawTitleImage from './drawTitleImage'
+import Tween from './tools/tween.js'
+import drawPointerImage from './tools/drawPointerImage'
+import drawFrame from './tools/drawFrame'
+import drawBackground from './tools/drawBackground'
+import drawRadialCustomImage from './tools/drawRadialCustomImage'
+import drawForeground from './tools/drawForeground'
+import createKnobImage from './tools/createKnobImage'
+import createLedImage from './tools/createLedImage'
+import createLcdBackgroundImage from './tools/createLcdBackgroundImage'
+import createMeasuredValueImage from './tools/createMeasuredValueImage'
+import createTrendIndicator from './tools/createTrendIndicator'
+import drawTitleImage from './tools/drawTitleImage'
 import {
   calcNiceNumber,
   createBuffer,
@@ -22,7 +22,7 @@ import {
   doc,
   lcdFontName,
   stdFontName
-} from './tools'
+} from './tools/tools'
 
 import {
   BackgroundColor,
@@ -38,7 +38,7 @@ import {
   LabelNumberFormat,
   TickLabelOrientation,
   TrendState
-} from './definitions'
+} from './tools/definitions'
 
 import Odometer from './Odometer'
 

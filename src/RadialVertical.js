@@ -1,11 +1,11 @@
-import Tween from './tween.js'
-import drawPointerImage from './drawPointerImage'
-import drawFrame from './drawFrame'
-import drawBackground from './drawBackground'
-import drawForeground from './drawForeground'
-import createKnobImage from './createKnobImage'
-import createLedImage from './createLedImage'
-import createMeasuredValueImage from './createMeasuredValueImage'
+import Tween from './tools/tween.js'
+import drawPointerImage from './tools/drawPointerImage'
+import drawFrame from './tools/drawFrame'
+import drawBackground from './tools/drawBackground'
+import drawForeground from './tools/drawForeground'
+import createKnobImage from './tools/createKnobImage'
+import createLedImage from './tools/createLedImage'
+import createMeasuredValueImage from './tools/createMeasuredValueImage'
 import {
   calcNiceNumber,
   createBuffer,
@@ -15,7 +15,7 @@ import {
   PI,
   doc,
   stdFontName
-} from './tools'
+} from './tools/tools'
 
 import {
   BackgroundColor,
@@ -29,7 +29,7 @@ import {
   PointerType,
   ForegroundType,
   LabelNumberFormat
-} from './definitions'
+} from './tools/definitions'
 
 const RadialVertical = function (canvas, parameters) {
   parameters = parameters || {}

@@ -1,7 +1,7 @@
-import createLcdBackgroundImage from './createLcdBackgroundImage'
-import { getCanvasContext, lcdFontName, stdFontName } from './tools'
+import createLcdBackgroundImage from './tools/createLcdBackgroundImage'
+import { getCanvasContext, lcdFontName, stdFontName } from './tools/tools'
 
-import { LcdColor } from './definitions'
+import { LcdColor } from './tools/definitions'
 
 const DisplayMulti = function (canvas, parameters) {
   parameters = parameters || {}

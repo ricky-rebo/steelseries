@@ -1,6 +1,6 @@
-import Tween from './tween.js'
-import drawFrame from './drawFrame'
-import drawForeground from './drawForeground'
+import Tween from './tools/tween.js'
+import drawFrame from './tools/drawFrame'
+import drawForeground from './tools/drawForeground'
 import {
   createBuffer,
   requestAnimFrame,
@@ -10,7 +10,7 @@ import {
   PI,
   RAD_FACTOR,
   stdFontName
-} from './tools'
+} from './tools/tools'
 
 import {
   ColorDef,
@@ -19,7 +19,7 @@ import {
   KnobStyle,
   FrameDesign,
   ForegroundType
-} from './definitions'
+} from './tools/definitions'
 
 const Horizon = function (canvas, parameters) {
   parameters = parameters || {}

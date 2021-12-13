@@ -1,7 +1,7 @@
-import createLedImage from './createLedImage'
-import { getCanvasContext, doc } from './tools'
+import createLedImage from './tools/createLedImage'
+import { getCanvasContext, doc } from './tools/tools'
 
-import { LedColor } from './definitions'
+import { LedColor } from './tools/definitions'
 
 const Led = function (canvas, parameters) {
   parameters = parameters || {}

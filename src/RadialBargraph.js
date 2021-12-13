@@ -1,12 +1,12 @@
-import Tween from './tween.js'
-import drawFrame from './drawFrame'
-import drawBackground from './drawBackground'
-import drawRadialCustomImage from './drawRadialCustomImage'
-import drawForeground from './drawForeground'
-import createLedImage from './createLedImage'
-import createLcdBackgroundImage from './createLcdBackgroundImage'
-import createTrendIndicator from './createTrendIndicator'
-import drawTitleImage from './drawTitleImage'
+import Tween from './tools/tween.js'
+import drawFrame from './tools/drawFrame'
+import drawBackground from './tools/drawBackground'
+import drawRadialCustomImage from './tools/drawRadialCustomImage'
+import drawForeground from './tools/drawForeground'
+import createLedImage from './tools/createLedImage'
+import createLcdBackgroundImage from './tools/createLcdBackgroundImage'
+import createTrendIndicator from './tools/createTrendIndicator'
+import drawTitleImage from './tools/drawTitleImage'
 import {
   calcNiceNumber,
   createBuffer,
@@ -21,7 +21,7 @@ import {
   doc,
   lcdFontName,
   stdFontName
-} from './tools'
+} from './tools/tools'
 
 import {
   BackgroundColor,
@@ -34,7 +34,7 @@ import {
   LabelNumberFormat,
   TickLabelOrientation,
   TrendState
-} from './definitions'
+} from './tools/definitions'
 
 const RadialBargraph = function (canvas, parameters) {
   parameters = parameters || {}

@@ -1,7 +1,7 @@
-import Tween from './tween.js'
-import drawFrame from './drawFrame'
-import drawBackground from './drawBackground'
-import drawForeground from './drawForeground'
+import Tween from './tools/tween.js'
+import drawFrame from './tools/drawFrame'
+import drawBackground from './tools/drawBackground'
+import drawForeground from './tools/drawForeground'
 import {
   createBuffer,
   requestAnimFrame,
@@ -11,14 +11,14 @@ import {
   PI,
   RAD_FACTOR,
   stdFontName
-} from './tools'
+} from './tools/tools'
 
 import {
   BackgroundColor,
   ColorDef,
   FrameDesign,
   ForegroundType
-} from './definitions'
+} from './tools/definitions'
 
 const Level = function (canvas, parameters) {
   parameters = parameters || {}

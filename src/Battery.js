@@ -1,4 +1,4 @@
-import { rgbaColor, gradientWrapper, getCanvasContext } from './tools'
+import { rgbaColor, gradientWrapper, getCanvasContext } from './tools/tools'
 
 const Battery = function (canvas, parameters) {
   parameters = parameters || {}

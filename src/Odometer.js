@@ -1,5 +1,5 @@
-import Tween from './tween.js'
-import { createBuffer, requestAnimFrame, getCanvasContext } from './tools'
+import Tween from './tools/tween.js'
+import { createBuffer, requestAnimFrame, getCanvasContext } from './tools/tools'
 
 const Odometer = function (canvas, parameters) {
   parameters = parameters || {}

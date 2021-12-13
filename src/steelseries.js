@@ -17,9 +17,9 @@ import Altimeter from './Altimeter'
 import TrafficLight from './TrafficLight'
 import LightBulb from './LightBulb'
 import Odometer from './Odometer'
-import drawFrame from './drawFrame'
-import drawBackground from './drawBackground'
-import drawForeground from './drawForeground'
+import drawFrame from './tools/drawFrame'
+import drawBackground from './tools/drawBackground'
+import drawForeground from './tools/drawForeground'
 import {
   rgbaColor,
   ConicalGradient,
@@ -27,7 +27,7 @@ import {
   setAlpha,
   getColorFromFraction,
   Section
-} from './tools'
+} from './tools/tools'
 
 import {
   BackgroundColor,
@@ -44,7 +44,7 @@ import {
   LabelNumberFormat,
   TickLabelOrientation,
   TrendState
-} from './definitions'
+} from './tools/definitions'
 
 export { Radial }
 export { RadialBargraph }

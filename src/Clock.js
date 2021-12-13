@@ -1,8 +1,8 @@
-import drawFrame from './drawFrame'
-import drawBackground from './drawBackground'
-import drawRadialCustomImage from './drawRadialCustomImage'
-import drawForeground from './drawForeground'
-import { createBuffer, getCanvasContext, TWO_PI, RAD_FACTOR } from './tools'
+import drawFrame from './tools/drawFrame'
+import drawBackground from './tools/drawBackground'
+import drawRadialCustomImage from './tools/drawRadialCustomImage'
+import drawForeground from './tools/drawForeground'
+import { createBuffer, getCanvasContext, TWO_PI, RAD_FACTOR } from './tools/tools'
 
 import {
   BackgroundColor,
@@ -10,7 +10,7 @@ import {
   FrameDesign,
   PointerType,
   ForegroundType
-} from './definitions'
+} from './tools/definitions'
 
 const Clock = function (canvas, parameters) {
   parameters = parameters || {}

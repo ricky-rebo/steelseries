@@ -1,4 +1,4 @@
-import { getCanvasContext, TWO_PI, doc } from './tools'
+import { getCanvasContext, TWO_PI, doc } from './tools/tools'
 
 const Trafficlight = function (canvas, parameters) {
   parameters = parameters || {}
