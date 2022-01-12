@@ -12,6 +12,7 @@
   "scripts": {
     "build": "npm run compile && npm run website",
     "compile": "webpack",
+    "watch": "webpack --watch",
     "lint": "eslint \"*.js\" \"src/**/*.js\" \"srcdocs/**/*.js\"",
     "lint:fix": "npm run lint -- --fix",
     "test": "npm run lint",
