@@ -1,90 +1,73 @@
 import createLedImage from './tools/createLedImage'
-import { getCanvasContext, doc } from './tools/tools'
+import { getCanvasContext, createBuffer } from './tools/tools'
 
 import { LedColor } from './tools/definitions'
 
-const Led = function (canvas, parameters) {
+export const Led = function (canvas, parameters) {
   parameters = parameters || {}
-  let size = undefined === parameters.size ? 0 : parameters.size
+
+  // Get the canvas context
+  const mainCtx = undefined === parameters._context
+    ? getCanvasContext(canvas)
+    : parameters._context
+
+  // Parameters
+  const size = undefined === parameters.size
+    ? Math.min(mainCtx.canvas.width, mainCtx.canvas.height)
+    : parameters.size
   let ledColor =
     undefined === parameters.ledColor ? LedColor.RED_LED : parameters.ledColor
-
-  let ledBlinking = false
-  let ledTimerId = 0
-
-  // Get the canvas context and clear it
-  const mainCtx = getCanvasContext(canvas)
-  // Has a size been specified?
-  if (size === 0) {
-    size = Math.min(mainCtx.canvas.width, mainCtx.canvas.height)
-  }
 
   // Set the size - also clears the canvas
   mainCtx.canvas.width = size
   mainCtx.canvas.height = size
 
+  // Internal variables
+  let ledOn = false
+  let ledBlinking = false
+  let ledTimerId = 0
+
   let initialized = false
 
+  // **************   Buffer creation  ********************
   // Buffer for led on painting code
-  const ledBufferOn = doc.createElement('canvas')
-  ledBufferOn.width = size
-  ledBufferOn.height = size
-  const ledContextOn = ledBufferOn.getContext('2d')
+  const ledOnBuffer = createBuffer(size, size)
+  const ledOnCtx = ledOnBuffer.getContext('2d')
 
   // Buffer for led off painting code
-  const ledBufferOff = doc.createElement('canvas')
-  ledBufferOff.width = size
-  ledBufferOff.height = size
-  const ledContextOff = ledBufferOff.getContext('2d')
-
-  // Buffer for current led painting code
-  let ledBuffer = ledBufferOff
+  const ledOffBuffer = createBuffer(size, size)
+  const ledOffCtx = ledOffBuffer.getContext('2d')
 
   const init = function () {
     initialized = true
 
     // Draw LED ON in ledBuffer_ON
-    ledContextOn.clearRect(
-      0,
-      0,
-      ledContextOn.canvas.width,
-      ledContextOn.canvas.height
-    )
-    ledContextOn.drawImage(createLedImage(size, 1, ledColor), 0, 0)
+    ledOnCtx.clearRect(0, 0, size, size)
+    ledOnCtx.drawImage(createLedImage(size, 1, ledColor), 0, 0)
 
     // Draw LED ON in ledBuffer_OFF
-    ledContextOff.clearRect(
-      0,
-      0,
-      ledContextOff.canvas.width,
-      ledContextOff.canvas.height
-    )
-    ledContextOff.drawImage(createLedImage(size, 0, ledColor), 0, 0)
+    ledOffCtx.clearRect(0, 0, size, size)
+    ledOffCtx.drawImage(createLedImage(size, 0, ledColor), 0, 0)
   }
 
   this.toggleLed = function () {
-    if (ledBuffer === ledBufferOn) {
-      ledBuffer = ledBufferOff
-    } else {
-      ledBuffer = ledBufferOn
-    }
+    ledOn = !ledOn
     repaint()
     return this
   }
 
   this.setLedColor = function (newColor) {
-    ledColor = newColor
-    initialized = false
-    repaint()
+    if (undefined !== newColor.coronaColor) {
+      ledColor = newColor
+      init()
+      repaint()
+    }
+
     return this
   }
 
   this.setLedOnOff = function (on) {
-    if (on) {
-      ledBuffer = ledBufferOn
-    } else {
-      ledBuffer = ledBufferOff
-    }
+    ledOn = !!on
     repaint()
     return this
   }
@@ -98,8 +81,8 @@ const Led = function (canvas, parameters) {
     } else {
       if (ledBlinking) {
         clearInterval(ledTimerId)
+        ledOn = false
         ledBlinking = false
-        ledBuffer = ledBufferOff
       }
     }
     return this
@@ -113,14 +96,17 @@ const Led = function (canvas, parameters) {
     mainCtx.save()
     mainCtx.clearRect(0, 0, mainCtx.canvas.width, mainCtx.canvas.height)
 
-    mainCtx.drawImage(ledBuffer, 0, 0)
+    if (ledOn) {
+      mainCtx.drawImage(ledOnBuffer, 0, 0)
+    } else {
+      mainCtx.drawImage(ledOffBuffer, 0, 0)
+    }
 
     mainCtx.restore()
   }
 
+  // Visualize the component
   repaint()
 
   return this
 }
-
-export default Led
