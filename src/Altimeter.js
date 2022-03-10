@@ -4,7 +4,9 @@ import drawBackground from './tools/drawBackground'
 import drawRadialCustomImage from './tools/drawRadialCustomImage'
 import drawForeground from './tools/drawForeground'
 import drawTitleImage from './tools/drawTitleImage'
-import DisplaySingle from './DisplaySingle.js'
+
+import { DisplaySingle } from './DisplaySingle.js'
+
 import {
   createBuffer,
   requestAnimFrame,
