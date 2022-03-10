@@ -1,33 +1,37 @@
 import createLcdBackgroundImage from './tools/createLcdBackgroundImage'
-import { getCanvasContext, lcdFontName, stdFontName } from './tools/tools'
+import { createBuffer, getCanvasContext, lcdFontName, stdFontName } from './tools/tools'
 
 import { LcdColor } from './tools/definitions'
 
-const DisplayMulti = function (canvas, parameters) {
+export const DisplayMulti = function (canvas, parameters) {
+  // Get the canvas context
+  const mainCtx = getCanvasContext(canvas)
+
+  // Parameters
   parameters = parameters || {}
-  let width = undefined === parameters.width ? 0 : parameters.width
-  let height = undefined === parameters.height ? 0 : parameters.height
+  const width = undefined === parameters.width ? mainCtx.canvas.width : parameters.width
+  const height = undefined === parameters.height ? mainCtx.canvas.height : parameters.height
   let lcdColor =
     undefined === parameters.lcdColor ? LcdColor.STANDARD : parameters.lcdColor
   const lcdDecimals =
     undefined === parameters.lcdDecimals ? 2 : parameters.lcdDecimals
-  const headerString =
+  let headerString =
     undefined === parameters.headerString ? '' : parameters.headerString
-  const headerStringVisible =
+  let headerStringVisible =
     undefined === parameters.headerStringVisible
       ? false
       : parameters.headerStringVisible
-  const detailString =
+  let detailString =
     undefined === parameters.detailString ? '' : parameters.detailString
-  const detailStringVisible =
+  let detailStringVisible =
     undefined === parameters.detailStringVisible
       ? false
       : parameters.detailStringVisible
   const linkAltValue =
     undefined === parameters.linkAltValue ? true : parameters.linkAltValue
-  const unitString =
+  let unitString =
     undefined === parameters.unitString ? '' : parameters.unitString
-  const unitStringVisible =
+  let unitStringVisible =
     undefined === parameters.unitStringVisible
       ? false
       : parameters.unitStringVisible
@@ -38,182 +42,293 @@ const DisplayMulti = function (canvas, parameters) {
   let value = undefined === parameters.value ? 0 : parameters.value
   let altValue = undefined === parameters.altValue ? 0 : parameters.altValue
 
-  // Get the canvas context and clear it
-  const mainCtx = getCanvasContext(canvas)
-  // Has a size been specified?
-  if (width === 0) {
-    width = mainCtx.canvas.width
-  }
-  if (height === 0) {
-    height = mainCtx.canvas.height
-  }
-
-  // Set the size - also clears the canvas
+  // Set the size
   mainCtx.canvas.width = width
   mainCtx.canvas.height = height
 
-  const imageWidth = width
-  const imageHeight = height
+  // Constants
+  const stdFont = Math.floor(height / 1.875) + 'px ' + stdFontName
+  const lcdFont = Math.floor(height / 1.875) + 'px ' + lcdFontName
+  const stdAltFont = Math.floor(height / 3.5) + 'px ' + stdFontName
+  const lcdAltFont = Math.floor(height / 3.5) + 'px ' + lcdFontName
 
-  const stdFont = Math.floor(imageHeight / 1.875) + 'px ' + stdFontName
-  const lcdFont = Math.floor(imageHeight / 1.875) + 'px ' + lcdFontName
-  const stdAltFont = Math.floor(imageHeight / 3.5) + 'px ' + stdFontName
-  const lcdAltFont = Math.floor(imageHeight / 3.5) + 'px ' + lcdFontName
+  // Internal Variables
+  let unitStringWidth = 0
 
   let initialized = false
 
   // **************   Buffer creation  ********************
   // Buffer for the lcd
-  let lcdBuffer
+  let backgroundBuffer
+
+  // Buffer for lcd 'static' text
+  const textBuffer = createBuffer(width, height)
+  let textCtx = textBuffer.getContext('2d')
 
   // **************   Image creation  ********************
-  const drawLcdText = function (value) {
-    mainCtx.save()
-    mainCtx.textAlign = 'right'
-    mainCtx.textBaseline = 'middle'
-    mainCtx.strokeStyle = lcdColor.textColor
-    mainCtx.fillStyle = lcdColor.textColor
+  const drawLcdText = function (ctx) {
+    ctx.save()
+    initTextCtx(ctx)
 
-    if (
-      lcdColor === LcdColor.STANDARD ||
-      lcdColor === LcdColor.STANDARD_GREEN
-    ) {
-      mainCtx.shadowColor = 'gray'
-      mainCtx.shadowOffsetX = imageHeight * 0.025
-      mainCtx.shadowOffsetY = imageHeight * 0.025
-      mainCtx.shadowBlur = imageHeight * 0.05
+    ctx.textAlign = 'right'
+
+    if (valuesNumeric) { // Numeric values
+      if (unitStringVisible) {
+        // Calc unitString text width
+        const factor = headerStringVisible ? 3 : 2.5
+        ctx.font = Math.floor(height / factor) + 'px ' + stdFontName
+        unitStringWidth = ctx.measureText(unitString).width
+
+        // Draw unitString text
+        ctx.font = Math.floor(height / 3) + 'px ' + stdFontName
+        ctx.fillText(unitString, width - 2, height * 0.55)
+      } else {
+        unitStringWidth = 0
+      }
+
+      if (headerStringVisible) {
+        // Draw headerString
+        ctx.textAlign = 'center'
+        ctx.font = digitalFont ? lcdAltFont : (Math.floor(height / 5) + 'px ' + stdFontName)
+        ctx.fillText(headerString, width / 2, height * 0.16)
+      }
+    } else { // Non-Numeric values
+      if (headerStringVisible) {
+        // Draw headerString
+        ctx.font = Math.floor(height / 5) + 'px ' + stdFontName
+        ctx.textAlign = 'center'
+        ctx.fillText(headerString, width / 2, height * 0.17)
+      }
     }
 
-    if (valuesNumeric) {
-      // Numeric value
-      if (headerStringVisible) {
-        mainCtx.font = Math.floor(imageHeight / 3) + 'px ' + stdFontName
-      } else {
-        mainCtx.font = Math.floor(imageHeight / 2.5) + 'px ' + stdFontName
-      }
-      let unitWidth = 0
-      if (unitStringVisible) {
-        if (headerStringVisible) {
-          mainCtx.font = Math.floor(imageHeight / 3) + 'px ' + stdFontName
-          unitWidth = mainCtx.measureText(unitString).width
-        } else {
-          mainCtx.font = Math.floor(imageHeight / 2.5) + 'px ' + stdFontName
-          unitWidth = mainCtx.measureText(unitString).width
-        }
-      }
-      mainCtx.font = digitalFont ? lcdFont : stdFont
+    ctx.restore()
+  }
+
+  const drawLcdValueText = function (ctx) {
+    ctx.save()
+    initTextCtx(ctx)
+
+    let heightFactor
+
+    ctx.textAlign = 'right'
+
+    if (valuesNumeric) { // Numeric value
+      // Set font
+      ctx.font = digitalFont ? lcdFont : stdFont
+
+      // Draw value text
       const valueText = value.toFixed(lcdDecimals)
-      if (headerStringVisible) {
-        mainCtx.fillText(
-          valueText,
-          imageWidth - unitWidth - 4,
-          imageHeight * 0.5
+      heightFactor = headerStringVisible ? 0.5 : 0.38
+      ctx.fillText(valueText, width - unitStringWidth - 4, height * heightFactor)
+
+      // Draw altValue + detailString text
+      ctx.textAlign = 'center'
+      const altValueText = altValue.toFixed(lcdDecimals) + (detailStringVisible ? detailString : '')
+      ctx.font = digitalFont
+        ? lcdAltFont
+        : (
+          headerStringVisible
+            ? (Math.floor(height / 5) + 'px ' + stdFontName)
+            : stdAltFont
         )
-      } else {
-        mainCtx.fillText(
-          valueText,
-          imageWidth - unitWidth - 4,
-          imageHeight * 0.38
-        )
-      }
+      heightFactor = headerStringVisible ? 0.83 : 0.8
+      ctx.fillText(altValueText, width / 2, height * heightFactor)
+    } else { // Non-numeric value
+      // Draw value
+      heightFactor = headerStringVisible ? 0.48 : 0.38
+      ctx.font = headerStringVisible
+        ? stdAltFont
+        : Math.floor(height / 2.5) + 'px ' + stdFontName
+      ctx.fillText(value, width - 2, height * heightFactor)
 
-      if (unitStringVisible) {
-        mainCtx.font = Math.floor(imageHeight / 3) + 'px ' + stdFontName
-        mainCtx.fillText(unitString, imageWidth - 2, imageHeight * 0.55)
-      }
-
-      let altValueText = altValue.toFixed(lcdDecimals)
-      if (detailStringVisible) {
-        altValueText = detailString + altValueText
-      }
-      if (digitalFont) {
-        mainCtx.font = lcdAltFont
-      } else {
-        if (headerStringVisible) {
-          mainCtx.font = Math.floor(imageHeight / 5) + 'px ' + stdFontName
-        } else {
-          mainCtx.font = stdAltFont
-        }
-      }
-      mainCtx.textAlign = 'center'
-      if (headerStringVisible) {
-        mainCtx.fillText(altValueText, imageWidth / 2, imageHeight * 0.83)
-        mainCtx.fillText(headerString, imageWidth / 2, imageHeight * 0.16)
-      } else {
-        mainCtx.fillText(altValueText, imageWidth / 2, imageHeight * 0.8)
-      }
-    } else {
-      if (headerStringVisible) {
-        // Text value
-        mainCtx.font = Math.floor(imageHeight / 3.5) + 'px ' + stdFontName
-        mainCtx.fillText(value, imageWidth - 2, imageHeight * 0.48)
-
-        // mainCtx.font = stdAltFont;
-        mainCtx.font = Math.floor(imageHeight / 5) + 'px ' + stdFontName
-        mainCtx.textAlign = 'center'
-        mainCtx.fillText(altValue, imageWidth / 2, imageHeight * 0.83)
-        mainCtx.fillText(headerString, imageWidth / 2, imageHeight * 0.17)
-      } else {
-        // Text value
-        mainCtx.font = Math.floor(imageHeight / 2.5) + 'px ' + stdFontName
-        mainCtx.fillText(value, imageWidth - 2, imageHeight * 0.38)
-
-        mainCtx.font = stdAltFont
-        mainCtx.textAlign = 'center'
-        mainCtx.fillText(altValue, imageWidth / 2, imageHeight * 0.8)
-      }
+      // Draw altValue
+      ctx.textAlign = 'center'
+      heightFactor = headerStringVisible ? 0.83 : 0.8
+      ctx.font = headerStringVisible // Used as font itself here
+        ? Math.floor(height / 5) + 'px ' + stdFontName
+        : stdAltFont
+      ctx.fillText(altValue, width / 2, height * heightFactor)
     }
-    mainCtx.restore()
+    ctx.restore()
   }
 
   // **************   Initialization  ********************
-  const init = function () {
+  const initTextCtx = function (ctx) {
+    ctx.textBaseline = 'middle'
+    ctx.strokeStyle = lcdColor.textColor
+    ctx.fillStyle = lcdColor.textColor
+
+    if (lcdColor === LcdColor.STANDARD || lcdColor === LcdColor.STANDARD_GREEN) {
+      ctx.shadowColor = 'gray'
+      ctx.shadowOffsetX = height * 0.025
+      ctx.shadowOffsetY = height * 0.025
+      ctx.shadowBlur = height * 0.05
+    }
+  }
+
+  const init = function (buffers) {
+    buffers = buffers || {}
+    const initBackground = undefined === buffers.background ? false : buffers.background
+    const initText = undefined === buffers.text ? false : buffers.text
+
     initialized = true
 
     // Create lcd background if selected in background buffer (backgroundBuffer)
-    lcdBuffer = createLcdBackgroundImage(width, height, lcdColor)
+    if (initBackground) {
+      backgroundBuffer = createLcdBackgroundImage(width, height, lcdColor)
+    }
+
+    if (initText) {
+      drawLcdText(textCtx)
+    }
+  }
+
+  const resetBuffers = function (buffers) {
+    buffers = buffers || {}
+
+    const resetText = undefined === buffers.text ? false : buffers.text
+
+    if (resetText) {
+      textBuffer.width = width
+      textBuffer.height = height
+      textCtx = textBuffer.getContext('2d')
+    }
   }
 
   // **************   Public methods  ********************
+  this.getValue = function () {
+    return value
+  }
+
   this.setValue = function (newValue) {
-    if (value !== newValue) {
-      if (linkAltValue) {
-        altValue = value
+    newValue = valuesNumeric ? parseFloat(newValue) : newValue
+    if ((valuesNumeric && !isNaN(newValue)) || !valuesNumeric) {
+      if (value !== newValue) {
+        if (linkAltValue) {
+          altValue = value
+        }
+        value = newValue
+        this.repaint()
       }
-      value = newValue
-      this.repaint()
+      return this
+    }
+  }
+
+  this.getAltValue = function () {
+    return altValue
+  }
+
+  this.setAltValue = function (newAltValue) {
+    if ((valuesNumeric && !isNaN(newAltValue)) || !valuesNumeric) {
+      if (altValue !== newAltValue) {
+        altValue = newAltValue
+        this.repaint()
+      }
     }
     return this
   }
 
-  this.setAltValue = function (altValueNew) {
-    if (altValue !== altValueNew) {
-      altValue = altValueNew
-      this.repaint()
-    }
-    return this
+  this.getLcdColor = function () {
+    return lcdColor
   }
 
   this.setLcdColor = function (newLcdColor) {
-    lcdColor = newLcdColor
-    init()
+    if (undefined !== newLcdColor.textColor) {
+      lcdColor = newLcdColor
+      init()
+      this.repaint()
+    }
+
+    return this
+  }
+
+  this.getHeaderStringVisible = function () {
+    return headerStringVisible
+  }
+
+  this.setHeaderStringVisible = function (visible) {
+    headerStringVisible = !!visible
+    resetBuffers({ text: true })
+    init({ text: true })
+    this.repaint()
+    return this
+  }
+
+  this.getHeaderString = function () {
+    return headerString
+  }
+
+  this.setHeaderString = function (newString) {
+    headerString = newString
+    resetBuffers({ text: true })
+    init({ text: true })
+    this.repaint()
+    return this
+  }
+
+  this.getDetailStringVisible = function () {
+    return detailStringVisible
+  }
+
+  this.setDetailStringVisible = function (visible) {
+    detailStringVisible = !!visible
+    this.repaint()
+    return this
+  }
+
+  this.getDetailString = function () {
+    return detailString
+  }
+
+  this.setDetailString = function (newString) {
+    detailString = newString
+    this.repaint()
+    return this
+  }
+
+  this.getUnitStringVisible = function () {
+    return unitStringVisible
+  }
+
+  this.setUnitStringVisible = function (visible) {
+    unitStringVisible = !!visible
+    resetBuffers({ text: true })
+    init({ text: true })
+    this.repaint()
+    return this
+  }
+
+  this.getUnitString = function () {
+    return unitString
+  }
+
+  this.setUnitString = function (newString) {
+    unitString = newString
+    resetBuffers({ text: true })
+    init({ text: true })
     this.repaint()
     return this
   }
 
   this.repaint = function () {
     if (!initialized) {
-      init()
+      init({
+        background: true,
+        text: true
+      })
     }
 
-    // mainCtx.save();
-    mainCtx.clearRect(0, 0, mainCtx.canvas.width, mainCtx.canvas.height)
+    // Clear context
+    mainCtx.clearRect(0, 0, width, height)
 
-    // Draw lcd background
-    mainCtx.drawImage(lcdBuffer, 0, 0)
+    // Draw LCD Background
+    mainCtx.drawImage(backgroundBuffer, 0, 0)
 
-    // Draw lcd text
-    drawLcdText(value)
+    // Draw LCD 'static' text
+    mainCtx.drawImage(textBuffer, 0, 0)
+
+    // Draw LCD values Text
+    drawLcdValueText(mainCtx)
   }
 
   // Visualize the component
@@ -221,5 +336,3 @@ const DisplayMulti = function (canvas, parameters) {
 
   return this
 }
-
-export default DisplayMulti
