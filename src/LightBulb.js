@@ -1,141 +1,56 @@
-import { rgbToHsl, doc } from './tools/tools'
+import {
+  rgbToHsl,
+  createBuffer,
+  getCanvasContext,
+  isHexColor,
+  getColorValues
+} from './tools/tools'
 
-const Lightbulb = function (canvas, parameters) {
+// TODO fix screw image (and extracxt SVG paths from code ?)
+
+export const Lightbulb = function (canvas, parameters) {
+  // Get the canvas context
+  const mainCtx = getCanvasContext(canvas)
+
+  // Parameters
   parameters = parameters || {}
-  // parameters
-  let width = undefined === parameters.width ? 0 : parameters.width
-  let height = undefined === parameters.height ? 0 : parameters.height
-  let glowColor =
-    undefined === parameters.glowColor ? '#ffff00' : parameters.glowColor
-  //
-  let initialized = false
-  let lightOn = false
-  let alpha = 1
-  const offBuffer = doc.createElement('canvas')
-  const offCtx = offBuffer.getContext('2d')
-  const onBuffer = doc.createElement('canvas')
-  const onCtx = onBuffer.getContext('2d')
-  const bulbBuffer = doc.createElement('canvas')
-  const bulbCtx = bulbBuffer.getContext('2d')
-  // End of variables
-
-  // Get the canvas context and clear it
-  const mainCtx = document.getElementById(canvas).getContext('2d')
-
-  // Has a size been specified?
-  if (width === 0) {
-    width = mainCtx.canvas.width
-  }
-  if (height === 0) {
-    height = mainCtx.canvas.height
-  }
+  const width = undefined === parameters.width
+    ? mainCtx.canvas.width
+    : parameters.width
+  const height = undefined === parameters.height
+    ? mainCtx.canvas.height
+    : parameters.height
+  let glowColor = undefined === parameters.glowColor
+    ? '#ffff00'
+    : parameters.glowColor
 
   // Get the size
   mainCtx.canvas.width = width
   mainCtx.canvas.height = height
-  const size = width < height ? width : height
-  const imageWidth = size
-  const imageHeight = size
 
-  function drawToBuffer (width, height, drawFunction) {
-    const buffer = doc.createElement('canvas')
-    buffer.width = width
-    buffer.height = height
-    drawFunction(buffer.getContext('2d'))
-    return buffer
-  }
+  // Constants
+  const size = Math.min(width, height)
 
-  const getColorValues = function (color) {
-    const lookupBuffer = drawToBuffer(1, 1, function (ctx) {
-      ctx.fillStyle = color
-      ctx.beginPath()
-      ctx.rect(0, 0, 1, 1)
-      ctx.fill()
-    })
+  // Internal variables
+  let initialized = false
+  let lightOn = false
+  let alpha = 1
 
-    const colorData = lookupBuffer.getContext('2d').getImageData(0, 0, 2, 2).data
-    return [colorData[0], colorData[1], colorData[2]]
-  }
+  // **************   Buffer creation  ********************
+  // Off bulb buffer
+  const offBuffer = createBuffer(size, size)
+  const offCtx = offBuffer.getContext('2d')
 
-  offBuffer.width = imageWidth
-  offBuffer.height = imageHeight
+  // On bulb buffer
+  const onBuffer = createBuffer(size, size)
+  const onCtx = onBuffer.getContext('2d')
 
-  onBuffer.width = imageWidth
-  onBuffer.height = imageHeight
+  // Lightbulb screw buffer
+  const screwBuffer = createBuffer(size, size)
+  const screwCtx = screwBuffer.getContext('2d')
 
-  bulbBuffer.width = imageWidth
-  bulbBuffer.height = imageHeight
-
-  const drawOff = function (ctx) {
-    ctx.save()
-
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-
-    ctx.save()
-    ctx.beginPath()
-    ctx.moveTo(0.289473 * imageWidth, 0.438596 * imageHeight)
-    ctx.bezierCurveTo(
-      0.289473 * imageWidth,
-      0.561403 * imageHeight,
-      0.385964 * imageWidth,
-      0.605263 * imageHeight,
-      0.385964 * imageWidth,
-      0.745614 * imageHeight
-    )
-    ctx.bezierCurveTo(
-      0.385964 * imageWidth,
-      0.745614 * imageHeight,
-      0.587719 * imageWidth,
-      0.745614 * imageHeight,
-      0.587719 * imageWidth,
-      0.745614 * imageHeight
-    )
-    ctx.bezierCurveTo(
-      0.587719 * imageWidth,
-      0.605263 * imageHeight,
-      0.692982 * imageWidth,
-      0.561403 * imageHeight,
-      0.692982 * imageWidth,
-      0.438596 * imageHeight
-    )
-    ctx.bezierCurveTo(
-      0.692982 * imageWidth,
-      0.324561 * imageHeight,
-      0.605263 * imageWidth,
-      0.22807 * imageHeight,
-      0.5 * imageWidth,
-      0.22807 * imageHeight
-    )
-    ctx.bezierCurveTo(
-      0.385964 * imageWidth,
-      0.22807 * imageHeight,
-      0.289473 * imageWidth,
-      0.324561 * imageHeight,
-      0.289473 * imageWidth,
-      0.438596 * imageHeight
-    )
-    ctx.closePath()
-    const glassOffFill = ctx.createLinearGradient(
-      0,
-      0.289473 * imageHeight,
-      0,
-      0.701754 * imageHeight
-    )
-    glassOffFill.addColorStop(0, '#eeeeee')
-    glassOffFill.addColorStop(0.99, '#999999')
-    glassOffFill.addColorStop(1, '#999999')
-    ctx.fillStyle = glassOffFill
-    ctx.fill()
-    ctx.lineCap = 'butt'
-    ctx.lineJoin = 'round'
-    ctx.lineWidth = 0.008771 * imageWidth
-    ctx.strokeStyle = '#cccccc'
-    ctx.stroke()
-    ctx.restore()
-    ctx.restore()
-  }
-
-  const drawOn = function (ctx) {
+  // **************   Image creation  ********************
+  const drawBulbOn = function (ctx) {
     const data = getColorValues(glowColor)
     const red = data[0]
     const green = data[1]
@@ -143,72 +58,27 @@ const Lightbulb = function (canvas, parameters) {
     const hsl = rgbToHsl(red, green, blue)
 
     ctx.save()
+
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-    ctx.save()
+
     ctx.beginPath()
-    ctx.moveTo(0.289473 * imageWidth, 0.438596 * imageHeight)
-    ctx.bezierCurveTo(
-      0.289473 * imageWidth,
-      0.561403 * imageHeight,
-      0.385964 * imageWidth,
-      0.605263 * imageHeight,
-      0.385964 * imageWidth,
-      0.745614 * imageHeight
-    )
-    ctx.bezierCurveTo(
-      0.385964 * imageWidth,
-      0.745614 * imageHeight,
-      0.587719 * imageWidth,
-      0.745614 * imageHeight,
-      0.587719 * imageWidth,
-      0.745614 * imageHeight
-    )
-    ctx.bezierCurveTo(
-      0.587719 * imageWidth,
-      0.605263 * imageHeight,
-      0.692982 * imageWidth,
-      0.561403 * imageHeight,
-      0.692982 * imageWidth,
-      0.438596 * imageHeight
-    )
-    ctx.bezierCurveTo(
-      0.692982 * imageWidth,
-      0.324561 * imageHeight,
-      0.605263 * imageWidth,
-      0.22807 * imageHeight,
-      0.5 * imageWidth,
-      0.22807 * imageHeight
-    )
-    ctx.bezierCurveTo(
-      0.385964 * imageWidth,
-      0.22807 * imageHeight,
-      0.289473 * imageWidth,
-      0.324561 * imageHeight,
-      0.289473 * imageWidth,
-      0.438596 * imageHeight
-    )
+    ctx.moveTo(0.289473 * size, 0.438596 * size)
+    ctx.bezierCurveTo(0.289473 * size, 0.561403 * size, 0.385964 * size, 0.605263 * size, 0.385964 * size, 0.745614 * size)
+    ctx.bezierCurveTo(0.385964 * size, 0.745614 * size, 0.587719 * size, 0.745614 * size, 0.587719 * size, 0.745614 * size)
+    ctx.bezierCurveTo(0.587719 * size, 0.605263 * size, 0.692982 * size, 0.561403 * size, 0.692982 * size, 0.438596 * size)
+    ctx.bezierCurveTo(0.692982 * size, 0.324561 * size, 0.605263 * size, 0.22807 * size, 0.5 * size, 0.22807 * size)
+    ctx.bezierCurveTo(0.385964 * size, 0.22807 * size, 0.289473 * size, 0.324561 * size, 0.289473 * size, 0.438596 * size)
     ctx.closePath()
 
-    const glassOnFill = ctx.createLinearGradient(
-      0,
-      0.289473 * imageHeight,
-      0,
-      0.701754 * imageHeight
-    )
-
+    const glassOnFill = ctx.createLinearGradient(0, 0.289473 * size, 0, 0.701754 * size)
     if (red === green && green === blue) {
       glassOnFill.addColorStop(0, 'hsl(0, 60%, 0%)')
       glassOnFill.addColorStop(1, 'hsl(0, 40%, 0%)')
     } else {
-      glassOnFill.addColorStop(
-        0,
-        'hsl(' + hsl[0] * 255 + ', ' + hsl[1] * 100 + '%, 70%)'
-      )
-      glassOnFill.addColorStop(
-        1,
-        'hsl(' + hsl[0] * 255 + ', ' + hsl[1] * 100 + '%, 80%)'
-      )
+      glassOnFill.addColorStop(0, `hsl(${hsl[0] * 255}, ${hsl[1] * 100}%, 70%)`)
+      glassOnFill.addColorStop(1, `hsl(${hsl[0] * 255}, ${hsl[1] * 100}%, 80%)`)
     }
+
     ctx.fillStyle = glassOnFill
 
     // sets shadow properties
@@ -221,62 +91,58 @@ const Lightbulb = function (canvas, parameters) {
 
     ctx.lineCap = 'butt'
     ctx.lineJoin = 'round'
-    ctx.lineWidth = 0.008771 * imageWidth
-    ctx.strokeStyle = 'rgba(' + red + ', ' + green + ', ' + blue + ', 0.4)'
+    ctx.lineWidth = 0.008771 * size
+    ctx.strokeStyle = `rgba(${red}, ${green}, ${blue}, 0.4)`
     ctx.stroke()
-
-    ctx.restore()
 
     ctx.restore()
   }
 
-  const drawBulb = function (ctx) {
+  const drawBulbOff = function (ctx) {
     ctx.save()
 
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
 
     ctx.save()
     ctx.beginPath()
-    ctx.moveTo(0.350877 * imageWidth, 0.333333 * imageHeight)
-    ctx.bezierCurveTo(
-      0.350877 * imageWidth,
-      0.280701 * imageHeight,
-      0.41228 * imageWidth,
-      0.236842 * imageHeight,
-      0.5 * imageWidth,
-      0.236842 * imageHeight
-    )
-    ctx.bezierCurveTo(
-      0.578947 * imageWidth,
-      0.236842 * imageHeight,
-      0.64035 * imageWidth,
-      0.280701 * imageHeight,
-      0.64035 * imageWidth,
-      0.333333 * imageHeight
-    )
-    ctx.bezierCurveTo(
-      0.64035 * imageWidth,
-      0.385964 * imageHeight,
-      0.578947 * imageWidth,
-      0.429824 * imageHeight,
-      0.5 * imageWidth,
-      0.429824 * imageHeight
-    )
-    ctx.bezierCurveTo(
-      0.41228 * imageWidth,
-      0.429824 * imageHeight,
-      0.350877 * imageWidth,
-      0.385964 * imageHeight,
-      0.350877 * imageWidth,
-      0.333333 * imageHeight
-    )
+    ctx.moveTo(0.289473 * size, 0.438596 * size)
+    ctx.bezierCurveTo(0.289473 * size, 0.561403 * size, 0.385964 * size, 0.605263 * size, 0.385964 * size, 0.745614 * size)
+    ctx.bezierCurveTo(0.385964 * size, 0.745614 * size, 0.587719 * size, 0.745614 * size, 0.587719 * size, 0.745614 * size)
+    ctx.bezierCurveTo(0.587719 * size, 0.605263 * size, 0.692982 * size, 0.561403 * size, 0.692982 * size, 0.438596 * size)
+    ctx.bezierCurveTo(0.692982 * size, 0.324561 * size, 0.605263 * size, 0.22807 * size, 0.5 * size, 0.22807 * size)
+    ctx.bezierCurveTo(0.385964 * size, 0.22807 * size, 0.289473 * size, 0.324561 * size, 0.289473 * size, 0.438596 * size)
     ctx.closePath()
-    const highlight = ctx.createLinearGradient(
-      0,
-      0.245614 * imageHeight,
-      0,
-      0.429824 * imageHeight
-    )
+
+    const glassOffFill = ctx.createLinearGradient(0, 0.289473 * size, 0, 0.701754 * size)
+    glassOffFill.addColorStop(0, '#eeeeee')
+    glassOffFill.addColorStop(0.99, '#999999')
+    glassOffFill.addColorStop(1, '#999999')
+
+    ctx.fillStyle = glassOffFill
+    ctx.fill()
+    ctx.lineCap = 'butt'
+    ctx.lineJoin = 'round'
+    ctx.lineWidth = 0.008771 * size
+    ctx.strokeStyle = '#cccccc'
+    ctx.stroke()
+    ctx.restore()
+    ctx.restore()
+  }
+
+  const drawScrew = function (ctx) {
+    ctx.save()
+
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+
+    ctx.beginPath()
+    ctx.moveTo(0.350877 * size, 0.333333 * size)
+    ctx.bezierCurveTo(0.350877 * size, 0.280701 * size, 0.41228 * size, 0.236842 * size, 0.5 * size, 0.236842 * size)
+    ctx.bezierCurveTo(0.578947 * size, 0.236842 * size, 0.64035 * size, 0.280701 * size, 0.64035 * size, 0.333333 * size)
+    ctx.bezierCurveTo(0.64035 * size, 0.385964 * size, 0.578947 * size, 0.429824 * size, 0.5 * size, 0.429824 * size)
+    ctx.bezierCurveTo(0.41228 * size, 0.429824 * size, 0.350877 * size, 0.385964 * size, 0.350877 * size, 0.333333 * size)
+    ctx.closePath()
+
+    const highlight = ctx.createLinearGradient(0, 0.245614 * size, 0, 0.429824 * size)
     highlight.addColorStop(0, '#ffffff')
     highlight.addColorStop(0.99, 'rgba(255, 255, 255, 0)')
     highlight.addColorStop(1, 'rgba(255, 255, 255, 0)')
@@ -287,82 +153,36 @@ const Lightbulb = function (canvas, parameters) {
     // winding
     ctx.save()
     ctx.beginPath()
-    ctx.moveTo(0.377192 * imageWidth, 0.745614 * imageHeight)
-    ctx.bezierCurveTo(
-      0.377192 * imageWidth,
-      0.745614 * imageHeight,
-      0.429824 * imageWidth,
-      0.72807 * imageHeight,
-      0.491228 * imageWidth,
-      0.72807 * imageHeight
-    )
-    ctx.bezierCurveTo(
-      0.561403 * imageWidth,
-      0.72807 * imageHeight,
-      0.605263 * imageWidth,
-      0.736842 * imageHeight,
-      0.605263 * imageWidth,
-      0.736842 * imageHeight
-    )
-    ctx.lineTo(0.605263 * imageWidth, 0.763157 * imageHeight)
-    ctx.lineTo(0.596491 * imageWidth, 0.780701 * imageHeight)
-    ctx.lineTo(0.605263 * imageWidth, 0.798245 * imageHeight)
-    ctx.lineTo(0.596491 * imageWidth, 0.815789 * imageHeight)
-    ctx.lineTo(0.605263 * imageWidth, 0.833333 * imageHeight)
-    ctx.lineTo(0.596491 * imageWidth, 0.850877 * imageHeight)
-    ctx.lineTo(0.605263 * imageWidth, 0.868421 * imageHeight)
-    ctx.lineTo(0.596491 * imageWidth, 0.885964 * imageHeight)
-    ctx.lineTo(0.605263 * imageWidth, 0.894736 * imageHeight)
-    ctx.bezierCurveTo(
-      0.605263 * imageWidth,
-      0.894736 * imageHeight,
-      0.570175 * imageWidth,
-      0.95614 * imageHeight,
-      0.535087 * imageWidth,
-      0.991228 * imageHeight
-    )
-    ctx.bezierCurveTo(
-      0.526315 * imageWidth,
-      0.991228 * imageHeight,
-      0.517543 * imageWidth,
-      imageHeight,
-      0.5 * imageWidth,
-      imageHeight
-    )
-    ctx.bezierCurveTo(
-      0.482456 * imageWidth,
-      imageHeight,
-      0.473684 * imageWidth,
-      imageHeight,
-      0.464912 * imageWidth,
-      0.991228 * imageHeight
-    )
-    ctx.bezierCurveTo(
-      0.421052 * imageWidth,
-      0.947368 * imageHeight,
-      0.394736 * imageWidth,
-      0.903508 * imageHeight,
-      0.394736 * imageWidth,
-      0.903508 * imageHeight
-    )
-    ctx.lineTo(0.394736 * imageWidth, 0.894736 * imageHeight)
-    ctx.lineTo(0.385964 * imageWidth, 0.885964 * imageHeight)
-    ctx.lineTo(0.394736 * imageWidth, 0.868421 * imageHeight)
-    ctx.lineTo(0.385964 * imageWidth, 0.850877 * imageHeight)
-    ctx.lineTo(0.394736 * imageWidth, 0.833333 * imageHeight)
-    ctx.lineTo(0.385964 * imageWidth, 0.815789 * imageHeight)
-    ctx.lineTo(0.394736 * imageWidth, 0.798245 * imageHeight)
-    ctx.lineTo(0.377192 * imageWidth, 0.789473 * imageHeight)
-    ctx.lineTo(0.394736 * imageWidth, 0.771929 * imageHeight)
-    ctx.lineTo(0.377192 * imageWidth, 0.763157 * imageHeight)
-    ctx.lineTo(0.377192 * imageWidth, 0.745614 * imageHeight)
+    ctx.moveTo(0.377192 * size, 0.745614 * size)
+    ctx.bezierCurveTo(0.377192 * size, 0.745614 * size, 0.429824 * size, 0.72807 * size, 0.491228 * size, 0.72807 * size)
+    ctx.bezierCurveTo(0.561403 * size, 0.72807 * size, 0.605263 * size, 0.736842 * size, 0.605263 * size, 0.736842 * size)
+    ctx.lineTo(0.605263 * size, 0.763157 * size)
+    ctx.lineTo(0.596491 * size, 0.780701 * size)
+    ctx.lineTo(0.605263 * size, 0.798245 * size)
+    ctx.lineTo(0.596491 * size, 0.815789 * size)
+    ctx.lineTo(0.605263 * size, 0.833333 * size)
+    ctx.lineTo(0.596491 * size, 0.850877 * size)
+    ctx.lineTo(0.605263 * size, 0.868421 * size)
+    ctx.lineTo(0.596491 * size, 0.885964 * size)
+    ctx.lineTo(0.605263 * size, 0.894736 * size)
+    ctx.bezierCurveTo(0.605263 * size, 0.894736 * size, 0.570175 * size, 0.95614 * size, 0.535087 * size, 0.991228 * size)
+    ctx.bezierCurveTo(0.526315 * size, 0.991228 * size, 0.517543 * size, size, 0.5 * size, size)
+    ctx.bezierCurveTo(0.482456 * size, size, 0.473684 * size, size, 0.464912 * size, 0.991228 * size)
+    ctx.bezierCurveTo(0.421052 * size, 0.947368 * size, 0.394736 * size, 0.903508 * size, 0.394736 * size, 0.903508 * size)
+    ctx.lineTo(0.394736 * size, 0.894736 * size)
+    ctx.lineTo(0.385964 * size, 0.885964 * size)
+    ctx.lineTo(0.394736 * size, 0.868421 * size)
+    ctx.lineTo(0.385964 * size, 0.850877 * size)
+    ctx.lineTo(0.394736 * size, 0.833333 * size)
+    ctx.lineTo(0.385964 * size, 0.815789 * size)
+    ctx.lineTo(0.394736 * size, 0.798245 * size)
+    ctx.lineTo(0.377192 * size, 0.789473 * size)
+    ctx.lineTo(0.394736 * size, 0.771929 * size)
+    ctx.lineTo(0.377192 * size, 0.763157 * size)
+    ctx.lineTo(0.377192 * size, 0.745614 * size)
     ctx.closePath()
-    const winding = ctx.createLinearGradient(
-      0.473684 * imageWidth,
-      0.72807 * imageHeight,
-      0.484702 * imageWidth,
-      0.938307 * imageHeight
-    )
+
+    const winding = ctx.createLinearGradient(0.473684 * size, 0.72807 * size, 0.484702 * size, 0.938307 * size)
     winding.addColorStop(0, '#333333')
     winding.addColorStop(0.04, '#d9dad6')
     winding.addColorStop(0.19, '#e4e5e0')
@@ -382,82 +202,36 @@ const Lightbulb = function (canvas, parameters) {
     // winding
     ctx.save()
     ctx.beginPath()
-    ctx.moveTo(0.377192 * imageWidth, 0.745614 * imageHeight)
-    ctx.bezierCurveTo(
-      0.377192 * imageWidth,
-      0.745614 * imageHeight,
-      0.429824 * imageWidth,
-      0.72807 * imageHeight,
-      0.491228 * imageWidth,
-      0.72807 * imageHeight
-    )
-    ctx.bezierCurveTo(
-      0.561403 * imageWidth,
-      0.72807 * imageHeight,
-      0.605263 * imageWidth,
-      0.736842 * imageHeight,
-      0.605263 * imageWidth,
-      0.736842 * imageHeight
-    )
-    ctx.lineTo(0.605263 * imageWidth, 0.763157 * imageHeight)
-    ctx.lineTo(0.596491 * imageWidth, 0.780701 * imageHeight)
-    ctx.lineTo(0.605263 * imageWidth, 0.798245 * imageHeight)
-    ctx.lineTo(0.596491 * imageWidth, 0.815789 * imageHeight)
-    ctx.lineTo(0.605263 * imageWidth, 0.833333 * imageHeight)
-    ctx.lineTo(0.596491 * imageWidth, 0.850877 * imageHeight)
-    ctx.lineTo(0.605263 * imageWidth, 0.868421 * imageHeight)
-    ctx.lineTo(0.596491 * imageWidth, 0.885964 * imageHeight)
-    ctx.lineTo(0.605263 * imageWidth, 0.894736 * imageHeight)
-    ctx.bezierCurveTo(
-      0.605263 * imageWidth,
-      0.894736 * imageHeight,
-      0.570175 * imageWidth,
-      0.95614 * imageHeight,
-      0.535087 * imageWidth,
-      0.991228 * imageHeight
-    )
-    ctx.bezierCurveTo(
-      0.526315 * imageWidth,
-      0.991228 * imageHeight,
-      0.517543 * imageWidth,
-      imageHeight,
-      0.5 * imageWidth,
-      imageHeight
-    )
-    ctx.bezierCurveTo(
-      0.482456 * imageWidth,
-      imageHeight,
-      0.473684 * imageWidth,
-      imageHeight,
-      0.464912 * imageWidth,
-      0.991228 * imageHeight
-    )
-    ctx.bezierCurveTo(
-      0.421052 * imageWidth,
-      0.947368 * imageHeight,
-      0.394736 * imageWidth,
-      0.903508 * imageHeight,
-      0.394736 * imageWidth,
-      0.903508 * imageHeight
-    )
-    ctx.lineTo(0.394736 * imageWidth, 0.894736 * imageHeight)
-    ctx.lineTo(0.385964 * imageWidth, 0.885964 * imageHeight)
-    ctx.lineTo(0.394736 * imageWidth, 0.868421 * imageHeight)
-    ctx.lineTo(0.385964 * imageWidth, 0.850877 * imageHeight)
-    ctx.lineTo(0.394736 * imageWidth, 0.833333 * imageHeight)
-    ctx.lineTo(0.385964 * imageWidth, 0.815789 * imageHeight)
-    ctx.lineTo(0.394736 * imageWidth, 0.798245 * imageHeight)
-    ctx.lineTo(0.377192 * imageWidth, 0.789473 * imageHeight)
-    ctx.lineTo(0.394736 * imageWidth, 0.771929 * imageHeight)
-    ctx.lineTo(0.377192 * imageWidth, 0.763157 * imageHeight)
-    ctx.lineTo(0.377192 * imageWidth, 0.745614 * imageHeight)
+    ctx.moveTo(0.377192 * size, 0.745614 * size)
+    ctx.bezierCurveTo(0.377192 * size, 0.745614 * size, 0.429824 * size, 0.72807 * size, 0.491228 * size, 0.72807 * size)
+    ctx.bezierCurveTo(0.561403 * size, 0.72807 * size, 0.605263 * size, 0.736842 * size, 0.605263 * size, 0.736842 * size)
+    ctx.lineTo(0.605263 * size, 0.763157 * size)
+    ctx.lineTo(0.596491 * size, 0.780701 * size)
+    ctx.lineTo(0.605263 * size, 0.798245 * size)
+    ctx.lineTo(0.596491 * size, 0.815789 * size)
+    ctx.lineTo(0.605263 * size, 0.833333 * size)
+    ctx.lineTo(0.596491 * size, 0.850877 * size)
+    ctx.lineTo(0.605263 * size, 0.868421 * size)
+    ctx.lineTo(0.596491 * size, 0.885964 * size)
+    ctx.lineTo(0.605263 * size, 0.894736 * size)
+    ctx.bezierCurveTo(0.605263 * size, 0.894736 * size, 0.570175 * size, 0.95614 * size, 0.535087 * size, 0.991228 * size)
+    ctx.bezierCurveTo(0.526315 * size, 0.991228 * size, 0.517543 * size, size, 0.5 * size, size)
+    ctx.bezierCurveTo(0.482456 * size, size, 0.473684 * size, size, 0.464912 * size, 0.991228 * size)
+    ctx.bezierCurveTo(0.421052 * size, 0.947368 * size, 0.394736 * size, 0.903508 * size, 0.394736 * size, 0.903508 * size)
+    ctx.lineTo(0.394736 * size, 0.894736 * size)
+    ctx.lineTo(0.385964 * size, 0.885964 * size)
+    ctx.lineTo(0.394736 * size, 0.868421 * size)
+    ctx.lineTo(0.385964 * size, 0.850877 * size)
+    ctx.lineTo(0.394736 * size, 0.833333 * size)
+    ctx.lineTo(0.385964 * size, 0.815789 * size)
+    ctx.lineTo(0.394736 * size, 0.798245 * size)
+    ctx.lineTo(0.377192 * size, 0.789473 * size)
+    ctx.lineTo(0.394736 * size, 0.771929 * size)
+    ctx.lineTo(0.377192 * size, 0.763157 * size)
+    ctx.lineTo(0.377192 * size, 0.745614 * size)
     ctx.closePath()
-    const winding1 = ctx.createLinearGradient(
-      0.377192 * imageWidth,
-      0.789473 * imageHeight,
-      0.605263 * imageWidth,
-      0.789473 * imageHeight
-    )
+
+    const winding1 = ctx.createLinearGradient(0.377192 * size, 0.789473 * size, 0.605263 * size, 0.789473 * size)
     winding1.addColorStop(0, 'rgba(0, 0, 0, 0.4)')
     winding1.addColorStop(0.15, 'rgba(0, 0, 0, 0.32)')
     winding1.addColorStop(0.85, 'rgba(0, 0, 0, 0.33)')
@@ -469,62 +243,16 @@ const Lightbulb = function (canvas, parameters) {
     // contact plate
     ctx.save()
     ctx.beginPath()
-    ctx.moveTo(0.421052 * imageWidth, 0.947368 * imageHeight)
-    ctx.bezierCurveTo(
-      0.438596 * imageWidth,
-      0.95614 * imageHeight,
-      0.447368 * imageWidth,
-      0.973684 * imageHeight,
-      0.464912 * imageWidth,
-      0.991228 * imageHeight
-    )
-    ctx.bezierCurveTo(
-      0.473684 * imageWidth,
-      imageHeight,
-      0.482456 * imageWidth,
-      imageHeight,
-      0.5 * imageWidth,
-      imageHeight
-    )
-    ctx.bezierCurveTo(
-      0.517543 * imageWidth,
-      imageHeight,
-      0.526315 * imageWidth,
-      0.991228 * imageHeight,
-      0.535087 * imageWidth,
-      0.991228 * imageHeight
-    )
-    ctx.bezierCurveTo(
-      0.543859 * imageWidth,
-      0.982456 * imageHeight,
-      0.561403 * imageWidth,
-      0.95614 * imageHeight,
-      0.578947 * imageWidth,
-      0.947368 * imageHeight
-    )
-    ctx.bezierCurveTo(
-      0.552631 * imageWidth,
-      0.938596 * imageHeight,
-      0.526315 * imageWidth,
-      0.938596 * imageHeight,
-      0.5 * imageWidth,
-      0.938596 * imageHeight
-    )
-    ctx.bezierCurveTo(
-      0.473684 * imageWidth,
-      0.938596 * imageHeight,
-      0.447368 * imageWidth,
-      0.938596 * imageHeight,
-      0.421052 * imageWidth,
-      0.947368 * imageHeight
-    )
+    ctx.moveTo(0.429052 * size, 0.947368 * size)
+    ctx.bezierCurveTo(0.438596 * size, 0.95614 * size, 0.447368 * size, 0.973684 * size, 0.464912 * size, 0.991228 * size)
+    ctx.bezierCurveTo(0.473684 * size, size, 0.482456 * size, size, 0.5 * size, size)
+    ctx.bezierCurveTo(0.517543 * size, size, 0.526315 * size, 0.991228 * size, 0.535087 * size, 0.991228 * size)
+    ctx.bezierCurveTo(0.543859 * size, 0.982456 * size, 0.561403 * size, 0.95614 * size, 0.572147 * size, 0.947368 * size)
+    ctx.bezierCurveTo(0.552631 * size, 0.938596 * size, 0.526315 * size, 0.938596 * size, 0.5 * size, 0.938596 * size)
+    ctx.bezierCurveTo(0.473684 * size, 0.938596 * size, 0.447368 * size, 0.938596 * size, 0.421052 * size, 0.947368 * size)
     ctx.closePath()
-    const contactPlate = ctx.createLinearGradient(
-      0,
-      0.938596 * imageHeight,
-      0,
-      imageHeight
-    )
+
+    const contactPlate = ctx.createLinearGradient(0, 0.938596 * size, 0, size)
     contactPlate.addColorStop(0, '#050a06')
     contactPlate.addColorStop(0.61, '#070602')
     contactPlate.addColorStop(0.71, '#999288')
@@ -532,10 +260,11 @@ const Lightbulb = function (canvas, parameters) {
     contactPlate.addColorStop(1, '#000000')
     ctx.fillStyle = contactPlate
     ctx.fill()
-    ctx.restore()
+
     ctx.restore()
   }
 
+  // *****************************  Initialization  ****************************
   const clearCanvas = function (ctx) {
     // Store the current transformation matrix
     ctx.save()
@@ -549,25 +278,23 @@ const Lightbulb = function (canvas, parameters) {
   }
 
   const init = function () {
+    if (!initialized) {
+      drawBulbOff(offCtx)
+      drawScrew(screwCtx)
+    }
+
+    drawBulbOn(onCtx)
+
     initialized = true
-    drawOff(offCtx)
-    drawOn(onCtx)
-    drawBulb(bulbCtx)
   }
 
-  // **************   P U B L I C   M E T H O D S   ********************************
-  this.setOn = function (on) {
-    lightOn = !!on
-    this.repaint()
-    return this
-  }
-
+  // ***************************   Public Methods   ****************************
   this.isOn = function () {
     return lightOn
   }
 
-  this.setAlpha = function (a) {
-    alpha = a
+  this.setOn = function (on) {
+    lightOn = !!on
     this.repaint()
     return this
   }
@@ -576,15 +303,29 @@ const Lightbulb = function (canvas, parameters) {
     return alpha
   }
 
-  this.setGlowColor = function (color) {
-    glowColor = color
-    init()
-    this.repaint()
+  this.setAlpha = function (newAlpha) {
+    if (!isNaN(newAlpha)) {
+      alpha = newAlpha
+      this.repaint()
+    }
+
     return this
   }
 
   this.getGlowColor = function () {
     return glowColor
+  }
+
+  this.setGlowColor = function (color) {
+    if (isHexColor(color)) {
+      glowColor = color
+      init()
+      this.repaint()
+    } else {
+      console.log('[Lightbulb] Err: Invalid color!')
+    }
+
+    return this
   }
 
   // Component visualization
@@ -593,18 +334,24 @@ const Lightbulb = function (canvas, parameters) {
       init()
     }
 
-    clearCanvas(mainCtx)
-
     mainCtx.save()
 
+    // Clear the canvas
+    clearCanvas(mainCtx)
+
+    // Draw base bulb image
     mainCtx.drawImage(offBuffer, 0, 0)
 
-    mainCtx.globalAlpha = alpha
+    // Draw on bulb image
     if (lightOn) {
+      mainCtx.globalAlpha = alpha
       mainCtx.drawImage(onBuffer, 0, 0)
+      mainCtx.globalAlpha = 1
     }
-    mainCtx.globalAlpha = 1
-    mainCtx.drawImage(bulbBuffer, 0, 0)
+
+    // Draw bulb screw image
+    mainCtx.drawImage(screwBuffer, 0, 0)
+
     mainCtx.restore()
   }
 
@@ -612,5 +359,3 @@ const Lightbulb = function (canvas, parameters) {
 
   return this
 }
-
-export default Lightbulb
