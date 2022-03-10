@@ -12,9 +12,16 @@ import {
   ForegroundType
 } from './tools/definitions'
 
-const Clock = function (canvas, parameters) {
+export const Clock = function (canvas, parameters) {
+  // Get the canvas context and clear it
+  const mainCtx = getCanvasContext(canvas)
+
+  // Parameters
   parameters = parameters || {}
-  let size = undefined === parameters.size ? 0 : parameters.size
+  const size =
+    undefined === parameters.size
+      ? Math.min(mainCtx.canvas.width, mainCtx.canvas.height)
+      : parameters.size
   let frameDesign =
     undefined === parameters.frameDesign
       ? FrameDesign.METAL
@@ -73,151 +80,125 @@ const Clock = function (canvas, parameters) {
       ? true
       : parameters.secondPointerVisible
 
-  // GaugeType specific private variables
-  let objDate = new Date()
-  let minutePointerAngle
-  let hourPointerAngle
-  let secondPointerAngle
-  let tickTimer
-  let tickInterval = secondMovesContinuous ? 100 : 1000
-  tickInterval = secondPointerVisible ? tickInterval : 100
-
-  const self = this
-
-  // Constants
-  const ANGLE_STEP = 6
-
-  // Get the canvas context and clear it
-  const mainCtx = getCanvasContext(canvas)
-  // Has a size been specified?
-  if (size === 0) {
-    size = Math.min(mainCtx.canvas.width, mainCtx.canvas.height)
-  }
-
-  // Set the size - also clears the canvas
+  // Set the size
   mainCtx.canvas.width = size
   mainCtx.canvas.height = size
 
-  const imageWidth = size
-  const imageHeight = size
+  // Constants
+  const center = size / 2
 
-  const centerX = imageWidth / 2
-  const centerY = imageHeight / 2
+  const ANGLE_STEP = 6
+  const FLUID_INTERVAL = 100
+  const TICK_INTERVAL = 1000
+
+  const self = this
+
+  // Internal variables
+  let objDate = new Date()
+  let tickTimer
 
   let initialized = false
 
+  // **************   Buffer creation  ********************
   // Buffer for the frame
   const frameBuffer = createBuffer(size, size)
-  let frameContext = frameBuffer.getContext('2d')
+  let frameCtx = frameBuffer.getContext('2d')
 
   // Buffer for static background painting code
   const backgroundBuffer = createBuffer(size, size)
-  let backgroundContext = backgroundBuffer.getContext('2d')
+  let backgroundCtx = backgroundBuffer.getContext('2d')
 
   // Buffer for hour pointer image painting code
   const hourBuffer = createBuffer(size, size)
-  let hourContext = hourBuffer.getContext('2d')
+  let hourPtrCtx = hourBuffer.getContext('2d')
 
   // Buffer for minute pointer image painting code
   const minuteBuffer = createBuffer(size, size)
-  let minuteContext = minuteBuffer.getContext('2d')
+  let minutePtrCtx = minuteBuffer.getContext('2d')
 
   // Buffer for second pointer image painting code
   const secondBuffer = createBuffer(size, size)
-  let secondContext = secondBuffer.getContext('2d')
+  let secondPtrCtx = secondBuffer.getContext('2d')
 
   // Buffer for static foreground painting code
   const foregroundBuffer = createBuffer(size, size)
-  let foregroundContext = foregroundBuffer.getContext('2d')
+  let foregroundCtx = foregroundBuffer.getContext('2d')
 
-  const drawTickmarksImage = function (ctx, ptrType) {
-    let tickAngle
+  // **************   Image creation  ********************
+  const drawTickmarksImage = function (ctx) {
+    const OUTER_POINT = size * 0.405
     let SMALL_TICK_HEIGHT
     let BIG_TICK_HEIGHT
-    let INNER_POINT
-    const OUTER_POINT = imageWidth * 0.405
+    let SMALL_TICK_WIDTH
+    let BIG_TICK_WIDTH
+    let SMALL_TICK_STEP
+    let BIG_TICK_STEP
+    let tickAngle
     ctx.save()
-    ctx.translate(centerX, centerY)
+    ctx.translate(center, center)
 
-    switch (ptrType.type) {
+    switch (pointerType.type) {
       case 'type1':
-        // Draw minutes tickmarks
-        SMALL_TICK_HEIGHT = imageWidth * 0.074766
-        INNER_POINT = OUTER_POINT - SMALL_TICK_HEIGHT
-        ctx.strokeStyle = backgroundColor.labelColor.getRgbaColor()
-        ctx.lineWidth = imageWidth * 0.014018
+        SMALL_TICK_HEIGHT = size * 0.074766
+        SMALL_TICK_WIDTH = size * 0.014018
+        SMALL_TICK_STEP = 30
 
-        for (tickAngle = 0; tickAngle < 360; tickAngle += 30) {
-          ctx.beginPath()
-          ctx.moveTo(OUTER_POINT, 0)
-          ctx.lineTo(INNER_POINT, 0)
-          ctx.closePath()
-          ctx.stroke()
-          ctx.rotate(30 * RAD_FACTOR)
-        }
-
-        // Draw hours tickmarks
-        BIG_TICK_HEIGHT = imageWidth * 0.126168
-        INNER_POINT = OUTER_POINT - BIG_TICK_HEIGHT
-        ctx.lineWidth = imageWidth * 0.03271
-
-        for (tickAngle = 0; tickAngle < 360; tickAngle += 90) {
-          ctx.beginPath()
-          ctx.moveTo(OUTER_POINT, 0)
-          ctx.lineTo(INNER_POINT, 0)
-          ctx.closePath()
-          ctx.stroke()
-          ctx.rotate(90 * RAD_FACTOR)
-        }
+        BIG_TICK_HEIGHT = size * 0.126168
+        BIG_TICK_WIDTH = size * 0.03271
+        BIG_TICK_STEP = 90
         break
 
       case 'type2':
-      /* falls through */
       default:
-        // Draw minutes tickmarks
-        SMALL_TICK_HEIGHT = imageWidth * 0.037383
-        INNER_POINT = OUTER_POINT - SMALL_TICK_HEIGHT
-        ctx.strokeStyle = backgroundColor.labelColor.getRgbaColor()
-        ctx.lineWidth = imageWidth * 0.009345
+        // Minutes
+        SMALL_TICK_HEIGHT = size * 0.037383
+        BIG_TICK_WIDTH = size * 0.009345
+        SMALL_TICK_STEP = 6
 
-        for (tickAngle = 0; tickAngle < 360; tickAngle += 6) {
-          ctx.beginPath()
-          ctx.moveTo(OUTER_POINT, 0)
-          ctx.lineTo(INNER_POINT, 0)
-          ctx.closePath()
-          ctx.stroke()
-          ctx.rotate(6 * RAD_FACTOR)
-        }
-
-        // Draw hours tickmarks
-        BIG_TICK_HEIGHT = imageWidth * 0.084112
-        INNER_POINT = OUTER_POINT - BIG_TICK_HEIGHT
-        ctx.lineWidth = imageWidth * 0.028037
-
-        for (tickAngle = 0; tickAngle < 360; tickAngle += 30) {
-          ctx.beginPath()
-          ctx.moveTo(OUTER_POINT, 0)
-          ctx.lineTo(INNER_POINT, 0)
-          ctx.closePath()
-          ctx.stroke()
-          ctx.rotate(30 * RAD_FACTOR)
-        }
+        // Hours
+        BIG_TICK_HEIGHT = size * 0.084112
+        BIG_TICK_WIDTH = size * 0.028037
+        BIG_TICK_STEP = 30
         break
     }
-    ctx.translate(-centerX, -centerY)
+
+    // Draw minutes tickmarks
+    ctx.strokeStyle = backgroundColor.labelColor.getRgbaColor()
+    ctx.lineWidth = SMALL_TICK_WIDTH
+    for (tickAngle = 0; tickAngle < 360; tickAngle += SMALL_TICK_STEP) {
+      ctx.beginPath()
+      ctx.moveTo(OUTER_POINT, 0)
+      ctx.lineTo(OUTER_POINT - SMALL_TICK_HEIGHT, 0)
+      ctx.closePath()
+      ctx.stroke()
+      ctx.rotate(SMALL_TICK_STEP * RAD_FACTOR)
+    }
+
+    // Draw hours tickmarks
+    ctx.lineWidth = BIG_TICK_WIDTH
+    for (tickAngle = 0; tickAngle < 360; tickAngle += BIG_TICK_STEP) {
+      ctx.beginPath()
+      ctx.moveTo(OUTER_POINT, 0)
+      ctx.lineTo(OUTER_POINT - BIG_TICK_HEIGHT, 0)
+      ctx.closePath()
+      ctx.stroke()
+      ctx.rotate(BIG_TICK_STEP * RAD_FACTOR)
+    }
+
+    // ctx.translate(-centerX, -centerY)
     ctx.restore()
   }
 
-  const drawHourPointer = function (ctx, ptrType) {
+  const drawHourPointer = function (ctx) {
     ctx.save()
     let grad
 
-    switch (ptrType.type) {
+    switch (pointerType.type) {
       case 'type2':
         ctx.beginPath()
-        ctx.lineWidth = imageWidth * 0.046728
-        ctx.moveTo(centerX, imageWidth * 0.289719)
-        ctx.lineTo(centerX, imageWidth * 0.289719 + imageWidth * 0.224299)
+        ctx.lineWidth = size * 0.046728
+        ctx.moveTo(center, size * 0.289719)
+        ctx.lineTo(center, size * 0.289719 + size * 0.224299)
         ctx.strokeStyle = pointerColor.medium.getRgbaColor()
         ctx.closePath()
         ctx.stroke()
@@ -227,18 +208,18 @@ const Clock = function (canvas, parameters) {
       /* falls through */
       default:
         ctx.beginPath()
-        ctx.moveTo(imageWidth * 0.471962, imageHeight * 0.560747)
-        ctx.lineTo(imageWidth * 0.471962, imageHeight * 0.214953)
-        ctx.lineTo(imageWidth * 0.5, imageHeight * 0.182242)
-        ctx.lineTo(imageWidth * 0.528037, imageHeight * 0.214953)
-        ctx.lineTo(imageWidth * 0.528037, imageHeight * 0.560747)
-        ctx.lineTo(imageWidth * 0.471962, imageHeight * 0.560747)
+        ctx.moveTo(size * 0.471962, size * 0.560747)
+        ctx.lineTo(size * 0.471962, size * 0.214953)
+        ctx.lineTo(size * 0.5, size * 0.182242)
+        ctx.lineTo(size * 0.528037, size * 0.214953)
+        ctx.lineTo(size * 0.528037, size * 0.560747)
+        ctx.lineTo(size * 0.471962, size * 0.560747)
         ctx.closePath()
         grad = ctx.createLinearGradient(
-          imageWidth * 0.471962,
-          imageHeight * 0.560747,
-          imageWidth * 0.528037,
-          imageHeight * 0.214953
+          size * 0.471962,
+          size * 0.560747,
+          size * 0.528037,
+          size * 0.214953
         )
         grad.addColorStop(1, pointerColor.veryLight.getRgbaColor())
         grad.addColorStop(0, pointerColor.light.getRgbaColor())
@@ -251,16 +232,16 @@ const Clock = function (canvas, parameters) {
     ctx.restore()
   }
 
-  const drawMinutePointer = function (ctx, ptrType) {
+  const drawMinutePointer = function (ctx) {
     ctx.save()
     let grad
 
-    switch (ptrType.type) {
+    switch (pointerType.type) {
       case 'type2':
         ctx.beginPath()
-        ctx.lineWidth = imageWidth * 0.03271
-        ctx.moveTo(centerX, imageWidth * 0.116822)
-        ctx.lineTo(centerX, imageWidth * 0.116822 + imageWidth * 0.38785)
+        ctx.lineWidth = size * 0.03271
+        ctx.moveTo(center, size * 0.116822)
+        ctx.lineTo(center, size * 0.116822 + size * 0.38785)
         ctx.strokeStyle = pointerColor.medium.getRgbaColor()
         ctx.closePath()
         ctx.stroke()
@@ -270,18 +251,18 @@ const Clock = function (canvas, parameters) {
       /* falls through */
       default:
         ctx.beginPath()
-        ctx.moveTo(imageWidth * 0.518691, imageHeight * 0.574766)
-        ctx.lineTo(imageWidth * 0.523364, imageHeight * 0.135514)
-        ctx.lineTo(imageWidth * 0.5, imageHeight * 0.107476)
-        ctx.lineTo(imageWidth * 0.476635, imageHeight * 0.140186)
-        ctx.lineTo(imageWidth * 0.476635, imageHeight * 0.574766)
-        ctx.lineTo(imageWidth * 0.518691, imageHeight * 0.574766)
+        ctx.moveTo(size * 0.518691, size * 0.574766)
+        ctx.lineTo(size * 0.523364, size * 0.135514)
+        ctx.lineTo(size * 0.5, size * 0.107476)
+        ctx.lineTo(size * 0.476635, size * 0.140186)
+        ctx.lineTo(size * 0.476635, size * 0.574766)
+        ctx.lineTo(size * 0.518691, size * 0.574766)
         ctx.closePath()
         grad = ctx.createLinearGradient(
-          imageWidth * 0.518691,
-          imageHeight * 0.574766,
-          imageWidth * 0.476635,
-          imageHeight * 0.140186
+          size * 0.518691,
+          size * 0.574766,
+          size * 0.476635,
+          size * 0.140186
         )
         grad.addColorStop(1, pointerColor.veryLight.getRgbaColor())
         grad.addColorStop(0, pointerColor.light.getRgbaColor())
@@ -294,33 +275,33 @@ const Clock = function (canvas, parameters) {
     ctx.restore()
   }
 
-  const drawSecondPointer = function (ctx, ptrType) {
+  const drawSecondPointer = function (ctx) {
     ctx.save()
     let grad
 
-    switch (ptrType.type) {
+    switch (pointerType.type) {
       case 'type2':
         // top rectangle
-        ctx.lineWidth = imageWidth * 0.009345
+        ctx.lineWidth = size * 0.009345
         ctx.beginPath()
-        ctx.moveTo(centerX, imageWidth * 0.09813)
-        ctx.lineTo(centerX, imageWidth * 0.09813 + imageWidth * 0.126168)
+        ctx.moveTo(center, size * 0.09813)
+        ctx.lineTo(center, size * 0.09813 + size * 0.126168)
         ctx.closePath()
         ctx.stroke()
         // bottom rectangle
-        ctx.lineWidth = imageWidth * 0.018691
+        ctx.lineWidth = size * 0.018691
         ctx.beginPath()
-        ctx.moveTo(centerX, imageWidth * 0.308411)
-        ctx.lineTo(centerX, imageWidth * 0.308411 + imageWidth * 0.191588)
+        ctx.moveTo(center, size * 0.308411)
+        ctx.lineTo(center, size * 0.308411 + size * 0.191588)
         ctx.closePath()
         ctx.stroke()
         // circle
-        ctx.lineWidth = imageWidth * 0.016
+        ctx.lineWidth = size * 0.016
         ctx.beginPath()
         ctx.arc(
-          centerX,
-          imageWidth * 0.26,
-          (imageWidth * 0.085) / 2,
+          center,
+          size * 0.26,
+          (size * 0.085) / 2,
           0,
           TWO_PI
         )
@@ -332,17 +313,17 @@ const Clock = function (canvas, parameters) {
       /* falls through */
       default:
         ctx.beginPath()
-        ctx.moveTo(imageWidth * 0.509345, imageHeight * 0.116822)
-        ctx.lineTo(imageWidth * 0.509345, imageHeight * 0.574766)
-        ctx.lineTo(imageWidth * 0.490654, imageHeight * 0.574766)
-        ctx.lineTo(imageWidth * 0.490654, imageHeight * 0.116822)
-        ctx.lineTo(imageWidth * 0.509345, imageHeight * 0.116822)
+        ctx.moveTo(size * 0.509345, size * 0.116822)
+        ctx.lineTo(size * 0.509345, size * 0.574766)
+        ctx.lineTo(size * 0.490654, size * 0.574766)
+        ctx.lineTo(size * 0.490654, size * 0.116822)
+        ctx.lineTo(size * 0.509345, size * 0.116822)
         ctx.closePath()
         grad = ctx.createLinearGradient(
-          imageWidth * 0.509345,
-          imageHeight * 0.116822,
-          imageWidth * 0.490654,
-          imageHeight * 0.574766
+          size * 0.509345,
+          size * 0.116822,
+          size * 0.490654,
+          size * 0.574766
         )
         grad.addColorStop(0, ColorDef.RED.light.getRgbaColor())
         grad.addColorStop(0.47, ColorDef.RED.medium.getRgbaColor())
@@ -358,32 +339,34 @@ const Clock = function (canvas, parameters) {
 
   const drawKnob = function (ctx) {
     // draw the knob
+    ctx.save()
     ctx.beginPath()
-    ctx.arc(centerX, centerY, imageWidth * 0.045, 0, TWO_PI)
+    ctx.arc(center, center, size * 0.045, 0, TWO_PI)
     ctx.closePath()
     const grad = ctx.createLinearGradient(
-      centerX - (imageWidth * 0.045) / 2,
-      centerY - (imageWidth * 0.045) / 2,
-      centerX + (imageWidth * 0.045) / 2,
-      centerY + (imageWidth * 0.045) / 2
+      center - (size * 0.045) / 2,
+      center - (size * 0.045) / 2,
+      center + (size * 0.045) / 2,
+      center + (size * 0.045) / 2
     )
     grad.addColorStop(0, '#eef0f2')
     grad.addColorStop(1, '#65696d')
     ctx.fillStyle = grad
     ctx.fill()
+    ctx.restore()
   }
 
-  const drawTopKnob = function (ctx, ptrType) {
+  const drawTopKnob = function (ctx) {
     let grad
 
     ctx.save()
 
-    switch (ptrType.type) {
+    switch (pointerType.type) {
       case 'type2':
         // draw knob
         ctx.fillStyle = '#000000'
         ctx.beginPath()
-        ctx.arc(centerX, centerY, (imageWidth * 0.088785) / 2, 0, TWO_PI)
+        ctx.arc(center, center, (size * 0.088785) / 2, 0, TWO_PI)
         ctx.closePath()
         ctx.fill()
         break
@@ -393,10 +376,10 @@ const Clock = function (canvas, parameters) {
       default:
         // draw knob
         grad = ctx.createLinearGradient(
-          centerX - (imageWidth * 0.027) / 2,
-          centerY - (imageWidth * 0.027) / 2,
-          centerX + (imageWidth * 0.027) / 2,
-          centerY + (imageWidth * 0.027) / 2
+          center - (size * 0.027) / 2,
+          center - (size * 0.027) / 2,
+          center + (size * 0.027) / 2,
+          center + (size * 0.027) / 2
         )
         grad.addColorStop(0, '#f3f4f7')
         grad.addColorStop(0.11, '#f3f5f7')
@@ -406,19 +389,13 @@ const Clock = function (canvas, parameters) {
         grad.addColorStop(1, '#bec3c9')
         ctx.fillStyle = grad
         ctx.beginPath()
-        ctx.arc(centerX, centerY, imageWidth * 0.027, 0, TWO_PI)
+        ctx.arc(center, center, size * 0.027, 0, TWO_PI)
         ctx.closePath()
         ctx.fill()
         break
     }
 
     ctx.restore()
-  }
-
-  const calculateAngles = function (hour, minute, second) {
-    secondPointerAngle = second * ANGLE_STEP * RAD_FACTOR
-    minutePointerAngle = minute * ANGLE_STEP * RAD_FACTOR
-    hourPointerAngle = (hour + minute / 60) * ANGLE_STEP * 5 * RAD_FACTOR
   }
 
   const tickTock = function () {
@@ -457,11 +434,10 @@ const Clock = function (canvas, parameters) {
       hour--
     }
     hour = hour % 12
-    // Calculate angles from current hour and minute values
-    calculateAngles(hour, minute, second)
 
     if (isAutomatic) {
-      tickTimer = setTimeout(tickTock, tickInterval)
+      const tickInterval = secondMovesContinuous ? FLUID_INTERVAL : TICK_INTERVAL
+      tickTimer = setTimeout(tickTock, secondPointerVisible ? tickInterval : FLUID_INTERVAL)
     }
 
     self.repaint()
@@ -471,67 +447,40 @@ const Clock = function (canvas, parameters) {
   // Draw all static painting code to background
   const init = function (parameters) {
     parameters = parameters || {}
-    const drawFrame2 =
+    const initFrame =
       undefined === parameters.frame ? false : parameters.frame
-    const drawBackground2 =
+    const initBackground =
       undefined === parameters.background ? false : parameters.background
-    const drawPointers =
+    const initPointers =
       undefined === parameters.pointers ? false : parameters.pointers
-    const drawForeground2 =
+    const initForeground =
       undefined === parameters.foreground ? false : parameters.foreground
 
     initialized = true
 
-    if (drawFrame2 && frameVisible) {
-      drawFrame(
-        frameContext,
-        frameDesign,
-        centerX,
-        centerY,
-        imageWidth,
-        imageHeight
-      )
+    if (initFrame && frameVisible) {
+      drawFrame(frameCtx, frameDesign, center, center, size, size)
     }
 
-    if (drawBackground2 && backgroundVisible) {
-      // Create background in background buffer (backgroundBuffer)
-      drawBackground(
-        backgroundContext,
-        backgroundColor,
-        centerX,
-        centerY,
-        imageWidth,
-        imageHeight
-      )
+    if (initBackground && backgroundVisible) {
+      // Create background in backgroundBuffer
+      drawBackground(backgroundCtx, backgroundColor, center, center, size, size)
 
-      // Create custom layer in background buffer (backgroundBuffer)
-      drawRadialCustomImage(
-        backgroundContext,
-        customLayer,
-        centerX,
-        centerY,
-        imageWidth,
-        imageHeight
-      )
+      // Create custom layer in backgroundBuffer
+      drawRadialCustomImage(backgroundCtx, customLayer, center, center, size, size)
 
-      drawTickmarksImage(backgroundContext, pointerType)
+      drawTickmarksImage(backgroundCtx)
     }
 
-    if (drawPointers) {
-      drawHourPointer(hourContext, pointerType)
-      drawMinutePointer(minuteContext, pointerType)
-      drawSecondPointer(secondContext, pointerType)
+    if (initPointers) {
+      drawHourPointer(hourPtrCtx)
+      drawMinutePointer(minutePtrCtx)
+      drawSecondPointer(secondPtrCtx)
     }
 
-    if (drawForeground2 && foregroundVisible) {
-      drawTopKnob(foregroundContext, pointerType)
-      drawForeground(
-        foregroundContext,
-        foregroundType,
-        imageWidth,
-        imageHeight,
-        false
-      )
+    if (initForeground && foregroundVisible) {
+      drawTopKnob(foregroundCtx, pointerType)
+      drawForeground(foregroundCtx, foregroundType, size, size, false)
     }
   }
 
@@ -548,33 +497,33 @@ const Clock = function (canvas, parameters) {
     if (resetFrame) {
       frameBuffer.width = size
       frameBuffer.height = size
-      frameContext = frameBuffer.getContext('2d')
+      frameCtx = frameBuffer.getContext('2d')
     }
 
     if (resetBackground) {
       backgroundBuffer.width = size
       backgroundBuffer.height = size
-      backgroundContext = backgroundBuffer.getContext('2d')
+      backgroundCtx = backgroundBuffer.getContext('2d')
     }
 
     if (resetPointers) {
       hourBuffer.width = size
       hourBuffer.height = size
-      hourContext = hourBuffer.getContext('2d')
+      hourPtrCtx = hourBuffer.getContext('2d')
 
       minuteBuffer.width = size
       minuteBuffer.height = size
-      minuteContext = minuteBuffer.getContext('2d')
+      minutePtrCtx = minuteBuffer.getContext('2d')
 
       secondBuffer.width = size
       secondBuffer.height = size
-      secondContext = secondBuffer.getContext('2d')
+      secondPtrCtx = secondBuffer.getContext('2d')
     }
 
     if (resetForeground) {
       foregroundBuffer.width = size
       foregroundBuffer.height = size
-      foregroundContext = foregroundBuffer.getContext('2d')
+      foregroundCtx = foregroundBuffer.getContext('2d')
     }
   }
 
@@ -603,11 +552,14 @@ const Clock = function (canvas, parameters) {
 
   this.setHour = function (newValue) {
     newValue = parseInt(newValue, 10) % 12
-    if (hour !== newValue) {
-      hour = newValue
-      calculateAngles(hour, minute, second)
-      this.repaint()
+
+    if (!isNaN(newValue)) {
+      if (hour !== newValue) {
+        hour = newValue
+        this.repaint()
+      }
     }
+
     return this
   }
 
@@ -617,11 +569,14 @@ const Clock = function (canvas, parameters) {
 
   this.setMinute = function (newValue) {
     newValue = parseInt(newValue, 10) % 60
-    if (minute !== newValue) {
-      minute = newValue
-      calculateAngles(hour, minute, second)
-      this.repaint()
+
+    if (!isNaN(newValue)) {
+      if (minute !== newValue) {
+        minute = newValue
+        this.repaint()
+      }
     }
+
     return this
   }
 
@@ -631,11 +586,14 @@ const Clock = function (canvas, parameters) {
 
   this.setSecond = function (newValue) {
     newValue = parseInt(newValue, 10) % 60
-    if (second !== newValue) {
-      second = newValue
-      calculateAngles(hour, minute, second)
-      this.repaint()
+
+    if (!isNaN(newValue)) {
+      if (second !== newValue) {
+        second = newValue
+        this.repaint()
+      }
     }
+
     return this
   }
 
@@ -644,8 +602,12 @@ const Clock = function (canvas, parameters) {
   }
 
   this.setTimeZoneOffsetHour = function (newValue) {
-    timeZoneOffsetHour = parseInt(newValue, 10)
-    this.repaint()
+    newValue = parseInt(newValue, 10)
+    if (!isNaN(newValue)) {
+      timeZoneOffsetHour = newValue
+      this.repaint()
+    }
+
     return this
   }
 
@@ -654,8 +616,12 @@ const Clock = function (canvas, parameters) {
   }
 
   this.setTimeZoneOffsetMinute = function (newValue) {
-    timeZoneOffsetMinute = parseInt(newValue, 10)
-    this.repaint()
+    newValue = parseInt(newValue, 10)
+    if (!isNaN(newValue)) {
+      timeZoneOffsetMinute = newValue
+      this.repaint()
+    }
+
     return this
   }
 
@@ -675,81 +641,88 @@ const Clock = function (canvas, parameters) {
 
   this.setSecondMovesContinuous = function (newValue) {
     secondMovesContinuous = !!newValue
-    tickInterval = secondMovesContinuous ? 100 : 1000
-    tickInterval = secondPointerVisible ? tickInterval : 100
     return this
+  }
+
+  this.getFrameDesign = function () {
+    return frameDesign
   }
 
   this.setFrameDesign = function (newFrameDesign) {
-    resetBuffers({
-      frame: true
-    })
-    frameDesign = newFrameDesign
-    init({
-      frame: true
-    })
-    this.repaint()
+    if (undefined !== newFrameDesign.design) {
+      frameDesign = newFrameDesign
+      resetBuffers({ frame: true })
+      init({ frame: true })
+      this.repaint()
+    }
+
     return this
+  }
+
+  this.getBackgroundColor = function () {
+    return backgroundColor
   }
 
   this.setBackgroundColor = function (newBackgroundColor) {
-    resetBuffers({
-      frame: true,
-      background: true
-    })
-    backgroundColor = newBackgroundColor
-    init({
-      frame: true,
-      background: true
-    })
-    this.repaint()
+    if (undefined !== newBackgroundColor.name) {
+      backgroundColor = newBackgroundColor
+      resetBuffers({ /* frame: true, */ background: true })
+      init({ /* frame: true, */ background: true })
+      this.repaint()
+    }
+
     return this
+  }
+
+  this.getForegroundType = function () {
+    return foregroundType
   }
 
   this.setForegroundType = function (newForegroundType) {
-    resetBuffers({
-      foreground: true
-    })
-    foregroundType = newForegroundType
-    init({
-      foreground: true
-    })
-    this.repaint()
+    if (undefined !== newForegroundType.type) {
+      foregroundType = newForegroundType
+      resetBuffers({ foreground: true })
+      init({ foreground: true })
+      this.repaint()
+    }
+
     return this
+  }
+
+  this.getPointerType = function () {
+    return pointerType
   }
 
   this.setPointerType = function (newPointerType) {
-    resetBuffers({
-      background: true,
-      foreground: true,
-      pointers: true
-    })
-    pointerType = newPointerType
-    if (pointerType.type === 'type1') {
-      pointerColor = ColorDef.GRAY
-      backgroundColor = BackgroundColor.ANTHRACITE
-    } else {
-      pointerColor = ColorDef.BLACK
-      backgroundColor = BackgroundColor.LIGHT_GRAY
+    if (undefined !== newPointerType.type) {
+      resetBuffers({ background: true, foreground: true, pointers: true })
+      pointerType = newPointerType
+      if (pointerType.type === 'type1') {
+        pointerColor = ColorDef.GRAY
+        backgroundColor = BackgroundColor.ANTHRACITE
+      } else {
+        pointerColor = ColorDef.BLACK
+        backgroundColor = BackgroundColor.LIGHT_GRAY
+      }
+      init({ background: true, foreground: true, pointers: true })
+      this.repaint()
     }
-    init({
-      background: true,
-      foreground: true,
-      pointers: true
-    })
-    this.repaint()
+
     return this
   }
 
+  this.getPointerColor = function () {
+    return pointerColor
+  }
+
   this.setPointerColor = function (newPointerColor) {
-    resetBuffers({
-      pointers: true
-    })
-    pointerColor = newPointerColor
-    init({
-      pointers: true
-    })
-    this.repaint()
+    if (undefined !== newPointerColor.dark) {
+      pointerColor = newPointerColor
+      resetBuffers({ pointers: true })
+      init({ pointers: true })
+      this.repaint()
+    }
+
     return this
   }
 
@@ -778,14 +751,18 @@ const Clock = function (canvas, parameters) {
 
     // have to draw to a rotated temporary image area so we can translate in
     // absolute x, y values when drawing to main context
-    const shadowOffset = imageWidth * 0.006
+    const shadowOffset = size * 0.006
+
+    const secondPointerAngle = second * ANGLE_STEP * RAD_FACTOR
+    const minutePointerAngle = minute * ANGLE_STEP * RAD_FACTOR
+    const hourPointerAngle = (hour + minute / 60) * ANGLE_STEP * 5 * RAD_FACTOR
 
     // draw hour pointer
     // Define rotation center
     mainCtx.save()
-    mainCtx.translate(centerX, centerY)
+    mainCtx.translate(center, center)
     mainCtx.rotate(hourPointerAngle)
-    mainCtx.translate(-centerX, -centerY)
+    mainCtx.translate(-center, -center)
     // Set the pointer shadow params
     mainCtx.shadowColor = 'rgba(0, 0, 0, 0.8)'
     mainCtx.shadowOffsetX = mainCtx.shadowOffsetY = shadowOffset
@@ -795,9 +772,9 @@ const Clock = function (canvas, parameters) {
 
     // draw minute pointer
     // Define rotation center
-    mainCtx.translate(centerX, centerY)
+    mainCtx.translate(center, center)
     mainCtx.rotate(minutePointerAngle - hourPointerAngle)
-    mainCtx.translate(-centerX, -centerY)
+    mainCtx.translate(-center, -center)
     mainCtx.drawImage(minuteBuffer, 0, 0)
     mainCtx.restore()
 
@@ -809,9 +786,9 @@ const Clock = function (canvas, parameters) {
       // draw second pointer
       // Define rotation center
       mainCtx.save()
-      mainCtx.translate(centerX, centerY)
+      mainCtx.translate(center, center)
       mainCtx.rotate(secondPointerAngle)
-      mainCtx.translate(-centerX, -centerY)
+      mainCtx.translate(-center, -center)
       // Set the pointer shadow params
       mainCtx.shadowColor = 'rgba(0, 0, 0, 0.8)'
       mainCtx.shadowOffsetX = mainCtx.shadowOffsetY = shadowOffset
@@ -832,5 +809,3 @@ const Clock = function (canvas, parameters) {
 
   return this
 }
-
-export default Clock
