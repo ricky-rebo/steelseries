@@ -23,9 +23,15 @@ import {
   ForegroundType
 } from './tools/definitions'
 
-const Compass = function (canvas, parameters) {
+export const Compass = function (canvas, parameters) {
+  // Get the canvas context and clear it
+  const mainCtx = getCanvasContext(canvas)
+
+  // Parameters
   parameters = parameters || {}
-  let size = undefined === parameters.size ? 0 : parameters.size
+  const size = undefined === parameters.size
+    ? Math.min(mainCtx.canvas.width, mainCtx.canvas.height)
+    : parameters.size
   let frameDesign =
     undefined === parameters.frameDesign
       ? FrameDesign.METAL
@@ -81,171 +87,108 @@ const Compass = function (canvas, parameters) {
   const rotateFace =
     undefined === parameters.rotateFace ? false : parameters.rotateFace
 
+  // Costants
+  const center = size / 2
+  const shadowOffset = size * 0.006
+  const angleStep = RAD_FACTOR
+  const LABEL_IDX = {
+    0: 2, // E
+    45: 3, // SE
+    90: 4, // S
+    135: 5, // SW
+    180: 6, // W
+    225: 7, // NW
+    270: 0, // N
+    315: 1 // NE
+  }
+
+  // Internal variables
   let tween
   let repainting = false
   let value = 0
-  const angleStep = RAD_FACTOR
-  let angle = this.value
+  let initialized = false
 
-  // Get the canvas context and clear it
-  const mainCtx = getCanvasContext(canvas)
-  // Has a size been specified?
-  if (size === 0) {
-    size = Math.min(mainCtx.canvas.width, mainCtx.canvas.height)
-  }
-
-  // Set the size - also clears the canvas
+  // Set the size
   mainCtx.canvas.width = size
   mainCtx.canvas.height = size
 
-  const imageWidth = size
-  const imageHeight = size
-
-  const centerX = imageWidth / 2
-  const centerY = imageHeight / 2
-
-  const shadowOffset = imageWidth * 0.006
-
-  let initialized = false
-
   // **************   Buffer creation  ********************
+  // Buffer for frame
+  const frameBuffer = createBuffer(size, size)
+  let frameCtx = frameBuffer.getContext('2d')
+
   // Buffer for all static background painting code
   const backgroundBuffer = createBuffer(size, size)
-  let backgroundContext = backgroundBuffer.getContext('2d')
+  let backgroundCtx = backgroundBuffer.getContext('2d')
 
   // Buffer for symbol/rose painting code
   const roseBuffer = createBuffer(size, size)
-  let roseContext = roseBuffer.getContext('2d')
+  let roseCtx = roseBuffer.getContext('2d')
 
   // Buffer for pointer image painting code
   const pointerBuffer = createBuffer(size, size)
-  let pointerContext = pointerBuffer.getContext('2d')
+  let pointerCtx = pointerBuffer.getContext('2d')
 
   // Buffer for static foreground painting code
   const foregroundBuffer = createBuffer(size, size)
-  let foregroundContext = foregroundBuffer.getContext('2d')
+  let foregroundCtx = foregroundBuffer.getContext('2d')
 
   // **************   Image creation  ********************
   const drawTickmarksImage = function (ctx) {
     let val
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
 
+    let translateFactor
     let stdFont
     let smlFont
     let i
 
     ctx.save()
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
     ctx.strokeStyle = backgroundColor.labelColor.getRgbaColor()
     ctx.fillStyle = backgroundColor.labelColor.getRgbaColor()
-    ctx.translate(centerX, centerY)
+    ctx.translate(center, center)
 
     if (!degreeScale) {
-      stdFont = 0.12 * imageWidth + 'px serif'
-      smlFont = 0.06 * imageWidth + 'px serif'
+      stdFont = size * 0.12 + 'px serif'
+      smlFont = size * 0.06 + 'px serif'
 
       for (i = 0; i < 360; i += 2.5) {
         if (i % 5 === 0) {
           ctx.lineWidth = 1
           ctx.beginPath()
-          ctx.moveTo(imageWidth * 0.38, 0)
-          ctx.lineTo(imageWidth * 0.36, 0)
+          ctx.moveTo(size * 0.38, 0)
+          ctx.lineTo(size * 0.36, 0)
           ctx.closePath()
           ctx.stroke()
         }
 
         // Draw the labels
         ctx.save()
-        switch (i) {
-          case 0:
-            ctx.translate(imageWidth * 0.35, 0)
-            ctx.rotate(HALF_PI)
-            ctx.font = stdFont
-            ctx.fillText(pointSymbols[2], 0, 0, imageWidth)
-            ctx.translate(-imageWidth * 0.35, 0)
-            break
-          case 45:
-            ctx.translate(imageWidth * 0.29, 0)
-            ctx.rotate(HALF_PI)
-            ctx.font = smlFont
-            ctx.fillText(pointSymbols[3], 0, 0, imageWidth)
-            ctx.translate(-imageWidth * 0.29, 0)
-            break
-          case 90:
-            ctx.translate(imageWidth * 0.35, 0)
-            ctx.rotate(HALF_PI)
-            ctx.font = stdFont
-            ctx.fillText(pointSymbols[4], 0, 0, imageWidth)
-            ctx.translate(-imageWidth * 0.35, 0)
-            break
-          case 135:
-            ctx.translate(imageWidth * 0.29, 0)
-            ctx.rotate(HALF_PI)
-            ctx.font = smlFont
-            ctx.fillText(pointSymbols[5], 0, 0, imageWidth)
-            ctx.translate(-imageWidth * 0.29, 0)
-            break
-          case 180:
-            ctx.translate(imageWidth * 0.35, 0)
-            ctx.rotate(HALF_PI)
-            ctx.font = stdFont
-            ctx.fillText(pointSymbols[6], 0, 0, imageWidth)
-            ctx.translate(-imageWidth * 0.35, 0)
-            break
-          case 225:
-            ctx.translate(imageWidth * 0.29, 0)
-            ctx.rotate(HALF_PI)
-            ctx.font = smlFont
-            ctx.fillText(pointSymbols[7], 0, 0, imageWidth)
-            ctx.translate(-imageWidth * 0.29, 0)
-            break
-          case 270:
-            ctx.translate(imageWidth * 0.35, 0)
-            ctx.rotate(HALF_PI)
-            ctx.font = stdFont
-            ctx.fillText(pointSymbols[0], 0, 0, imageWidth)
-            ctx.translate(-imageWidth * 0.35, 0)
-            break
-          case 315:
-            ctx.translate(imageWidth * 0.29, 0)
-            ctx.rotate(HALF_PI)
-            ctx.font = smlFont
-            ctx.fillText(pointSymbols[1], 0, 0, imageWidth)
-            ctx.translate(-imageWidth * 0.29, 0)
-            break
+        if (i % 45 === 0) {
+          translateFactor = (i % 90 === 0)
+            ? 0.35 // Main Labels (N, E, S, W)
+            : 0.29 // Secondary Labels (NE, SE, SW, NW)
+
+          ctx.translate(size * translateFactor, 0)
+          ctx.rotate(HALF_PI)
+          ctx.font = (i % 90 === 0) ? stdFont : smlFont
+          ctx.fillText(pointSymbols[LABEL_IDX[i]], 0, 0, size)
+          ctx.translate(-size * translateFactor, 0)
         }
         ctx.restore()
 
-        if (
-          roseVisible &&
-          (i === 0 ||
-            i === 22.5 ||
-            i === 45 ||
-            i === 67.5 ||
-            i === 90 ||
-            i === 112.5 ||
-            i === 135 ||
-            i === 157.5 ||
-            i === 180 ||
-            i === 202.5 ||
-            i === 225 ||
-            i === 247.5 ||
-            i === 270 ||
-            i === 292.5 ||
-            i === 315 ||
-            i === 337.5 ||
-            i === 360)
-        ) {
+        if (roseVisible && (i % 22.5 === 0)) {
           // ROSE_LINE
           ctx.save()
           ctx.beginPath()
           // indent the 16 half quadrant lines a bit for visual effect
           if (i % 45) {
-            ctx.moveTo(imageWidth * 0.29, 0)
+            ctx.moveTo(size * 0.29, 0)
           } else {
-            ctx.moveTo(imageWidth * 0.38, 0)
+            ctx.moveTo(size * 0.38, 0)
           }
-          ctx.lineTo(imageWidth * 0.1, 0)
+          ctx.lineTo(size * 0.1, 0)
           ctx.closePath()
           ctx.restore()
           ctx.lineWidth = 1
@@ -255,451 +198,224 @@ const Compass = function (canvas, parameters) {
         ctx.rotate(angleStep * 2.5)
       }
     } else {
-      stdFont = 0.08 * imageWidth + 'px serif'
-      smlFont = imageWidth * 0.033 + 'px serif'
+      stdFont = size * 0.08 + 'px serif'
+      smlFont = size * 0.033 + 'px serif'
 
-      ctx.rotate(angleStep * 10)
-
-      for (i = 10; i <= 360; i += 10) {
+      for (i = 0; i < 360; i += 10) {
         // Draw the labels
         ctx.save()
-        if (pointSymbolsVisible) {
-          switch (i) {
-            case 360:
-              ctx.translate(imageWidth * 0.35, 0)
-              ctx.rotate(HALF_PI)
-              ctx.font = stdFont
-              ctx.fillText(pointSymbols[2], 0, 0, imageWidth)
-              ctx.translate(-imageWidth * 0.35, 0)
-              break
-            case 90:
-              ctx.translate(imageWidth * 0.35, 0)
-              ctx.rotate(HALF_PI)
-              ctx.font = stdFont
-              ctx.fillText(pointSymbols[4], 0, 0, imageWidth)
-              ctx.translate(-imageWidth * 0.35, 0)
-              break
-            case 180:
-              ctx.translate(imageWidth * 0.35, 0)
-              ctx.rotate(HALF_PI)
-              ctx.font = stdFont
-              ctx.fillText(pointSymbols[6], 0, 0, imageWidth)
-              ctx.translate(-imageWidth * 0.35, 0)
-              break
-            case 270:
-              ctx.translate(imageWidth * 0.35, 0)
-              ctx.rotate(HALF_PI)
-              ctx.font = stdFont
-              ctx.fillText(pointSymbols[0], 0, 0, imageWidth)
-              ctx.translate(-imageWidth * 0.35, 0)
-              break
-            default:
-              val = (i + 90) % 360
-              ctx.translate(imageWidth * 0.37, 0)
-              ctx.rotate(HALF_PI)
-              ctx.font = smlFont
-              ctx.fillText('0'.substring(val >= 100) + val, 0, 0, imageWidth)
-              ctx.translate(-imageWidth * 0.37, 0)
-          }
+        if (pointSymbolsVisible && (i % 90 === 0)) {
+          ctx.translate(size * 0.35, 0)
+          ctx.rotate(HALF_PI)
+          ctx.font = stdFont
+          ctx.fillText(pointSymbols[LABEL_IDX[i]], 0, 0, size)
+          ctx.translate(-size * 0.35, 0)
         } else {
           val = (i + 90) % 360
-          ctx.translate(imageWidth * 0.37, 0)
+          ctx.translate(size * 0.37, 0)
           ctx.rotate(HALF_PI)
           ctx.font = smlFont
-          ctx.fillText('0'.substring(val >= 100) + val, 0, 0, imageWidth)
-          ctx.translate(-imageWidth * 0.37, 0)
+          ctx.fillText('0'.substring(val >= 100) + val, 0, 0, size)
+          ctx.translate(-size * 0.37, 0)
         }
         ctx.restore()
         ctx.rotate(angleStep * 10)
       }
     }
-    ctx.translate(-centerX, -centerY)
+    // ctx.translate(-center, -center)
     ctx.restore()
   }
 
   const drawPointerImage = function (ctx) {
     ctx.save()
 
-    switch (pointerType.type) {
-      case 'type2': {
-        // NORTHPOINTER
-        ctx.beginPath()
-        ctx.moveTo(imageWidth * 0.53271, imageHeight * 0.453271)
-        ctx.bezierCurveTo(
-          imageWidth * 0.53271,
-          imageHeight * 0.453271,
-          imageWidth * 0.5,
-          imageHeight * 0.149532,
-          imageWidth * 0.5,
-          imageHeight * 0.149532
-        )
-        ctx.bezierCurveTo(
-          imageWidth * 0.5,
-          imageHeight * 0.149532,
-          imageWidth * 0.467289,
-          imageHeight * 0.453271,
-          imageWidth * 0.467289,
-          imageHeight * 0.453271
-        )
-        ctx.bezierCurveTo(
-          imageWidth * 0.453271,
-          imageHeight * 0.462616,
-          imageWidth * 0.443925,
-          imageHeight * 0.481308,
-          imageWidth * 0.443925,
-          imageHeight * 0.5
-        )
-        ctx.bezierCurveTo(
-          imageWidth * 0.443925,
-          imageHeight * 0.5,
-          imageWidth * 0.556074,
-          imageHeight * 0.5,
-          imageWidth * 0.556074,
-          imageHeight * 0.5
-        )
-        ctx.bezierCurveTo(
-          imageWidth * 0.556074,
-          imageHeight * 0.481308,
-          imageWidth * 0.546728,
-          imageHeight * 0.462616,
-          imageWidth * 0.53271,
-          imageHeight * 0.453271
-        )
-        ctx.closePath()
-        const NORTHPOINTER2_GRADIENT = ctx.createLinearGradient(
-          0.471962 * imageWidth,
-          0,
-          0.528036 * imageWidth,
-          0
-        )
-        NORTHPOINTER2_GRADIENT.addColorStop(
-          0,
-          pointerColor.light.getRgbaColor()
-        )
-        NORTHPOINTER2_GRADIENT.addColorStop(
-          0.46,
-          pointerColor.light.getRgbaColor()
-        )
-        NORTHPOINTER2_GRADIENT.addColorStop(
-          0.47,
-          pointerColor.medium.getRgbaColor()
-        )
-        NORTHPOINTER2_GRADIENT.addColorStop(
-          1,
-          pointerColor.medium.getRgbaColor()
-        )
-        ctx.fillStyle = NORTHPOINTER2_GRADIENT
-        ctx.strokeStyle = pointerColor.dark.getRgbaColor()
-        ctx.lineWidth = 1
-        ctx.lineCap = 'square'
-        ctx.lineJoin = 'miter'
-        ctx.fill()
-        ctx.stroke()
+    let northPath
+    let southPath
 
-        // SOUTHPOINTER
-        ctx.beginPath()
-        ctx.moveTo(imageWidth * 0.467289, imageHeight * 0.546728)
-        ctx.bezierCurveTo(
-          imageWidth * 0.467289,
-          imageHeight * 0.546728,
-          imageWidth * 0.5,
-          imageHeight * 0.850467,
-          imageWidth * 0.5,
-          imageHeight * 0.850467
-        )
-        ctx.bezierCurveTo(
-          imageWidth * 0.5,
-          imageHeight * 0.850467,
-          imageWidth * 0.53271,
-          imageHeight * 0.546728,
-          imageWidth * 0.53271,
-          imageHeight * 0.546728
-        )
-        ctx.bezierCurveTo(
-          imageWidth * 0.546728,
-          imageHeight * 0.537383,
-          imageWidth * 0.556074,
-          imageHeight * 0.518691,
-          imageWidth * 0.556074,
-          imageHeight * 0.5
-        )
-        ctx.bezierCurveTo(
-          imageWidth * 0.556074,
-          imageHeight * 0.5,
-          imageWidth * 0.443925,
-          imageHeight * 0.5,
-          imageWidth * 0.443925,
-          imageHeight * 0.5
-        )
-        ctx.bezierCurveTo(
-          imageWidth * 0.443925,
-          imageHeight * 0.518691,
-          imageWidth * 0.453271,
-          imageHeight * 0.537383,
-          imageWidth * 0.467289,
-          imageHeight * 0.546728
-        )
-        ctx.closePath()
-        const SOUTHPOINTER2_GRADIENT = ctx.createLinearGradient(
-          0.471962 * imageWidth,
-          0,
-          0.528036 * imageWidth,
-          0
-        )
-        SOUTHPOINTER2_GRADIENT.addColorStop(0, '#e3e5e8')
-        SOUTHPOINTER2_GRADIENT.addColorStop(0.48, '#e3e5e8')
-        SOUTHPOINTER2_GRADIENT.addColorStop(0.48, '#abb1b8')
-        SOUTHPOINTER2_GRADIENT.addColorStop(1, '#abb1b8')
-        ctx.fillStyle = SOUTHPOINTER2_GRADIENT
-        const strokeColor_SOUTHPOINTER2 = '#abb1b8'
-        ctx.strokeStyle = strokeColor_SOUTHPOINTER2
-        ctx.lineWidth = 1
-        ctx.lineCap = 'square'
-        ctx.lineJoin = 'miter'
-        ctx.fill()
-        ctx.stroke()
-      }
+    const NORTHPOINTER_GRADIENT = ctx.createLinearGradient(0.471962 * size, 0, 0.528036 * size, 0)
+    NORTHPOINTER_GRADIENT.addColorStop(0, pointerColor.light.getRgbaColor())
+    NORTHPOINTER_GRADIENT.addColorStop(0.46, pointerColor.light.getRgbaColor())
+    NORTHPOINTER_GRADIENT.addColorStop(0.47, pointerColor.medium.getRgbaColor())
+    NORTHPOINTER_GRADIENT.addColorStop(1, pointerColor.medium.getRgbaColor())
+
+    const SOUTHPOINTER_GRADIENT = ctx.createLinearGradient(0.471962 * size, 0, 0.528036 * size, 0)
+    SOUTHPOINTER_GRADIENT.addColorStop(0, '#e3e5e8')
+    SOUTHPOINTER_GRADIENT.addColorStop(0.48, '#e3e5e8')
+    SOUTHPOINTER_GRADIENT.addColorStop(0.48, '#abb1b8')
+    SOUTHPOINTER_GRADIENT.addColorStop(1, '#abb1b8')
+    const SOUTHPOINTER_STROKE = '#abb1b8'
+
+    switch (pointerType.type) {
+      case 'type2':
+        // Nort Pointer Path
+        northPath = new Path2D()
+        northPath.moveTo(size * 0.53271, size * 0.453271)
+        northPath.bezierCurveTo(size * 0.53271, size * 0.453271, size * 0.5, size * 0.149532, size * 0.5, size * 0.149532)
+        northPath.bezierCurveTo(size * 0.5, size * 0.149532, size * 0.467289, size * 0.453271, size * 0.467289, size * 0.453271)
+        northPath.bezierCurveTo(size * 0.453271, size * 0.462616, size * 0.443925, size * 0.481308, size * 0.443925, size * 0.5)
+        northPath.bezierCurveTo(size * 0.443925, size * 0.5, size * 0.556074, size * 0.5, size * 0.556074, size * 0.5)
+        northPath.bezierCurveTo(size * 0.556074, size * 0.481308, size * 0.546728, size * 0.462616, size * 0.53271, size * 0.453271)
+        northPath.closePath()
+
+        // South Pointer Path
+        southPath = new Path2D()
+        southPath.moveTo(size * 0.467289, size * 0.546728)
+        southPath.bezierCurveTo(size * 0.467289, size * 0.546728, size * 0.5, size * 0.850467, size * 0.5, size * 0.850467)
+        southPath.bezierCurveTo(size * 0.5, size * 0.850467, size * 0.53271, size * 0.546728, size * 0.53271, size * 0.546728)
+        southPath.bezierCurveTo(size * 0.546728, size * 0.537383, size * 0.556074, size * 0.518691, size * 0.556074, size * 0.5)
+        southPath.bezierCurveTo(size * 0.556074, size * 0.5, size * 0.443925, size * 0.5, size * 0.443925, size * 0.5)
+        southPath.bezierCurveTo(size * 0.443925, size * 0.518691, size * 0.453271, size * 0.537383, size * 0.467289, size * 0.546728)
+        southPath.closePath()
         break
 
-      case 'type3': {
-        // NORTHPOINTER
-        ctx.beginPath()
-        ctx.moveTo(imageWidth * 0.5, imageHeight * 0.149532)
-        ctx.bezierCurveTo(
-          imageWidth * 0.5,
-          imageHeight * 0.149532,
-          imageWidth * 0.443925,
-          imageHeight * 0.490654,
-          imageWidth * 0.443925,
-          imageHeight * 0.5
-        )
-        ctx.bezierCurveTo(
-          imageWidth * 0.443925,
-          imageHeight * 0.53271,
-          imageWidth * 0.467289,
-          imageHeight * 0.556074,
-          imageWidth * 0.5,
-          imageHeight * 0.556074
-        )
-        ctx.bezierCurveTo(
-          imageWidth * 0.53271,
-          imageHeight * 0.556074,
-          imageWidth * 0.556074,
-          imageHeight * 0.53271,
-          imageWidth * 0.556074,
-          imageHeight * 0.5
-        )
-        ctx.bezierCurveTo(
-          imageWidth * 0.556074,
-          imageHeight * 0.490654,
-          imageWidth * 0.5,
-          imageHeight * 0.149532,
-          imageWidth * 0.5,
-          imageHeight * 0.149532
-        )
-        ctx.closePath()
-        const NORTHPOINTER3_GRADIENT = ctx.createLinearGradient(
-          0.471962 * imageWidth,
-          0,
-          0.528036 * imageWidth,
-          0
-        )
-        NORTHPOINTER3_GRADIENT.addColorStop(
-          0,
-          pointerColor.light.getRgbaColor()
-        )
-        NORTHPOINTER3_GRADIENT.addColorStop(
-          0.46,
-          pointerColor.light.getRgbaColor()
-        )
-        NORTHPOINTER3_GRADIENT.addColorStop(
-          0.47,
-          pointerColor.medium.getRgbaColor()
-        )
-        NORTHPOINTER3_GRADIENT.addColorStop(
-          1,
-          pointerColor.medium.getRgbaColor()
-        )
-        ctx.fillStyle = NORTHPOINTER3_GRADIENT
-        ctx.strokeStyle = pointerColor.dark.getRgbaColor()
-        ctx.lineWidth = 1
-        ctx.lineCap = 'square'
-        ctx.lineJoin = 'miter'
-        ctx.fill()
-        ctx.stroke()
-      }
+      case 'type3':
+        // North Pointer Path
+        northPath = new Path2D()
+        northPath.moveTo(size * 0.5, size * 0.149532)
+        northPath.bezierCurveTo(size * 0.5, size * 0.149532, size * 0.443925, size * 0.490654, size * 0.443925, size * 0.5)
+        northPath.bezierCurveTo(size * 0.443925, size * 0.53271, size * 0.467289, size * 0.556074, size * 0.5, size * 0.556074)
+        northPath.bezierCurveTo(size * 0.53271, size * 0.556074, size * 0.556074, size * 0.53271, size * 0.556074, size * 0.5)
+        northPath.bezierCurveTo(size * 0.556074, size * 0.490654, size * 0.5, size * 0.149532, size * 0.5, size * 0.149532)
+        northPath.closePath()
         break
 
       case 'type1:':
-      /* falls through */
-      default: {
-        // NORTHPOINTER
-        ctx.beginPath()
-        ctx.moveTo(imageWidth * 0.5, imageHeight * 0.495327)
-        ctx.lineTo(imageWidth * 0.528037, imageHeight * 0.495327)
-        ctx.lineTo(imageWidth * 0.5, imageHeight * 0.149532)
-        ctx.lineTo(imageWidth * 0.471962, imageHeight * 0.495327)
-        ctx.lineTo(imageWidth * 0.5, imageHeight * 0.495327)
-        ctx.closePath()
-        const NORTHPOINTER1_GRADIENT = ctx.createLinearGradient(
-          0.471962 * imageWidth,
-          0,
-          0.528036 * imageWidth,
-          0
-        )
-        NORTHPOINTER1_GRADIENT.addColorStop(
-          0,
-          pointerColor.light.getRgbaColor()
-        )
-        NORTHPOINTER1_GRADIENT.addColorStop(
-          0.46,
-          pointerColor.light.getRgbaColor()
-        )
-        NORTHPOINTER1_GRADIENT.addColorStop(
-          0.47,
-          pointerColor.medium.getRgbaColor()
-        )
-        NORTHPOINTER1_GRADIENT.addColorStop(
-          1,
-          pointerColor.medium.getRgbaColor()
-        )
-        ctx.fillStyle = NORTHPOINTER1_GRADIENT
-        ctx.strokeStyle = pointerColor.dark.getRgbaColor()
-        ctx.lineWidth = 1
-        ctx.lineCap = 'square'
-        ctx.lineJoin = 'miter'
-        ctx.fill()
-        ctx.stroke()
+      default:
+        // North Pointer Path
+        northPath = new Path2D()
+        northPath.moveTo(size * 0.5, size * 0.495327)
+        northPath.lineTo(size * 0.528037, size * 0.495327)
+        northPath.lineTo(size * 0.5, size * 0.149532)
+        northPath.lineTo(size * 0.471962, size * 0.495327)
+        northPath.lineTo(size * 0.5, size * 0.495327)
+        northPath.closePath()
 
-        // SOUTHPOINTER
-        ctx.beginPath()
-        ctx.moveTo(imageWidth * 0.5, imageHeight * 0.504672)
-        ctx.lineTo(imageWidth * 0.471962, imageHeight * 0.504672)
-        ctx.lineTo(imageWidth * 0.5, imageHeight * 0.850467)
-        ctx.lineTo(imageWidth * 0.528037, imageHeight * 0.504672)
-        ctx.lineTo(imageWidth * 0.5, imageHeight * 0.504672)
-        ctx.closePath()
-        const SOUTHPOINTER1_GRADIENT = ctx.createLinearGradient(
-          0.471962 * imageWidth,
-          0,
-          0.528036 * imageWidth,
-          0
-        )
-        SOUTHPOINTER1_GRADIENT.addColorStop(0, '#e3e5e8')
-        SOUTHPOINTER1_GRADIENT.addColorStop(0.48, '#e3e5e8')
-        SOUTHPOINTER1_GRADIENT.addColorStop(0.480099, '#abb1b8')
-        SOUTHPOINTER1_GRADIENT.addColorStop(1, '#abb1b8')
-        ctx.fillStyle = SOUTHPOINTER1_GRADIENT
-        const strokeColor_SOUTHPOINTER = '#abb1b8'
-        ctx.strokeStyle = strokeColor_SOUTHPOINTER
-        ctx.lineWidth = 1
-        ctx.lineCap = 'square'
-        ctx.lineJoin = 'miter'
-        ctx.fill()
-        ctx.stroke()
-      }
+        // South Pointer Path
+        southPath = new Path2D()
+        southPath.moveTo(size * 0.5, size * 0.504672)
+        southPath.lineTo(size * 0.471962, size * 0.504672)
+        southPath.lineTo(size * 0.5, size * 0.850467)
+        southPath.lineTo(size * 0.528037, size * 0.504672)
+        southPath.lineTo(size * 0.5, size * 0.504672)
+        southPath.closePath()
         break
     }
+
+    ctx.lineWidth = 1
+    ctx.lineCap = 'square'
+    ctx.lineJoin = 'miter'
+
+    ctx.fillStyle = NORTHPOINTER_GRADIENT
+    ctx.strokeStyle = pointerColor.dark.getRgbaColor()
+    ctx.fill(northPath)
+    ctx.stroke(northPath)
+
+    if (southPath !== undefined) {
+      ctx.fillStyle = SOUTHPOINTER_GRADIENT
+      ctx.strokeStyle = SOUTHPOINTER_STROKE
+      ctx.fill(southPath)
+      ctx.stroke(southPath)
+    }
+
     ctx.restore()
   }
 
   // **************   Initialization  ********************
   // Draw all static painting code to background
-  const init = function () {
+  const init = function (buffers) {
+    buffers = buffers || {}
+    const initFrame = undefined === buffers.frame ? false : buffers.frame
+    const initBackground = undefined === buffers.background ? false : buffers.background
+    const initPointer = undefined === buffers.pointer ? false : buffers.pointer
+    const initForeground = undefined === buffers.foreground ? false : buffers.foreground
+
     initialized = true
 
-    if (frameVisible) {
-      drawFrame(
-        backgroundContext,
-        frameDesign,
-        centerX,
-        centerY,
-        imageWidth,
-        imageHeight
-      )
+    if (initFrame && frameVisible) {
+      drawFrame(frameCtx, frameDesign, center, center, size, size)
     }
 
-    if (backgroundVisible) {
-      drawBackground(
-        backgroundContext,
-        backgroundColor,
-        centerX,
-        centerY,
-        imageWidth,
-        imageHeight
-      )
-      drawRadialCustomImage(
-        backgroundContext,
-        customLayer,
-        centerX,
-        centerY,
-        imageWidth,
-        imageHeight
-      )
+    if (initBackground && backgroundVisible) {
+      drawBackground(backgroundCtx, backgroundColor, center, center, size, size)
+      drawRadialCustomImage(backgroundCtx, customLayer, center, center, size, size)
 
       if (roseVisible) {
-        drawRoseImage(
-          roseContext,
-          centerX,
-          centerY,
-          imageWidth,
-          imageHeight,
-          backgroundColor
-        )
+        drawRoseImage(roseCtx, center, center, size, size, backgroundColor)
       }
 
-      drawTickmarksImage(roseContext)
+      drawTickmarksImage(roseCtx)
     }
 
-    drawPointerImage(pointerContext, false)
+    if (initPointer) {
+      drawPointerImage(pointerCtx)
+    }
 
-    if (foregroundVisible) {
-      drawForeground(
-        foregroundContext,
-        foregroundType,
-        imageWidth,
-        imageHeight,
-        true,
-        knobType,
-        knobStyle
-      )
+    if (initForeground && foregroundVisible) {
+      drawForeground(foregroundCtx, foregroundType, size, size, true, knobType, knobStyle)
     }
   }
 
-  const resetBuffers = function () {
-    // Buffer for all static background painting code
-    backgroundBuffer.width = size
-    backgroundBuffer.height = size
-    backgroundContext = backgroundBuffer.getContext('2d')
+  const resetBuffers = function (buffers) {
+    buffers = buffers || {}
+    const resetFrame = undefined === buffers.frame ? false : buffers.frame
+    const resetBackground = undefined === buffers.background ? false : buffers.background
+    const resetPointer = undefined === buffers.pointer ? false : buffers.pointers
+    const resetForeground = undefined === buffers.foreground ? false : buffers.foreground
 
-    // Buffer for symbols/rose painting code
-    roseBuffer.width = size
-    roseBuffer.height = size
-    roseContext = roseBuffer.getContext('2d')
+    if (resetFrame) {
+      // Buffer for frame
+      frameBuffer.width = size
+      frameBuffer.height = size
+      frameCtx = frameBuffer.getContext('2d')
+    }
 
-    // Buffer for pointer image painting code
-    pointerBuffer.width = size
-    pointerBuffer.height = size
-    pointerContext = pointerBuffer.getContext('2d')
+    if (resetBackground) {
+      // Buffer for all static background painting code
+      backgroundBuffer.width = size
+      backgroundBuffer.height = size
+      backgroundCtx = backgroundBuffer.getContext('2d')
 
-    // Buffer for static foreground painting code
-    foregroundBuffer.width = size
-    foregroundBuffer.height = size
-    foregroundContext = foregroundBuffer.getContext('2d')
+      // Buffer for symbols/rose painting code
+      roseBuffer.width = size
+      roseBuffer.height = size
+      roseCtx = roseBuffer.getContext('2d')
+    }
+
+    if (resetPointer) {
+      // Buffer for pointer image painting code
+      pointerBuffer.width = size
+      pointerBuffer.height = size
+      pointerCtx = pointerBuffer.getContext('2d')
+    }
+
+    if (resetForeground) {
+      // Buffer for static foreground painting code
+      foregroundBuffer.width = size
+      foregroundBuffer.height = size
+      foregroundCtx = foregroundBuffer.getContext('2d')
+    }
   }
 
   //* *********************************** Public methods **************************************
-  this.setValue = function (newValue) {
-    newValue = parseFloat(newValue) % 360
-    if (value !== newValue) {
-      value = newValue
-      this.repaint()
-    }
-    return this
-  }
-
   this.getValue = function () {
     return value
+  }
+
+  this.setValue = function (newValue) {
+    newValue = parseFloat(newValue) % 360
+    if (!isNaN(newValue)) {
+      if (value !== newValue) {
+        // Stop possible running animation
+        if (undefined !== tween && tween.isPlaying) {
+          tween.stop()
+        }
+
+        value = newValue
+        this.repaint()
+      }
+    }
+
+    return this
   }
 
   this.setValueAnimated = function (newValue, callback) {
@@ -713,14 +429,7 @@ const Compass = function (canvas, parameters) {
 
       diff = getShortestAngle(value, targetValue)
       if (rotateFace) {
-        tween = new Tween(
-          {},
-          '',
-          Tween.regularEaseInOut,
-          value,
-          value + diff,
-          2
-        )
+        tween = new Tween({}, '', Tween.regularEaseInOut, value, value + diff, 2)
       } else {
         tween = new Tween({}, '', Tween.elasticEaseOut, value, value + diff, 2)
       }
@@ -742,91 +451,147 @@ const Compass = function (canvas, parameters) {
     return this
   }
 
+  this.getFrameDesign = function () {
+    return frameDesign
+  }
+
   this.setFrameDesign = function (newFrameDesign) {
-    resetBuffers()
-    frameDesign = newFrameDesign
-    init()
-    this.repaint()
+    if (undefined !== newFrameDesign.design) {
+      frameDesign = newFrameDesign
+      resetBuffers({ frame: true })
+      init({ frame: true })
+      this.repaint()
+    }
+
     return this
+  }
+
+  this.getBackgroundColor = function () {
+    return backgroundColor
   }
 
   this.setBackgroundColor = function (newBackgroundColor) {
-    resetBuffers()
-    backgroundColor = newBackgroundColor
-    init()
-    this.repaint()
+    if (undefined !== newBackgroundColor.name) {
+      backgroundColor = newBackgroundColor
+      resetBuffers({ background: true })
+      init({ background: true })
+      this.repaint()
+    }
+
     return this
+  }
+
+  this.getForegroundType = function () {
+    return foregroundType
   }
 
   this.setForegroundType = function (newForegroundType) {
-    resetBuffers()
-    foregroundType = newForegroundType
-    init()
-    this.repaint()
+    if (undefined !== newForegroundType.type) {
+      foregroundType = newForegroundType
+      resetBuffers({ foreground: true })
+      init({ foreground: true })
+      this.repaint()
+    }
+
     return this
+  }
+
+  this.getPointerColor = function () {
+    return pointerColor
   }
 
   this.setPointerColor = function (newPointerColor) {
-    resetBuffers()
-    pointerColor = newPointerColor
-    init()
-    this.repaint()
+    if (undefined !== newPointerColor.dark) {
+      pointerColor = newPointerColor
+      resetBuffers({ pointer: true })
+      init({ pointer: true })
+      this.repaint()
+    }
+
     return this
+  }
+
+  this.getPointerType = function () {
+    return pointerType
   }
 
   this.setPointerType = function (newPointerType) {
-    resetBuffers()
-    pointerType = newPointerType
-    init()
-    this.repaint()
+    if (undefined !== newPointerType.type) {
+      pointerType = newPointerType
+      resetBuffers({ pointer: true })
+      init({ pointer: true })
+      this.repaint()
+    }
+
     return this
   }
 
+  this.getPointSymbols = function () {
+    return pointSymbols
+  }
+
   this.setPointSymbols = function (newPointSymbols) {
-    resetBuffers()
-    pointSymbols = newPointSymbols
-    init()
-    this.repaint()
+    if (Object.prototype.toString.call(newPointSymbols) === '[object Array]' && newPointSymbols.length() === 8) {
+      pointSymbols = newPointSymbols
+      resetBuffers({ background: true })
+      init({ background: true })
+      this.repaint()
+    }
+
     return this
   }
 
   this.repaint = function () {
     if (!initialized) {
-      init()
+      init({
+        frame: true,
+        background: true,
+        pointer: true,
+        foreground: true
+      })
     }
 
     mainCtx.save()
     mainCtx.clearRect(0, 0, mainCtx.canvas.width, mainCtx.canvas.height)
-    // Define rotation center
-    angle = HALF_PI + value * angleStep - HALF_PI
 
-    if (backgroundVisible || frameVisible) {
+    if (frameVisible) {
+      mainCtx.drawImage(frameBuffer, 0, 0)
+    }
+
+    if (backgroundVisible) {
       mainCtx.drawImage(backgroundBuffer, 0, 0)
     }
 
+    // Define rotation center
+    const angle = HALF_PI + value * angleStep - HALF_PI
     if (rotateFace) {
       mainCtx.save()
-      mainCtx.translate(centerX, centerY)
+      mainCtx.translate(center, center)
       mainCtx.rotate(-angle)
-      mainCtx.translate(-centerX, -centerY)
+      mainCtx.translate(-center, -center)
+
       if (backgroundVisible) {
         mainCtx.drawImage(roseBuffer, 0, 0)
       }
+
       mainCtx.restore()
     } else {
       if (backgroundVisible) {
         mainCtx.drawImage(roseBuffer, 0, 0)
       }
-      mainCtx.translate(centerX, centerY)
+
+      mainCtx.translate(center, center)
       mainCtx.rotate(angle)
-      mainCtx.translate(-centerX, -centerY)
+      mainCtx.translate(-center, -center)
     }
     // Set the pointer shadow params
     mainCtx.shadowColor = 'rgba(0, 0, 0, 0.8)'
     mainCtx.shadowOffsetX = mainCtx.shadowOffsetY = shadowOffset
     mainCtx.shadowBlur = shadowOffset * 2
+
     // Draw the pointer
     mainCtx.drawImage(pointerBuffer, 0, 0)
+
     // Undo the translations & shadow settings
     mainCtx.restore()
 
@@ -842,5 +607,3 @@ const Compass = function (canvas, parameters) {
 
   return this
 }
-
-export default Compass
