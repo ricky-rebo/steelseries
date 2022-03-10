@@ -9,6 +9,11 @@ export const doc = document
 export const lcdFontName = 'LCDMono2Ultra,Arial,Verdana,sans-serif'
 export const stdFontName = 'Arial,Verdana,sans-serif'
 
+export const isHexColor = function (color) {
+  // Accept both '#abc' and '#abcdef' format
+  return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(color)
+}
+
 export const rgbaColor = function (r, g, b, a) {
   let red
   let green
@@ -365,6 +370,19 @@ export function roundedRectangle (ctx, x, y, w, h, radius) {
   //        ctx.stroke();
 }
 
+export function createAudioElement (audioSrc) {
+  audioSrc = audioSrc || ''
+
+  if (audioSrc === '') {
+    return null
+  }
+
+  const audioElement = doc.createElement('audio')
+  audioElement.setAttribute('src', audioSrc)
+  audioElement.setAttribute('preload', 'auto')
+  return audioElement
+}
+
 export function createBuffer (width, height) {
   const buffer = doc.createElement('canvas')
   buffer.width = width
@@ -519,6 +537,10 @@ export function rgbToHsb (r, g, b) {
 
 export function range (value, limit) {
   return value < 0 ? 0 : value > limit ? limit : value
+}
+
+export function setInRange (value, min, max) {
+  return value < min ? min : value > max ? max : value
 }
 
 export function darker (color, fraction) {
