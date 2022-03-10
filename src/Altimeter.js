@@ -3,15 +3,14 @@ import drawFrame from './tools/drawFrame'
 import drawBackground from './tools/drawBackground'
 import drawRadialCustomImage from './tools/drawRadialCustomImage'
 import drawForeground from './tools/drawForeground'
-import createLcdBackgroundImage from './tools/createLcdBackgroundImage'
 import drawTitleImage from './tools/drawTitleImage'
+import DisplaySingle from './DisplaySingle.js'
 import {
   createBuffer,
   requestAnimFrame,
   getCanvasContext,
   TWO_PI,
   PI,
-  lcdFontName,
   stdFontName
 } from './tools/tools'
 
@@ -24,10 +23,16 @@ import {
   ForegroundType
 } from './tools/definitions'
 
-const Altimeter = function (canvas, parameters) {
+export const Altimeter = function (canvas, parameters) {
+  // Get the canvas context and clear it
+  const mainCtx = getCanvasContext(canvas)
+  mainCtx.save()
+
+  // Parameters
   parameters = parameters || {}
-  // parameters
-  let size = undefined === parameters.size ? 0 : parameters.size
+  const size = undefined === parameters.size
+    ? Math.min(mainCtx.canvas.width, mainCtx.canvas.height)
+    : parameters.size
   let frameDesign =
     undefined === parameters.frameDesign
       ? FrameDesign.METAL
@@ -53,7 +58,7 @@ const Altimeter = function (canvas, parameters) {
       : parameters.knobType
   const knobStyle =
     undefined === parameters.knobStyle ? KnobStyle.BLACK : parameters.knobStyle
-  let lcdColor =
+  const lcdColor =
     undefined === parameters.lcdColor ? LcdColor.BLACK : parameters.lcdColor
   const lcdVisible =
     undefined === parameters.lcdVisible ? true : parameters.lcdVisible
@@ -69,122 +74,87 @@ const Altimeter = function (canvas, parameters) {
       : parameters.foregroundVisible
   const customLayer =
     undefined === parameters.customLayer ? null : parameters.customLayer
-  //
-  const minValue = 0
-  const maxValue = 10
-  let value = minValue
-  let value100 = 0
-  let value1000 = 0
-  let value10000 = 0
-  let angleStep100ft
-  let angleStep1000ft
-  let angleStep10000ft
-  const tickLabelPeriod = 1 // Draw value at every 10th tickmark
-  let tween
-  let repainting = false
-  const mainCtx = getCanvasContext(canvas) // Get the canvas context
-  // Constants
-  const TICKMARK_OFFSET = PI
-  //
-  let initialized = false
-  // **************   Buffer creation  ********************
-  // Buffer for the frame
-  const frameBuffer = createBuffer(size, size)
-  let frameContext = frameBuffer.getContext('2d')
-  // Buffer for the background
-  const backgroundBuffer = createBuffer(size, size)
-  let backgroundContext = backgroundBuffer.getContext('2d')
-
-  let lcdBuffer
-
-  // Buffer for 10000ft pointer image painting code
-  const pointer10000Buffer = createBuffer(size, size)
-  let pointer10000Context = pointer10000Buffer.getContext('2d')
-
-  // Buffer for 1000ft pointer image painting code
-  const pointer1000Buffer = createBuffer(size, size)
-  let pointer1000Context = pointer1000Buffer.getContext('2d')
-
-  // Buffer for 100ft pointer image painting code
-  const pointer100Buffer = createBuffer(size, size)
-  let pointer100Context = pointer100Buffer.getContext('2d')
-
-  // Buffer for static foreground painting code
-  const foregroundBuffer = createBuffer(size, size)
-  let foregroundContext = foregroundBuffer.getContext('2d')
-  // End of variables
-
-  // Get the canvas context and clear it
-  mainCtx.save()
-  // Has a size been specified?
-  size =
-    size === 0 ? Math.min(mainCtx.canvas.width, mainCtx.canvas.height) : size
 
   // Set the size
   mainCtx.canvas.width = size
   mainCtx.canvas.height = size
 
-  const imageWidth = size
-  const imageHeight = size
+  // Constants
+  const center = size / 2
 
-  const centerX = imageWidth / 2
-  const centerY = imageHeight / 2
+  const minValue = 0
+  const maxValue = 10
 
-  const unitStringPosY = unitAltPos ? imageHeight * 0.68 : false
+  const angleStep100ft = TWO_PI / (maxValue - minValue)
+  const angleStep1000ft = angleStep100ft / 10
+  const angleStep10000ft = angleStep1000ft / 10
 
-  const stdFont = Math.floor(imageWidth * 0.09) + 'px ' + stdFontName
+  const lcdWidth = size * 0.4
+  const lcdHeight = size * 0.09
+  const lcdPosX = (size - lcdWidth) / 2
+  const lcdPosY = size * 0.56
 
-  // **************   Image creation  ********************
-  const drawLcdText = function (value) {
-    mainCtx.save()
-    mainCtx.textAlign = 'right'
-    mainCtx.textBaseline = 'middle'
-    mainCtx.strokeStyle = lcdColor.textColor
-    mainCtx.fillStyle = lcdColor.textColor
+  const unitStringPosY = unitAltPos ? size * 0.68 : false
 
-    if (
-      lcdColor === LcdColor.STANDARD ||
-      lcdColor === LcdColor.STANDARD_GREEN
-    ) {
-      mainCtx.shadowColor = 'gray'
-      mainCtx.shadowOffsetX = imageWidth * 0.007
-      mainCtx.shadowOffsetY = imageWidth * 0.007
-      mainCtx.shadowBlur = imageWidth * 0.009
-    }
-    if (digitalFont) {
-      mainCtx.font = Math.floor(imageWidth * 0.075) + 'px ' + lcdFontName
-    } else {
-      mainCtx.font = Math.floor(imageWidth * 0.075) + 'px bold ' + stdFontName
-    }
-    mainCtx.fillText(
-      Math.round(value),
-      (imageWidth + imageWidth * 0.4) / 2 - 4,
-      imageWidth * 0.607,
-      imageWidth * 0.4
-    )
-    mainCtx.restore()
+  const stdFont = Math.floor(size * 0.09) + 'px ' + stdFontName
+
+  // Internal Variables
+  let value = minValue
+
+  let tween
+  let repainting = false
+
+  let initialized = false
+
+  // **************   Buffer creation  ********************
+  // Buffer for the frame
+  const frameBuffer = createBuffer(size, size)
+  let frameCtx = frameBuffer.getContext('2d')
+
+  // Buffer for the background
+  const backgroundBuffer = createBuffer(size, size)
+  let backgroundCtx = backgroundBuffer.getContext('2d')
+
+  let lcdBuffer
+  let lcdCtx
+  let lcdGauge
+  if (lcdVisible) {
+    lcdBuffer = createBuffer(10, 10)
+    lcdCtx = lcdBuffer.getContext('2d')
   }
 
-  const drawTickmarksImage = function (
-    ctx,
-    freeAreaAngle,
-    offset,
-    minVal,
-    maxVal,
-    angleStep
-  ) {
-    const MEDIUM_STROKE = Math.max(imageWidth * 0.012, 2)
-    const THIN_STROKE = Math.max(imageWidth * 0.007, 1.5)
-    const TEXT_DISTANCE = imageWidth * 0.13
-    const MED_LENGTH = imageWidth * 0.05
-    const MAX_LENGTH = imageWidth * 0.07
-    const RADIUS = imageWidth * 0.4
+  // Buffer for 10000ft pointer image painting code
+  const pointer10000Buffer = createBuffer(size, size)
+  let pointer10000Ctx = pointer10000Buffer.getContext('2d')
+
+  // Buffer for 1000ft pointer image painting code
+  const pointer1000Buffer = createBuffer(size, size)
+  let pointer1000Ctx = pointer1000Buffer.getContext('2d')
+
+  // Buffer for 100ft pointer image painting code
+  const pointer100Buffer = createBuffer(size, size)
+  let pointer100Ctx = pointer100Buffer.getContext('2d')
+
+  // Buffer for static foreground painting code
+  const foregroundBuffer = createBuffer(size, size)
+  let foregroundCtx = foregroundBuffer.getContext('2d')
+
+  // **************   Image Creation  ********************
+  const drawTickmarksImage = function (ctx) {
+    const MEDIUM_STROKE = Math.max(size * 0.012, 2)
+    const THIN_STROKE = Math.max(size * 0.007, 1.5)
+    const TEXT_DISTANCE = size * 0.13
+    const MED_LENGTH = size * 0.05
+    const MAX_LENGTH = size * 0.07
+    const RADIUS = size * 0.4
+    const CENTER = size / 2
+    const ALPHA_START = -PI
+
     let counter = 0
     let sinValue = 0
     let cosValue = 0
     let alpha // angle for tickmarks
     let valueCounter // value for tickmarks
-    const ALPHA_START = -offset - freeAreaAngle / 2
 
     ctx.save()
     ctx.textAlign = 'center'
@@ -196,7 +166,7 @@ const Altimeter = function (canvas, parameters) {
     for (
       alpha = ALPHA_START, valueCounter = 0;
       valueCounter <= 10;
-      alpha -= angleStep * 0.1, valueCounter += 0.1
+      alpha -= angleStep100ft * 0.1, valueCounter += 0.1
     ) {
       sinValue = Math.sin(alpha)
       cosValue = Math.cos(alpha)
@@ -207,10 +177,10 @@ const Altimeter = function (canvas, parameters) {
         // Draw ticks
         ctx.beginPath()
         ctx.moveTo(
-          centerX + (RADIUS - MED_LENGTH) * sinValue,
-          centerY + (RADIUS - MED_LENGTH) * cosValue
+          CENTER + (RADIUS - MED_LENGTH) * sinValue,
+          CENTER + (RADIUS - MED_LENGTH) * cosValue
         )
-        ctx.lineTo(centerX + RADIUS * sinValue, centerY + RADIUS * cosValue)
+        ctx.lineTo(CENTER + RADIUS * sinValue, CENTER + RADIUS * cosValue)
         ctx.closePath()
         ctx.stroke()
       }
@@ -219,25 +189,23 @@ const Altimeter = function (canvas, parameters) {
       if (counter === 10 || counter === 0) {
         ctx.lineWidth = MEDIUM_STROKE
 
-        // if gauge is full circle, avoid painting maxValue over minValue
-        if (freeAreaAngle === 0) {
-          if (Math.round(valueCounter) !== maxValue) {
-            ctx.fillText(
-              Math.round(valueCounter).toString(),
-              centerX + (RADIUS - TEXT_DISTANCE) * sinValue,
-              centerY + (RADIUS - TEXT_DISTANCE) * cosValue
-            )
-          }
+        // avoid painting maxValue over minValue
+        if (Math.round(valueCounter) !== maxValue) {
+          ctx.fillText(
+            Math.round(valueCounter).toString(),
+            CENTER + (RADIUS - TEXT_DISTANCE) * sinValue,
+            CENTER + (RADIUS - TEXT_DISTANCE) * cosValue
+          )
         }
         counter = 0
 
         // Draw ticks
         ctx.beginPath()
         ctx.moveTo(
-          centerX + (RADIUS - MAX_LENGTH) * sinValue,
-          centerY + (RADIUS - MAX_LENGTH) * cosValue
+          CENTER + (RADIUS - MAX_LENGTH) * sinValue,
+          CENTER + (RADIUS - MAX_LENGTH) * cosValue
         )
-        ctx.lineTo(centerX + RADIUS * sinValue, centerY + RADIUS * cosValue)
+        ctx.lineTo(CENTER + RADIUS * sinValue, CENTER + RADIUS * cosValue)
         ctx.closePath()
         ctx.stroke()
       }
@@ -246,313 +214,95 @@ const Altimeter = function (canvas, parameters) {
     ctx.restore()
   }
 
-  const draw100ftPointer = function (ctx, shadow) {
-    let grad
+  const draw100ftPointer = function () {
+    const w = size
+    const h = size
+    const grad = pointer100Ctx.createLinearGradient(0, h * 0.168224, 0, h * 0.626168)
+    grad.addColorStop(0, '#ffffff')
+    grad.addColorStop(0.31, '#ffffff')
+    grad.addColorStop(0.3101, '#ffffff')
+    grad.addColorStop(0.32, '#202020')
+    grad.addColorStop(1, '#202020')
+    pointer100Ctx.fillStyle = grad
 
-    if (shadow) {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'
-      ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)'
-    } else {
-      grad = ctx.createLinearGradient(
-        0,
-        imageHeight * 0.168224,
-        0,
-        imageHeight * 0.626168
-      )
-      grad.addColorStop(0, '#ffffff')
-      grad.addColorStop(0.31, '#ffffff')
-      grad.addColorStop(0.3101, '#ffffff')
-      grad.addColorStop(0.32, '#202020')
-      grad.addColorStop(1, '#202020')
-      ctx.fillStyle = grad
-    }
-
-    ctx.save()
-    ctx.beginPath()
-    ctx.moveTo(imageWidth * 0.518691, imageHeight * 0.471962)
-    ctx.bezierCurveTo(
-      imageWidth * 0.514018,
-      imageHeight * 0.471962,
-      imageWidth * 0.509345,
-      imageHeight * 0.467289,
-      imageWidth * 0.509345,
-      imageHeight * 0.467289
-    )
-    ctx.lineTo(imageWidth * 0.509345, imageHeight * 0.200934)
-    ctx.lineTo(imageWidth * 0.5, imageHeight * 0.168224)
-    ctx.lineTo(imageWidth * 0.490654, imageHeight * 0.200934)
-    ctx.lineTo(imageWidth * 0.490654, imageHeight * 0.467289)
-    ctx.bezierCurveTo(
-      imageWidth * 0.490654,
-      imageHeight * 0.467289,
-      imageWidth * 0.481308,
-      imageHeight * 0.471962,
-      imageWidth * 0.481308,
-      imageHeight * 0.471962
-    )
-    ctx.bezierCurveTo(
-      imageWidth * 0.471962,
-      imageHeight * 0.481308,
-      imageWidth * 0.467289,
-      imageHeight * 0.490654,
-      imageWidth * 0.467289,
-      imageHeight * 0.5
-    )
-    ctx.bezierCurveTo(
-      imageWidth * 0.467289,
-      imageHeight * 0.514018,
-      imageWidth * 0.476635,
-      imageHeight * 0.528037,
-      imageWidth * 0.490654,
-      imageHeight * 0.53271
-    )
-    ctx.bezierCurveTo(
-      imageWidth * 0.490654,
-      imageHeight * 0.53271,
-      imageWidth * 0.490654,
-      imageHeight * 0.579439,
-      imageWidth * 0.490654,
-      imageHeight * 0.588785
-    )
-    ctx.bezierCurveTo(
-      imageWidth * 0.485981,
-      imageHeight * 0.593457,
-      imageWidth * 0.481308,
-      imageHeight * 0.59813,
-      imageWidth * 0.481308,
-      imageHeight * 0.607476
-    )
-    ctx.bezierCurveTo(
-      imageWidth * 0.481308,
-      imageHeight * 0.616822,
-      imageWidth * 0.490654,
-      imageHeight * 0.626168,
-      imageWidth * 0.5,
-      imageHeight * 0.626168
-    )
-    ctx.bezierCurveTo(
-      imageWidth * 0.509345,
-      imageHeight * 0.626168,
-      imageWidth * 0.518691,
-      imageHeight * 0.616822,
-      imageWidth * 0.518691,
-      imageHeight * 0.607476
-    )
-    ctx.bezierCurveTo(
-      imageWidth * 0.518691,
-      imageHeight * 0.59813,
-      imageWidth * 0.514018,
-      imageHeight * 0.593457,
-      imageWidth * 0.504672,
-      imageHeight * 0.588785
-    )
-    ctx.bezierCurveTo(
-      imageWidth * 0.504672,
-      imageHeight * 0.579439,
-      imageWidth * 0.504672,
-      imageHeight * 0.53271,
-      imageWidth * 0.509345,
-      imageHeight * 0.53271
-    )
-    ctx.bezierCurveTo(
-      imageWidth * 0.523364,
-      imageHeight * 0.528037,
-      imageWidth * 0.53271,
-      imageHeight * 0.514018,
-      imageWidth * 0.53271,
-      imageHeight * 0.5
-    )
-    ctx.bezierCurveTo(
-      imageWidth * 0.53271,
-      imageHeight * 0.490654,
-      imageWidth * 0.528037,
-      imageHeight * 0.481308,
-      imageWidth * 0.518691,
-      imageHeight * 0.471962
-    )
-    ctx.closePath()
-    ctx.fill()
-    ctx.restore()
+    pointer100Ctx.save()
+    pointer100Ctx.beginPath()
+    pointer100Ctx.moveTo(w * 0.518691, h * 0.471962)
+    pointer100Ctx.bezierCurveTo(w * 0.514018, h * 0.471962, w * 0.509345, h * 0.467289, w * 0.509345, h * 0.467289)
+    pointer100Ctx.lineTo(w * 0.509345, h * 0.200934)
+    pointer100Ctx.lineTo(w * 0.5, h * 0.168224)
+    pointer100Ctx.lineTo(w * 0.490654, h * 0.200934)
+    pointer100Ctx.lineTo(w * 0.490654, h * 0.467289)
+    pointer100Ctx.bezierCurveTo(w * 0.490654, h * 0.467289, w * 0.481308, h * 0.471962, w * 0.481308, h * 0.471962)
+    pointer100Ctx.bezierCurveTo(w * 0.471962, h * 0.481308, w * 0.467289, h * 0.490654, w * 0.467289, h * 0.5)
+    pointer100Ctx.bezierCurveTo(w * 0.467289, h * 0.514018, w * 0.476635, h * 0.528037, w * 0.490654, h * 0.53271)
+    pointer100Ctx.bezierCurveTo(w * 0.490654, h * 0.53271, w * 0.490654, h * 0.579439, w * 0.490654, h * 0.588785)
+    pointer100Ctx.bezierCurveTo(w * 0.485981, h * 0.593457, w * 0.481308, h * 0.59813, w * 0.481308, h * 0.607476)
+    pointer100Ctx.bezierCurveTo(w * 0.481308, h * 0.616822, w * 0.490654, h * 0.626168, w * 0.5, h * 0.626168)
+    pointer100Ctx.bezierCurveTo(w * 0.509345, h * 0.626168, w * 0.518691, h * 0.616822, w * 0.518691, h * 0.607476)
+    pointer100Ctx.bezierCurveTo(w * 0.518691, h * 0.59813, w * 0.514018, h * 0.593457, w * 0.504672, h * 0.588785)
+    pointer100Ctx.bezierCurveTo(w * 0.504672, h * 0.579439, w * 0.504672, h * 0.53271, w * 0.509345, h * 0.53271)
+    pointer100Ctx.bezierCurveTo(w * 0.523364, h * 0.528037, w * 0.53271, h * 0.514018, w * 0.53271, h * 0.5)
+    pointer100Ctx.bezierCurveTo(w * 0.53271, h * 0.490654, w * 0.528037, h * 0.481308, w * 0.518691, h * 0.471962)
+    pointer100Ctx.closePath()
+    pointer100Ctx.fill()
+    pointer100Ctx.restore()
   }
 
-  const draw1000ftPointer = function (ctx) {
-    const grad = ctx.createLinearGradient(
-      0,
-      imageHeight * 0.401869,
-      0,
-      imageHeight * 0.616822
-    )
+  const draw1000ftPointer = function () {
+    const w = size
+    const h = size
+    const grad = pointer1000Ctx.createLinearGradient(0, h * 0.401869, 0, h * 0.616822)
     grad.addColorStop(0, '#ffffff')
     grad.addColorStop(0.51, '#ffffff')
     grad.addColorStop(0.52, '#ffffff')
     grad.addColorStop(0.5201, '#202020')
     grad.addColorStop(0.53, '#202020')
     grad.addColorStop(1, '#202020')
-    ctx.fillStyle = grad
-    ctx.beginPath()
-    ctx.moveTo(imageWidth * 0.518691, imageHeight * 0.471962)
-    ctx.bezierCurveTo(
-      imageWidth * 0.514018,
-      imageHeight * 0.462616,
-      imageWidth * 0.528037,
-      imageHeight * 0.401869,
-      imageWidth * 0.528037,
-      imageHeight * 0.401869
-    )
-    ctx.lineTo(imageWidth * 0.5, imageHeight * 0.331775)
-    ctx.lineTo(imageWidth * 0.471962, imageHeight * 0.401869)
-    ctx.bezierCurveTo(
-      imageWidth * 0.471962,
-      imageHeight * 0.401869,
-      imageWidth * 0.485981,
-      imageHeight * 0.462616,
-      imageWidth * 0.481308,
-      imageHeight * 0.471962
-    )
-    ctx.bezierCurveTo(
-      imageWidth * 0.471962,
-      imageHeight * 0.481308,
-      imageWidth * 0.467289,
-      imageHeight * 0.490654,
-      imageWidth * 0.467289,
-      imageHeight * 0.5
-    )
-    ctx.bezierCurveTo(
-      imageWidth * 0.467289,
-      imageHeight * 0.514018,
-      imageWidth * 0.476635,
-      imageHeight * 0.528037,
-      imageWidth * 0.490654,
-      imageHeight * 0.53271
-    )
-    ctx.bezierCurveTo(
-      imageWidth * 0.490654,
-      imageHeight * 0.53271,
-      imageWidth * 0.462616,
-      imageHeight * 0.574766,
-      imageWidth * 0.462616,
-      imageHeight * 0.593457
-    )
-    ctx.bezierCurveTo(
-      imageWidth * 0.467289,
-      imageHeight * 0.616822,
-      imageWidth * 0.5,
-      imageHeight * 0.612149,
-      imageWidth * 0.5,
-      imageHeight * 0.612149
-    )
-    ctx.bezierCurveTo(
-      imageWidth * 0.5,
-      imageHeight * 0.612149,
-      imageWidth * 0.53271,
-      imageHeight * 0.616822,
-      imageWidth * 0.537383,
-      imageHeight * 0.593457
-    )
-    ctx.bezierCurveTo(
-      imageWidth * 0.537383,
-      imageHeight * 0.574766,
-      imageWidth * 0.509345,
-      imageHeight * 0.53271,
-      imageWidth * 0.509345,
-      imageHeight * 0.53271
-    )
-    ctx.bezierCurveTo(
-      imageWidth * 0.523364,
-      imageHeight * 0.528037,
-      imageWidth * 0.53271,
-      imageHeight * 0.514018,
-      imageWidth * 0.53271,
-      imageHeight * 0.5
-    )
-    ctx.bezierCurveTo(
-      imageWidth * 0.53271,
-      imageHeight * 0.490654,
-      imageWidth * 0.528037,
-      imageHeight * 0.481308,
-      imageWidth * 0.518691,
-      imageHeight * 0.471962
-    )
-    ctx.closePath()
-    ctx.fill()
-    ctx.restore()
+    pointer1000Ctx.fillStyle = grad
+    pointer1000Ctx.beginPath()
+    pointer1000Ctx.moveTo(w * 0.518691, h * 0.471962)
+    pointer1000Ctx.bezierCurveTo(w * 0.514018, h * 0.462616, w * 0.528037, h * 0.401869, w * 0.528037, h * 0.401869)
+    pointer1000Ctx.lineTo(w * 0.5, h * 0.331775)
+    pointer1000Ctx.lineTo(w * 0.471962, h * 0.401869)
+    pointer1000Ctx.bezierCurveTo(w * 0.471962, h * 0.401869, w * 0.485981, h * 0.462616, w * 0.481308, h * 0.471962)
+    pointer1000Ctx.bezierCurveTo(w * 0.471962, h * 0.481308, w * 0.467289, h * 0.490654, w * 0.467289, h * 0.5)
+    pointer1000Ctx.bezierCurveTo(w * 0.467289, h * 0.514018, w * 0.476635, h * 0.528037, w * 0.490654, h * 0.53271)
+    pointer1000Ctx.bezierCurveTo(w * 0.490654, h * 0.53271, w * 0.462616, h * 0.574766, w * 0.462616, h * 0.593457)
+    pointer1000Ctx.bezierCurveTo(w * 0.467289, h * 0.616822, w * 0.5, h * 0.612149, w * 0.5, h * 0.612149)
+    pointer1000Ctx.bezierCurveTo(w * 0.5, h * 0.612149, w * 0.53271, h * 0.616822, w * 0.537383, h * 0.593457)
+    pointer1000Ctx.bezierCurveTo(w * 0.537383, h * 0.574766, w * 0.509345, h * 0.53271, w * 0.509345, h * 0.53271)
+    pointer1000Ctx.bezierCurveTo(w * 0.523364, h * 0.528037, w * 0.53271, h * 0.514018, w * 0.53271, h * 0.5)
+    pointer1000Ctx.bezierCurveTo(w * 0.53271, h * 0.490654, w * 0.528037, h * 0.481308, w * 0.518691, h * 0.471962)
+    pointer1000Ctx.closePath()
+    pointer1000Ctx.fill()
+    pointer1000Ctx.restore()
   }
 
-  const draw10000ftPointer = function (ctx) {
-    ctx.fillStyle = '#ffffff'
-    ctx.beginPath()
-    ctx.moveTo(imageWidth * 0.518691, imageHeight * 0.471962)
-    ctx.bezierCurveTo(
-      imageWidth * 0.514018,
-      imageHeight * 0.471962,
-      imageWidth * 0.514018,
-      imageHeight * 0.467289,
-      imageWidth * 0.514018,
-      imageHeight * 0.467289
-    )
-    ctx.lineTo(imageWidth * 0.514018, imageHeight * 0.317757)
-    ctx.lineTo(imageWidth * 0.504672, imageHeight * 0.303738)
-    ctx.lineTo(imageWidth * 0.504672, imageHeight * 0.182242)
-    ctx.lineTo(imageWidth * 0.53271, imageHeight * 0.116822)
-    ctx.lineTo(imageWidth * 0.462616, imageHeight * 0.116822)
-    ctx.lineTo(imageWidth * 0.495327, imageHeight * 0.182242)
-    ctx.lineTo(imageWidth * 0.495327, imageHeight * 0.299065)
-    ctx.lineTo(imageWidth * 0.485981, imageHeight * 0.317757)
-    ctx.lineTo(imageWidth * 0.485981, imageHeight * 0.467289)
-    ctx.bezierCurveTo(
-      imageWidth * 0.485981,
-      imageHeight * 0.467289,
-      imageWidth * 0.485981,
-      imageHeight * 0.471962,
-      imageWidth * 0.481308,
-      imageHeight * 0.471962
-    )
-    ctx.bezierCurveTo(
-      imageWidth * 0.471962,
-      imageHeight * 0.481308,
-      imageWidth * 0.467289,
-      imageHeight * 0.490654,
-      imageWidth * 0.467289,
-      imageHeight * 0.5
-    )
-    ctx.bezierCurveTo(
-      imageWidth * 0.467289,
-      imageHeight * 0.518691,
-      imageWidth * 0.481308,
-      imageHeight * 0.53271,
-      imageWidth * 0.5,
-      imageHeight * 0.53271
-    )
-    ctx.bezierCurveTo(
-      imageWidth * 0.518691,
-      imageHeight * 0.53271,
-      imageWidth * 0.53271,
-      imageHeight * 0.518691,
-      imageWidth * 0.53271,
-      imageHeight * 0.5
-    )
-    ctx.bezierCurveTo(
-      imageWidth * 0.53271,
-      imageHeight * 0.490654,
-      imageWidth * 0.528037,
-      imageHeight * 0.481308,
-      imageWidth * 0.518691,
-      imageHeight * 0.471962
-    )
-    ctx.closePath()
-    ctx.fill()
-  }
+  const draw10000ftPointer = function () {
+    const w = size
+    const h = size
 
-  function calcAngleStep () {
-    angleStep100ft = TWO_PI / (maxValue - minValue)
-    angleStep1000ft = angleStep100ft / 10
-    angleStep10000ft = angleStep1000ft / 10
-  }
-
-  function calcValues () {
-    value100 = (value % 1000) / 100
-    value1000 = (value % 10000) / 100
-    value10000 = (value % 100000) / 100
+    pointer10000Ctx.fillStyle = '#ffffff'
+    pointer10000Ctx.beginPath()
+    pointer10000Ctx.moveTo(w * 0.518691, h * 0.471962)
+    pointer10000Ctx.bezierCurveTo(w * 0.514018, h * 0.471962, w * 0.514018, h * 0.467289, w * 0.514018, h * 0.467289)
+    pointer10000Ctx.lineTo(w * 0.514018, h * 0.317757)
+    pointer10000Ctx.lineTo(w * 0.504672, h * 0.303738)
+    pointer10000Ctx.lineTo(w * 0.504672, h * 0.182242)
+    pointer10000Ctx.lineTo(w * 0.53271, h * 0.116822)
+    pointer10000Ctx.lineTo(w * 0.462616, h * 0.116822)
+    pointer10000Ctx.lineTo(w * 0.495327, h * 0.182242)
+    pointer10000Ctx.lineTo(w * 0.495327, h * 0.299065)
+    pointer10000Ctx.lineTo(w * 0.485981, h * 0.317757)
+    pointer10000Ctx.lineTo(w * 0.485981, h * 0.467289)
+    pointer10000Ctx.bezierCurveTo(w * 0.485981, h * 0.467289, w * 0.485981, h * 0.471962, w * 0.481308, h * 0.471962)
+    pointer10000Ctx.bezierCurveTo(w * 0.471962, h * 0.481308, w * 0.467289, h * 0.490654, w * 0.467289, h * 0.5)
+    pointer10000Ctx.bezierCurveTo(w * 0.467289, h * 0.518691, w * 0.481308, h * 0.53271, w * 0.5, h * 0.53271)
+    pointer10000Ctx.bezierCurveTo(w * 0.518691, h * 0.53271, w * 0.53271, h * 0.518691, w * 0.53271, h * 0.5)
+    pointer10000Ctx.bezierCurveTo(w * 0.53271, h * 0.490654, w * 0.528037, h * 0.481308, w * 0.518691, h * 0.471962)
+    pointer10000Ctx.closePath()
+    pointer10000Ctx.fill()
   }
 
   // **************   Initialization  ********************
@@ -560,110 +310,62 @@ const Altimeter = function (canvas, parameters) {
   const init = function (parameters) {
     parameters = parameters || {}
     // Parameters
-    const drawFrame2 =
+    const initFrame =
       undefined === parameters.frame ? false : parameters.frame
-    const drawBackground2 =
+    const initBackground =
       undefined === parameters.background ? false : parameters.background
-    const drawPointers =
+    const initPointers =
       undefined === parameters.pointers ? false : parameters.pointers
-    const drawForeground2 =
+    const initForeground =
       undefined === parameters.foreground ? false : parameters.foreground
 
     initialized = true
 
-    calcAngleStep()
-
     // Create frame in frame buffer (backgroundBuffer)
-    if (drawFrame2 && frameVisible) {
-      drawFrame(
-        frameContext,
-        frameDesign,
-        centerX,
-        centerY,
-        imageWidth,
-        imageHeight
-      )
+    if (initFrame && frameVisible) {
+      drawFrame(frameCtx, frameDesign, center, center, size, size)
     }
 
-    if (drawBackground2 && backgroundVisible) {
+    if (initBackground && backgroundVisible) {
       // Create background in background buffer (backgroundBuffer)
-      drawBackground(
-        backgroundContext,
-        backgroundColor,
-        centerX,
-        centerY,
-        imageWidth,
-        imageHeight
-      )
+      drawBackground(backgroundCtx, backgroundColor, center, center, size, size)
 
       // Create custom layer in background buffer (backgroundBuffer)
-      drawRadialCustomImage(
-        backgroundContext,
-        customLayer,
-        centerX,
-        centerY,
-        imageWidth,
-        imageHeight
-      )
+      drawRadialCustomImage(backgroundCtx, customLayer, center, center, size, size)
 
       // Create tickmarks in background buffer (backgroundBuffer)
-      drawTickmarksImage(
-        backgroundContext,
-        0,
-        TICKMARK_OFFSET,
-        0,
-        10,
-        angleStep100ft,
-        tickLabelPeriod,
-        0,
-        true,
-        true,
-        null
-      )
+      drawTickmarksImage(backgroundCtx)
 
       // Create title in background buffer (backgroundBuffer)
-      drawTitleImage(
-        backgroundContext,
-        imageWidth,
-        imageHeight,
-        titleString,
-        unitString,
-        backgroundColor,
-        true,
-        true,
-        unitStringPosY
-      )
+      drawTitleImage(backgroundCtx, size, size, titleString, unitString, backgroundColor, true, true, unitStringPosY)
     }
 
     // Create lcd background if selected in background buffer (backgroundBuffer)
-    if (drawBackground2 && lcdVisible) {
-      lcdBuffer = createLcdBackgroundImage(
-        imageWidth * 0.4,
-        imageHeight * 0.09,
-        lcdColor
-      )
-      backgroundContext.drawImage(
-        lcdBuffer,
-        (imageWidth - imageWidth * 0.4) / 2,
-        imageHeight * 0.56
-      )
+    if (initBackground && lcdVisible) {
+      lcdGauge = new DisplaySingle('', {
+        _context: lcdCtx,
+        width: lcdWidth,
+        height: lcdHeight,
+        lcdColor: lcdColor,
+        lcdDecimals: 0,
+        digitalFont: digitalFont,
+        value: value
+      })
     }
 
-    if (drawPointers) {
-      // Create 100ft pointer in buffer
-      draw100ftPointer(pointer100Context, false)
-      // Create 1000ft pointer in buffer
-      draw1000ftPointer(pointer1000Context, false)
-      // Create 10000ft pointer in buffer
-      draw10000ftPointer(pointer10000Context, false)
+    // Draw pointers in their buffers
+    if (initPointers) {
+      draw100ftPointer()
+      draw1000ftPointer()
+      draw10000ftPointer()
     }
 
-    if (drawForeground2 && foregroundVisible) {
+    if (initForeground && foregroundVisible) {
       drawForeground(
-        foregroundContext,
+        foregroundCtx,
         foregroundType,
-        imageWidth,
-        imageHeight,
+        size,
+        size,
         true,
         knobType,
         knobStyle
@@ -684,155 +386,179 @@ const Altimeter = function (canvas, parameters) {
     if (resetFrame) {
       frameBuffer.width = size
       frameBuffer.height = size
-      frameContext = frameBuffer.getContext('2d')
+      frameCtx = frameBuffer.getContext('2d')
     }
 
     if (resetBackground) {
       backgroundBuffer.width = size
       backgroundBuffer.height = size
-      backgroundContext = backgroundBuffer.getContext('2d')
+      backgroundCtx = backgroundBuffer.getContext('2d')
     }
 
     if (resetPointers) {
       pointer100Buffer.width = size
       pointer100Buffer.height = size
-      pointer100Context = pointer100Buffer.getContext('2d')
+      pointer100Ctx = pointer100Buffer.getContext('2d')
 
       pointer1000Buffer.width = size
       pointer1000Buffer.height = size
-      pointer1000Context = pointer1000Buffer.getContext('2d')
+      pointer1000Ctx = pointer1000Buffer.getContext('2d')
 
       pointer10000Buffer.width = size
       pointer10000Buffer.height = size
-      pointer10000Context = pointer10000Buffer.getContext('2d')
+      pointer10000Ctx = pointer10000Buffer.getContext('2d')
     }
 
     if (resetForeground) {
       foregroundBuffer.width = size
       foregroundBuffer.height = size
-      foregroundContext = foregroundBuffer.getContext('2d')
+      foregroundCtx = foregroundBuffer.getContext('2d')
     }
   }
 
   //* *********************************** Public methods **************************************
-  this.setValue = function (newValue) {
-    value = parseFloat(newValue)
-    this.repaint()
-  }
-
   this.getValue = function () {
     return value
   }
 
-  this.setValueAnimated = function (newValue, callback) {
+  this.setValue = function (newValue) {
     newValue = parseFloat(newValue)
-    const targetValue = newValue < minValue ? minValue : newValue
-    const gauge = this
-    let time
 
-    if (value !== targetValue) {
+    if (!isNaN(newValue)) {
+      // Stop eventual previous animations
       if (undefined !== tween && tween.isPlaying) {
         tween.stop()
       }
-      // Allow 5 secs per 10,000ft
-      time = Math.max((Math.abs(value - targetValue) / 10000) * 5, 1)
-      tween = new Tween(
-        {},
-        '',
-        Tween.regularEaseInOut,
-        value,
-        targetValue,
-        time
-      )
-      // tween = new Tween(new Object(), '', Tween.strongEaseInOut, value, targetValue, 1);
-      tween.onMotionChanged = function (event) {
-        value = event.target._pos
-        if (!repainting) {
-          repainting = true
-          requestAnimFrame(gauge.repaint)
-        }
-      }
 
-      // do we have a callback function to process?
-      if (callback && typeof callback === 'function') {
-        tween.onMotionFinished = callback
-      }
-
-      tween.start()
+      value = (newValue < minValue) ? minValue : newValue
+      this.repaint()
     }
+
     return this
+  }
+
+  this.setValueAnimated = function (newValue, callback) {
+    newValue = parseFloat(newValue)
+
+    if (!isNaN(newValue)) {
+      const targetValue = (newValue < minValue) ? minValue : newValue
+      const gauge = this
+      let time
+
+      if (value !== targetValue) {
+        // Stop eventual previous animations
+        if (undefined !== tween && tween.isPlaying) {
+          tween.stop()
+        }
+        // Allow 5 secs per 10,000ft
+        time = Math.max((Math.abs(value - targetValue) / 10000) * 5, 1)
+        tween = new Tween({}, '', Tween.regularEaseInOut, value, targetValue, time)
+        // tween = new Tween(new Object(), '', Tween.strongEaseInOut, value, targetValue, 1);
+        tween.onMotionChanged = function (event) {
+          value = event.target._pos
+          if (!repainting) {
+            repainting = true
+            requestAnimFrame(gauge.repaint)
+          }
+        }
+
+        // do we have a callback function to process?
+        if (callback && typeof callback === 'function') {
+          tween.onMotionFinished = callback
+        }
+
+        tween.start()
+      }
+    }
+
+    return this
+  }
+
+  this.getFrameDesign = function () {
+    return frameDesign
   }
 
   this.setFrameDesign = function (newFrameDesign) {
-    resetBuffers({
-      frame: true
-    })
-    frameDesign = newFrameDesign
-    init({
-      frame: true
-    })
-    this.repaint()
+    if (undefined !== newFrameDesign.design) {
+      frameDesign = newFrameDesign
+      resetBuffers({ frame: true })
+      init({ frame: true })
+      this.repaint()
+    }
+
     return this
+  }
+
+  this.getBackgroundColor = function () {
+    return backgroundColor
   }
 
   this.setBackgroundColor = function (newBackgroundColor) {
-    resetBuffers({
-      background: true,
-      pointer: true // type2 & 13 depend on background
-    })
-    backgroundColor = newBackgroundColor
-    init({
-      background: true, // type2 & 13 depend on background
-      pointer: true
-    })
-    this.repaint()
+    if (undefined !== newBackgroundColor.name) {
+      backgroundColor = newBackgroundColor
+
+      // type2 & type13 pointers depend on background
+      resetBuffers({ background: true, pointer: true })
+      init({ background: true, pointer: true })
+      this.repaint()
+    }
+
     return this
+  }
+
+  this.getForegroundType = function () {
+    return foregroundType
   }
 
   this.setForegroundType = function (newForegroundType) {
-    resetBuffers({
-      foreground: true
-    })
-    foregroundType = newForegroundType
-    init({
-      foreground: true
-    })
-    this.repaint()
+    if (undefined !== newForegroundType.type) {
+      foregroundType = newForegroundType
+
+      resetBuffers({ foreground: true })
+      init({ foreground: true })
+      this.repaint()
+    }
+
     return this
   }
 
+  this.getLcdColor = function () {
+    if (undefined !== lcdGauge) {
+      return lcdGauge.getLcdColor()
+    } else {
+      return lcdColor
+    }
+  }
+
   this.setLcdColor = function (newLcdColor) {
-    lcdColor = newLcdColor
-    resetBuffers({
-      background: true
-    })
-    init({
-      background: true
-    })
-    this.repaint()
+    if (undefined !== newLcdColor.textColor && undefined !== lcdGauge) {
+      lcdGauge.setLcdColor(newLcdColor)
+      this.repaint()
+    }
+
     return this
+  }
+
+  this.getTitleString = function () {
+    return titleString
   }
 
   this.setTitleString = function (title) {
     titleString = title
-    resetBuffers({
-      background: true
-    })
-    init({
-      background: true
-    })
+    resetBuffers({ background: true })
+    init({ background: true })
     this.repaint()
     return this
   }
 
+  this.getUnitString = function () {
+    return unitString
+  }
+
   this.setUnitString = function (unit) {
-    unitString = unit
-    resetBuffers({
-      background: true
-    })
-    init({
-      background: true
-    })
+    unitString = '' + unit
+    resetBuffers({ background: true })
+    init({ background: true })
     this.repaint()
     return this
   }
@@ -861,49 +587,54 @@ const Altimeter = function (canvas, parameters) {
 
     // Draw lcd display
     if (lcdVisible) {
-      drawLcdText(value)
+      lcdGauge.setValue(value)
+      backgroundCtx.drawImage(lcdBuffer, lcdPosX, lcdPosY)
     }
 
-    // re-calculate the spearate pointer values
-    calcValues()
-
-    let shadowOffset = imageWidth * 0.006 * 0.5
+    // Calculate the spearate pointer values
+    const value100 = (value % 1000) / 100
+    const value1000 = (value % 10000) / 100
+    const value10000 = (value % 100000) / 100
 
     mainCtx.save()
+
     // Draw 10000ft pointer
-    // Define rotation center
-    mainCtx.translate(centerX, centerY)
-    mainCtx.rotate((value10000 - minValue) * angleStep10000ft)
-    mainCtx.translate(-centerX, -centerY)
     // Set the pointer shadow params
+    let shadowOffset = size * 0.006 * 0.5
     mainCtx.shadowColor = 'rgba(0, 0, 0, 0.8)'
     mainCtx.shadowOffsetX = mainCtx.shadowOffsetY = shadowOffset
     mainCtx.shadowBlur = shadowOffset * 2
+
+    // Define rotation center
+    mainCtx.translate(center, center)
+    mainCtx.rotate((value10000 - minValue) * angleStep10000ft)
+    mainCtx.translate(-center, -center)
+
     // Draw the pointer
     mainCtx.drawImage(pointer10000Buffer, 0, 0)
 
-    shadowOffset = imageWidth * 0.006 * 0.75
+    // Draw 1000ft pointer
+    shadowOffset = size * 0.006 * 0.75
     mainCtx.shadowOffsetX = mainCtx.shadowOffsetY = shadowOffset
 
-    // Draw 1000ft pointer
-    mainCtx.translate(centerX, centerY)
+    mainCtx.translate(center, center)
     mainCtx.rotate(
       (value1000 - minValue) * angleStep1000ft -
         (value10000 - minValue) * angleStep10000ft
     )
-    mainCtx.translate(-centerX, -centerY)
+    mainCtx.translate(-center, -center)
     mainCtx.drawImage(pointer1000Buffer, 0, 0)
 
-    shadowOffset = imageWidth * 0.006
+    // Draw 100ft pointer
+    shadowOffset = size * 0.006
     mainCtx.shadowOffsetX = mainCtx.shadowOffsetY = shadowOffset
 
-    // Draw 100ft pointer
-    mainCtx.translate(centerX, centerY)
+    mainCtx.translate(center, center)
     mainCtx.rotate(
       (value100 - minValue) * angleStep100ft -
         (value1000 - minValue) * angleStep1000ft
     )
-    mainCtx.translate(-centerX, -centerY)
+    mainCtx.translate(-center, -center)
     mainCtx.drawImage(pointer100Buffer, 0, 0)
     mainCtx.restore()
 
@@ -920,5 +651,3 @@ const Altimeter = function (canvas, parameters) {
 
   return this
 }
-
-export default Altimeter
