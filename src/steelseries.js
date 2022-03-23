@@ -1,26 +1,37 @@
+// TODO add polyfills
+// Path2D
+// Array.prototype.includes
+// Array.prototype.find
+// Array.prototype.every
+
 import Radial from './Radial'
 import RadialBargraph from './RadialBargraph'
 import RadialVertical from './RadialVertical'
-import Linear from './Linear'
-import LinearBargraph from './LinearBargraph'
-import DisplaySingle from './DisplaySingle'
-import DisplayMulti from './DisplayMulti'
-import Level from './Level'
-import Compass from './Compass'
+// import Linear from './Linear'
+// import LinearBargraph from './LinearBargraph'
 import WindDirection from './WindDirection'
-import Horizon from './Horizon'
-import Led from './Led'
-import Clock from './Clock'
-import Battery from './Battery'
 import StopWatch from './StopWatch'
-import Altimeter from './Altimeter'
 import TrafficLight from './TrafficLight'
-import LightBulb from './LightBulb'
 import Odometer from './Odometer'
 import drawFrame from './tools/drawFrame'
 import drawBackground from './tools/drawBackground'
 import drawForeground from './tools/drawForeground'
-import {
+
+// Direct export
+export { Altimeter } from './Altimeter'
+export { Battery } from './Battery'
+export { Clock } from './Clock'
+export { Compass } from './Compass'
+export { DisplayMulti } from './DisplayMulti'
+export { DisplaySingle } from './DisplaySingle'
+export { Horizon } from './Horizon'
+export { Led } from './Led'
+export { Level } from './Level'
+export { Lightbulb as LightBulb } from './LightBulb'
+export { Linear } from './Linear'
+export { LinearBargraph } from './LinearBargraph'
+
+export {
   rgbaColor,
   ConicalGradient,
   gradientWrapper,
@@ -29,7 +40,7 @@ import {
   Section
 } from './tools/tools'
 
-import {
+export {
   BackgroundColor,
   LcdColor,
   ColorDef,
@@ -46,24 +57,27 @@ import {
   TrendState
 } from './tools/definitions'
 
+// DEBUG
+export { Radial as Radial2 } from './Radial_2'
+
 export { Radial }
 export { RadialBargraph }
 export { RadialVertical }
-export { Linear }
-export { LinearBargraph }
-export { DisplaySingle }
-export { DisplayMulti }
-export { Level }
-export { Compass }
+// export { Linear }
+// export { LinearBargraph }
+// export { DisplaySingle }
+// export { DisplayMulti }
+// export { Level }
+// export { Compass }
 export { WindDirection }
-export { Horizon }
-export { Led }
-export { Clock }
-export { Battery }
+// export { Horizon }
+// export { Led }
+// export { Clock }
+// export { Battery }
 export { StopWatch }
-export { Altimeter }
+// export { Altimeter }
 export { TrafficLight }
-export { LightBulb }
+// export { Lightbulb as LightBulb }
 export { Odometer }
 
 // Images
@@ -72,27 +86,27 @@ export { drawBackground }
 export { drawForeground }
 
 // Tools
-export { rgbaColor }
-export { ConicalGradient }
-export { setAlpha }
-export { getColorFromFraction }
-export { gradientWrapper }
+// export { rgbaColor }
+// export { ConicalGradient }
+// export { setAlpha }
+// export { getColorFromFraction }
+// export { gradientWrapper }
 
 // Constants
-export { BackgroundColor }
-export { LcdColor }
-export { ColorDef }
-export { LedColor }
-export { GaugeType }
-export { Orientation }
-export { FrameDesign }
-export { PointerType }
-export { ForegroundType }
-export { KnobType }
-export { KnobStyle }
-export { LabelNumberFormat }
-export { TickLabelOrientation }
-export { TrendState }
+// export { BackgroundColor }
+// export { LcdColor }
+// export { ColorDef }
+// export { LedColor }
+// export { GaugeType }
+// export { Orientation }
+// export { FrameDesign }
+// export { PointerType }
+// export { ForegroundType }
+// export { KnobType }
+// export { KnobStyle }
+// export { LabelNumberFormat }
+// export { TickLabelOrientation }
+// export { TrendState }
 
 // Other
-export { Section }
+// export { Section }
