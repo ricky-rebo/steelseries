@@ -12,7 +12,6 @@ import RadialVertical from './RadialVertical'
 import WindDirection from './WindDirection'
 import StopWatch from './StopWatch'
 import TrafficLight from './TrafficLight'
-import Odometer from './Odometer'
 import drawFrame from './tools/drawFrame'
 import drawBackground from './tools/drawBackground'
 import drawForeground from './tools/drawForeground'
@@ -30,6 +29,7 @@ export { Level } from './Level'
 export { Lightbulb as LightBulb } from './LightBulb'
 export { Linear } from './Linear'
 export { LinearBargraph } from './LinearBargraph'
+export { Odometer } from './Odometer'
 
 export {
   rgbaColor,
@@ -78,7 +78,7 @@ export { StopWatch }
 // export { Altimeter }
 export { TrafficLight }
 // export { Lightbulb as LightBulb }
-export { Odometer }
+// export { Odometer }
 
 // Images
 export { drawFrame }
