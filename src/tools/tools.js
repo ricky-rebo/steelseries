@@ -9,6 +9,10 @@ export const doc = document
 export const lcdFontName = 'LCDMono2Ultra,Arial,Verdana,sans-serif'
 export const stdFontName = 'Arial,Verdana,sans-serif'
 
+export const getOrDefault = function (prop, _default = undefined) {
+  return prop !== undefined ? prop : _default
+}
+
 export const isHexColor = function (color) {
   // Accept both '#abc' and '#abcdef' format
   return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(color)
