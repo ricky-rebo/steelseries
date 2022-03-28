@@ -1,113 +1,77 @@
-import { getCanvasContext, TWO_PI, doc } from './tools/tools'
+import { TWO_PI, createBuffer, drawToBuffer, getCanvasContext } from './tools/tools'
 
-const Trafficlight = function (canvas, parameters) {
-  parameters = parameters || {}
-  let width = undefined === parameters.width ? 0 : parameters.width
-  let height = undefined === parameters.height ? 0 : parameters.height
-  //
+export const Trafficlight = function (canvas, parameters) {
+  // Get canvas context
   const mainCtx = getCanvasContext(canvas)
+
+  // Parameters
+  parameters = parameters || {}
+  const canvasWidth = undefined === parameters.width ? mainCtx.canvas.width : parameters.width
+  const canvasHeight = undefined === parameters.height ? mainCtx.canvas.height : parameters.height
+
+  // Properties
   let redOn = false
   let yellowOn = false
   let greenOn = false
-  let initialized = false
-  const housingBuffer = doc.createElement('canvas')
-  const housingCtx = housingBuffer.getContext('2d')
-  const lightGreenBuffer = doc.createElement('canvas')
-  const lightGreenCtx = lightGreenBuffer.getContext('2d')
-  const greenOnBuffer = doc.createElement('canvas')
-  const greenOnCtx = greenOnBuffer.getContext('2d')
-  const greenOffBuffer = doc.createElement('canvas')
-  const greenOffCtx = greenOffBuffer.getContext('2d')
-  const lightYellowBuffer = doc.createElement('canvas')
-  const lightYellowCtx = lightYellowBuffer.getContext('2d')
-  const yellowOnBuffer = doc.createElement('canvas')
-  const yellowOnCtx = yellowOnBuffer.getContext('2d')
-  const yellowOffBuffer = doc.createElement('canvas')
-  const yellowOffCtx = yellowOffBuffer.getContext('2d')
-  const lightRedBuffer = doc.createElement('canvas')
-  const lightRedCtx = lightRedBuffer.getContext('2d')
-  const redOnBuffer = doc.createElement('canvas')
-  const redOnCtx = redOnBuffer.getContext('2d')
-  const redOffBuffer = doc.createElement('canvas')
-  const redOffCtx = redOffBuffer.getContext('2d')
-  // End of variables
 
-  // Has a size been specified?
-  if (width === 0) {
-    width = mainCtx.canvas.width
-  }
-  if (height === 0) {
-    height = mainCtx.canvas.height
-  }
+  let initialized = false
+
+  // Constants
+  const prefHeight = canvasWidth < canvasHeight * 0.352517 ? canvasWidth * 2.836734 : canvasHeight
+  const width = prefHeight * 0.352517
+  const height = prefHeight
+
+  // Buffers
+  const housingBuffer = createBuffer(width, height)
+  const housingCtx = housingBuffer.getContext('2d')
+
+  const offLightsBuffer = createBuffer(width, height)
+  const offLightsCtx = offLightsBuffer.getContext('2d')
+
+  const greenOnBuffer = createBuffer(width, height)
+  const greenOnCtx = greenOnBuffer.getContext('2d')
+
+  const yellowOnBuffer = createBuffer(width, height)
+  const yellowOnCtx = yellowOnBuffer.getContext('2d')
+
+  const redOnBuffer = createBuffer(width, height)
+  const redOnCtx = redOnBuffer.getContext('2d')
+
+  const hatchBuffer = drawToBuffer(2, 2, function (ctx) {
+    ctx.save()
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)'
+    ctx.beginPath()
+    ctx.lineTo(0, 0, 1, 0)
+    ctx.lineTo(0, 1, 0, 1)
+    ctx.stroke()
+    ctx.restore()
+  })
 
   // Set the size - also clears the canvas
-  mainCtx.canvas.width = width
-  mainCtx.canvas.height = height
+  mainCtx.canvas.width = canvasWidth
+  mainCtx.canvas.height = canvasHeight
 
-  const prefHeight = width < height * 0.352517 ? width * 2.836734 : height
-  const imageWidth = prefHeight * 0.352517
-  const imageHeight = prefHeight
-
-  housingBuffer.width = imageWidth
-  housingBuffer.height = imageHeight
-
-  lightGreenBuffer.width = imageWidth
-  lightGreenBuffer.height = imageHeight
-
-  greenOnBuffer.width = imageWidth
-  greenOnBuffer.height = imageHeight
-
-  greenOffBuffer.width = imageWidth
-  greenOffBuffer.height = imageHeight
-
-  lightYellowBuffer.width = imageWidth
-  lightYellowBuffer.height = imageHeight
-
-  yellowOnBuffer.width = imageWidth
-  yellowOnBuffer.height = imageHeight
-
-  yellowOffBuffer.width = imageWidth
-  yellowOffBuffer.height = imageHeight
-
-  lightRedBuffer.width = imageWidth
-  lightRedBuffer.height = imageHeight
-
-  redOnBuffer.width = imageWidth
-  redOnBuffer.height = imageHeight
-
-  redOffBuffer.width = imageWidth
-  redOffBuffer.height = imageHeight
-
+  /* **********  INTERNAL UTILS  ********** */
   const drawHousing = function (ctx) {
     ctx.save()
 
     ctx.save()
     ctx.beginPath()
-    ctx.moveTo(0.107142 * imageWidth, 0)
-    ctx.lineTo(imageWidth - 0.107142 * imageWidth, 0)
-    ctx.quadraticCurveTo(imageWidth, 0, imageWidth, 0.107142 * imageWidth)
-    ctx.lineTo(imageWidth, imageHeight - 0.107142 * imageWidth)
-    ctx.quadraticCurveTo(
-      imageWidth,
-      imageHeight,
-      imageWidth - 0.107142 * imageWidth,
-      imageHeight
-    )
-    ctx.lineTo(0.107142 * imageWidth, imageHeight)
-    ctx.quadraticCurveTo(
-      0,
-      imageHeight,
-      0,
-      imageHeight - 0.107142 * imageWidth
-    )
-    ctx.lineTo(0, 0.107142 * imageWidth)
-    ctx.quadraticCurveTo(0, 0, 0.107142 * imageWidth, imageHeight)
+    ctx.moveTo(0.107142 * width, 0)
+    ctx.lineTo(width - 0.107142 * width, 0)
+    ctx.quadraticCurveTo(width, 0, width, 0.107142 * width)
+    ctx.lineTo(width, height - 0.107142 * width)
+    ctx.quadraticCurveTo(width, height, width - 0.107142 * width, height)
+    ctx.lineTo(0.107142 * width, height)
+    ctx.quadraticCurveTo(0, height, 0, height - 0.107142 * width)
+    ctx.lineTo(0, 0.107142 * width)
+    ctx.quadraticCurveTo(0, 0, 0.107142 * width, height)
     ctx.closePath()
     const housingFill = ctx.createLinearGradient(
-      0.040816 * imageWidth,
-      0.007194 * imageHeight,
-      0.952101 * imageWidth,
-      0.995882 * imageHeight
+      0.040816 * width,
+      0.007194 * height,
+      0.952101 * width,
+      0.995882 * height
     )
     housingFill.addColorStop(0, 'rgb(152, 152, 154)')
     housingFill.addColorStop(0.01, 'rgb(152, 152, 154)')
@@ -123,56 +87,41 @@ const Trafficlight = function (canvas, parameters) {
 
     ctx.save()
     ctx.beginPath()
-    ctx.moveTo(
-      0.030612 * imageWidth + 0.084183 * imageWidth,
-      0.010791 * imageHeight
-    )
-    ctx.lineTo(
-      0.030612 * imageWidth + 0.938775 * imageWidth - 0.084183 * imageWidth,
-      0.010791 * imageHeight
-    )
+    ctx.moveTo(0.030612 * width + 0.084183 * width, 0.010791 * height)
+    ctx.lineTo(0.030612 * width + 0.938775 * width - 0.084183 * width, 0.010791 * height)
     ctx.quadraticCurveTo(
-      0.030612 * imageWidth + 0.938775 * imageWidth,
-      0.010791 * imageHeight,
-      0.030612 * imageWidth + 0.938775 * imageWidth,
-      0.010791 * imageHeight + 0.084183 * imageWidth
+      0.030612 * width + 0.938775 * width,
+      0.010791 * height,
+      0.030612 * width + 0.938775 * width,
+      0.010791 * height + 0.084183 * width
     )
-    ctx.lineTo(
-      0.030612 * imageWidth + 0.938775 * imageWidth,
-      0.010791 * imageHeight + 0.978417 * imageHeight - 0.084183 * imageWidth
-    )
+    ctx.lineTo(0.030612 * width + 0.938775 * width, 0.010791 * height + 0.978417 * height - 0.084183 * width)
     ctx.quadraticCurveTo(
-      0.030612 * imageWidth + 0.938775 * imageWidth,
-      0.010791 * imageHeight + 0.978417 * imageHeight,
-      0.030612 * imageWidth + 0.938775 * imageWidth - 0.084183 * imageWidth,
-      0.010791 * imageHeight + 0.978417 * imageHeight
+      0.030612 * width + 0.938775 * width,
+      0.010791 * height + 0.978417 * height,
+      0.030612 * width + 0.938775 * width - 0.084183 * width,
+      0.010791 * height + 0.978417 * height
     )
-    ctx.lineTo(
-      0.030612 * imageWidth + 0.084183 * imageWidth,
-      0.010791 * imageHeight + 0.978417 * imageHeight
-    )
+    ctx.lineTo(0.030612 * width + 0.084183 * width, 0.010791 * height + 0.978417 * height)
     ctx.quadraticCurveTo(
-      0.030612 * imageWidth,
-      0.010791 * imageHeight + 0.978417 * imageHeight,
-      0.030612 * imageWidth,
-      0.010791 * imageHeight + 0.978417 * imageHeight - 0.084183 * imageWidth
+      0.030612 * width,
+      0.010791 * height + 0.978417 * height,
+      0.030612 * width,
+      0.010791 * height + 0.978417 * height - 0.084183 * width
     )
-    ctx.lineTo(
-      0.030612 * imageWidth,
-      0.010791 * imageHeight + 0.084183 * imageWidth
-    )
+    ctx.lineTo(0.030612 * width, 0.010791 * height + 0.084183 * width)
     ctx.quadraticCurveTo(
-      0.030612 * imageWidth,
-      0.010791 * imageHeight,
-      0.030612 * imageWidth + 0.084183 * imageWidth,
-      0.010791 * imageHeight
+      0.030612 * width,
+      0.010791 * height,
+      0.030612 * width + 0.084183 * width,
+      0.010791 * height
     )
     ctx.closePath()
     const housingFrontFill = ctx.createLinearGradient(
-      -0.132653 * imageWidth,
-      -0.053956 * imageHeight,
-      2.061408 * imageWidth,
-      0.667293 * imageHeight
+      -0.132653 * width,
+      -0.053956 * height,
+      2.061408 * width,
+      0.667293 * height
     )
     housingFrontFill.addColorStop(0, '#000000')
     housingFrontFill.addColorStop(0.01, '#000000')
@@ -196,20 +145,8 @@ const Trafficlight = function (canvas, parameters) {
     ctx.save()
     ctx.scale(1, 1)
     ctx.beginPath()
-    ctx.arc(
-      0.5 * imageWidth,
-      0.805755 * imageHeight,
-      0.397959 * imageWidth,
-      0,
-      TWO_PI,
-      false
-    )
-    const lightGreenFrameFill = ctx.createLinearGradient(
-      0,
-      0.665467 * imageHeight,
-      0,
-      0.946043 * imageHeight
-    )
+    ctx.arc(0.5 * width, 0.805755 * height, 0.397959 * width, 0, TWO_PI, false)
+    const lightGreenFrameFill = ctx.createLinearGradient(0, 0.665467 * height, 0, 0.946043 * height)
     lightGreenFrameFill.addColorStop(0, '#ffffff')
     lightGreenFrameFill.addColorStop(0.05, 'rgb(204, 204, 204)')
     lightGreenFrameFill.addColorStop(0.1, 'rgb(153, 153, 153)')
@@ -223,20 +160,8 @@ const Trafficlight = function (canvas, parameters) {
     ctx.save()
     ctx.scale(1.083333, 1)
     ctx.beginPath()
-    ctx.arc(
-      0.461538 * imageWidth,
-      0.816546 * imageHeight,
-      0.367346 * imageWidth,
-      0,
-      TWO_PI,
-      false
-    )
-    const lightGreenInnerFill = ctx.createLinearGradient(
-      0,
-      0.68705 * imageHeight,
-      0,
-      0.946043 * imageHeight
-    )
+    ctx.arc(0.461538 * width, 0.816546 * height, 0.367346 * width, 0, TWO_PI, false)
+    const lightGreenInnerFill = ctx.createLinearGradient(0, 0.68705 * height, 0, 0.946043 * height)
     lightGreenInnerFill.addColorStop(0, '#000000')
     lightGreenInnerFill.addColorStop(0.35, '#040404')
     lightGreenInnerFill.addColorStop(0.66, '#000000')
@@ -248,21 +173,14 @@ const Trafficlight = function (canvas, parameters) {
     ctx.save()
     ctx.scale(1, 1)
     ctx.beginPath()
-    ctx.arc(
-      0.5 * imageWidth,
-      0.809352 * imageHeight,
-      0.357142 * imageWidth,
-      0,
-      TWO_PI,
-      false
-    )
+    ctx.arc(0.5 * width, 0.809352 * height, 0.357142 * width, 0, TWO_PI, false)
     const lightGreenEffectFill = ctx.createRadialGradient(
-      0.5 * imageWidth,
-      0.809352 * imageHeight,
+      0.5 * width,
+      0.809352 * height,
       0,
-      0.5 * imageWidth,
-      0.809352 * imageHeight,
-      0.362244 * imageWidth
+      0.5 * width,
+      0.809352 * height,
+      0.362244 * width
     )
     lightGreenEffectFill.addColorStop(0, '#000000')
     lightGreenEffectFill.addColorStop(0.88, '#000000')
@@ -275,20 +193,8 @@ const Trafficlight = function (canvas, parameters) {
     ctx.save()
     ctx.scale(1, 1)
     ctx.beginPath()
-    ctx.arc(
-      0.5 * imageWidth,
-      0.809352 * imageHeight,
-      0.357142 * imageWidth,
-      0,
-      TWO_PI,
-      false
-    )
-    const lightGreenInnerShadowFill = ctx.createLinearGradient(
-      0,
-      0.68705 * imageHeight,
-      0,
-      0.917266 * imageHeight
-    )
+    ctx.arc(0.5 * width, 0.809352 * height, 0.357142 * width, 0, TWO_PI, false)
+    const lightGreenInnerShadowFill = ctx.createLinearGradient(0, 0.68705 * height, 0, 0.917266 * height)
     lightGreenInnerShadowFill.addColorStop(0, '#000000')
     lightGreenInnerShadowFill.addColorStop(1, 'rgba(1, 1, 1, 0)')
     ctx.fillStyle = lightGreenInnerShadowFill
@@ -303,21 +209,14 @@ const Trafficlight = function (canvas, parameters) {
     ctx.save()
     ctx.scale(1, 1)
     ctx.beginPath()
-    ctx.arc(
-      0.5 * imageWidth,
-      0.809352 * imageHeight,
-      0.32653 * imageWidth,
-      0,
-      TWO_PI,
-      false
-    )
+    ctx.arc(0.5 * width, 0.809352 * height, 0.32653 * width, 0, TWO_PI, false)
     const greenOnFill = ctx.createRadialGradient(
-      0.5 * imageWidth,
-      0.809352 * imageHeight,
+      0.5 * width,
+      0.809352 * height,
       0,
-      0.5 * imageWidth,
-      0.809352 * imageHeight,
-      0.32653 * imageWidth
+      0.5 * width,
+      0.809352 * height,
+      0.32653 * width
     )
     greenOnFill.addColorStop(0, 'rgb(85, 185, 123)')
     greenOnFill.addColorStop(1, 'rgb(0, 31, 0)')
@@ -327,47 +226,47 @@ const Trafficlight = function (canvas, parameters) {
 
     ctx.save()
     ctx.beginPath()
-    ctx.moveTo(0, 0.812949 * imageHeight)
+    ctx.moveTo(0, 0.812949 * height)
     ctx.bezierCurveTo(
       0,
-      0.910071 * imageHeight,
-      0.224489 * imageWidth,
-      0.989208 * imageHeight,
-      0.5 * imageWidth,
-      0.989208 * imageHeight
+      0.910071 * height,
+      0.224489 * width,
+      0.989208 * height,
+      0.5 * width,
+      0.989208 * height
     )
     ctx.bezierCurveTo(
-      0.77551 * imageWidth,
-      0.989208 * imageHeight,
-      imageWidth,
-      0.910071 * imageHeight,
-      imageWidth,
-      0.809352 * imageHeight
+      0.77551 * width,
+      0.989208 * height,
+      width,
+      0.910071 * height,
+      width,
+      0.809352 * height
     )
     ctx.bezierCurveTo(
-      0.908163 * imageWidth,
-      0.751798 * imageHeight,
-      0.704081 * imageWidth,
-      0.68705 * imageHeight,
-      0.5 * imageWidth,
-      0.68705 * imageHeight
+      0.908163 * width,
+      0.751798 * height,
+      0.704081 * width,
+      0.68705 * height,
+      0.5 * width,
+      0.68705 * height
     )
     ctx.bezierCurveTo(
-      0.285714 * imageWidth,
-      0.68705 * imageHeight,
-      0.081632 * imageWidth,
-      0.751798 * imageHeight,
+      0.285714 * width,
+      0.68705 * height,
+      0.081632 * width,
+      0.751798 * height,
       0,
-      0.812949 * imageHeight
+      0.812949 * height
     )
     ctx.closePath()
     const greenOnGlowFill = ctx.createRadialGradient(
-      0.5 * imageWidth,
-      0.809352 * imageHeight,
+      0.5 * width,
+      0.809352 * height,
       0,
-      0.5 * imageWidth,
-      0.809352 * imageHeight,
-      0.515306 * imageWidth
+      0.5 * width,
+      0.809352 * height,
+      0.515306 * width
     )
     greenOnGlowFill.addColorStop(0, 'rgb(65, 187, 126)')
     greenOnGlowFill.addColorStop(1, 'rgba(4, 37, 8, 0)')
@@ -384,20 +283,20 @@ const Trafficlight = function (canvas, parameters) {
     ctx.scale(1, 1)
     ctx.beginPath()
     ctx.arc(
-      0.5 * imageWidth,
-      0.809352 * imageHeight,
-      0.32653 * imageWidth,
+      0.5 * width,
+      0.809352 * height,
+      0.32653 * width,
       0,
       TWO_PI,
       false
     )
     const greenOffFill = ctx.createRadialGradient(
-      0.5 * imageWidth,
-      0.809352 * imageHeight,
+      0.5 * width,
+      0.809352 * height,
       0,
-      0.5 * imageWidth,
-      0.809352 * imageHeight,
-      0.32653 * imageWidth
+      0.5 * width,
+      0.809352 * height,
+      0.32653 * width
     )
     greenOffFill.addColorStop(0, 'rgba(0, 255, 0, 0.25)')
     greenOffFill.addColorStop(1, 'rgba(0, 255, 0, 0.05)')
@@ -409,20 +308,20 @@ const Trafficlight = function (canvas, parameters) {
     ctx.scale(1, 1)
     ctx.beginPath()
     ctx.arc(
-      0.5 * imageWidth,
-      0.809352 * imageHeight,
-      0.32653 * imageWidth,
+      0.5 * width,
+      0.809352 * height,
+      0.32653 * width,
       0,
       TWO_PI,
       false
     )
     const greenOffInnerShadowFill = ctx.createRadialGradient(
-      0.5 * imageWidth,
-      0.809352 * imageHeight,
+      0.5 * width,
+      0.809352 * height,
       0,
-      0.5 * imageWidth,
-      0.809352 * imageHeight,
-      0.32653 * imageWidth
+      0.5 * width,
+      0.809352 * height,
+      0.32653 * width
     )
     greenOffInnerShadowFill.addColorStop(0, 'rgba(1, 1, 1, 0)')
     greenOffInnerShadowFill.addColorStop(0.55, 'rgba(0, 0, 0, 0)')
@@ -447,18 +346,18 @@ const Trafficlight = function (canvas, parameters) {
     ctx.scale(1, 1)
     ctx.beginPath()
     ctx.arc(
-      0.5 * imageWidth,
-      0.496402 * imageHeight,
-      0.397959 * imageWidth,
+      0.5 * width,
+      0.496402 * height,
+      0.397959 * width,
       0,
       TWO_PI,
       false
     )
     const lightYellowFrameFill = ctx.createLinearGradient(
       0,
-      0.356115 * imageHeight,
+      0.356115 * height,
       0,
-      0.63669 * imageHeight
+      0.63669 * height
     )
     lightYellowFrameFill.addColorStop(0, '#ffffff')
     lightYellowFrameFill.addColorStop(0.05, 'rgb(204, 204, 204)')
@@ -474,18 +373,18 @@ const Trafficlight = function (canvas, parameters) {
     ctx.scale(1.083333, 1)
     ctx.beginPath()
     ctx.arc(
-      0.461538 * imageWidth,
-      0.507194 * imageHeight,
-      0.367346 * imageWidth,
+      0.461538 * width,
+      0.507194 * height,
+      0.367346 * width,
       0,
       TWO_PI,
       false
     )
     const lightYellowInnerFill = ctx.createLinearGradient(
       0,
-      0.377697 * imageHeight,
+      0.377697 * height,
       0,
-      0.63669 * imageHeight
+      0.63669 * height
     )
     lightYellowInnerFill.addColorStop(0, '#000000')
     lightYellowInnerFill.addColorStop(0.35, '#040404')
@@ -499,20 +398,20 @@ const Trafficlight = function (canvas, parameters) {
     ctx.scale(1, 1)
     ctx.beginPath()
     ctx.arc(
-      0.5 * imageWidth,
-      0.5 * imageHeight,
-      0.357142 * imageWidth,
+      0.5 * width,
+      0.5 * height,
+      0.357142 * width,
       0,
       TWO_PI,
       false
     )
     const lightYellowEffectFill = ctx.createRadialGradient(
-      0.5 * imageWidth,
-      0.5 * imageHeight,
+      0.5 * width,
+      0.5 * height,
       0,
-      0.5 * imageWidth,
-      0.5 * imageHeight,
-      0.362244 * imageWidth
+      0.5 * width,
+      0.5 * height,
+      0.362244 * width
     )
     lightYellowEffectFill.addColorStop(0, '#000000')
     lightYellowEffectFill.addColorStop(0.88, '#000000')
@@ -527,18 +426,18 @@ const Trafficlight = function (canvas, parameters) {
     ctx.scale(1, 1)
     ctx.beginPath()
     ctx.arc(
-      0.5 * imageWidth,
-      0.5 * imageHeight,
-      0.357142 * imageWidth,
+      0.5 * width,
+      0.5 * height,
+      0.357142 * width,
       0,
       TWO_PI,
       false
     )
     const lightYellowInnerShadowFill = ctx.createLinearGradient(
       0,
-      0.377697 * imageHeight,
+      0.377697 * height,
       0,
-      0.607913 * imageHeight
+      0.607913 * height
     )
     lightYellowInnerShadowFill.addColorStop(0, '#000000')
     lightYellowInnerShadowFill.addColorStop(1, 'rgba(1, 1, 1, 0)')
@@ -555,20 +454,20 @@ const Trafficlight = function (canvas, parameters) {
     ctx.scale(1, 1)
     ctx.beginPath()
     ctx.arc(
-      0.5 * imageWidth,
-      0.5 * imageHeight,
-      0.32653 * imageWidth,
+      0.5 * width,
+      0.5 * height,
+      0.32653 * width,
       0,
       TWO_PI,
       false
     )
     const yellowOnFill = ctx.createRadialGradient(
-      0.5 * imageWidth,
-      0.5 * imageHeight,
+      0.5 * width,
+      0.5 * height,
       0,
-      0.5 * imageWidth,
-      0.5 * imageHeight,
-      0.32653 * imageWidth
+      0.5 * width,
+      0.5 * height,
+      0.32653 * width
     )
     yellowOnFill.addColorStop(0, '#fed434')
     yellowOnFill.addColorStop(1, '#82330c')
@@ -578,47 +477,47 @@ const Trafficlight = function (canvas, parameters) {
 
     ctx.save()
     ctx.beginPath()
-    ctx.moveTo(0, 0.503597 * imageHeight)
+    ctx.moveTo(0, 0.503597 * height)
     ctx.bezierCurveTo(
       0,
-      0.600719 * imageHeight,
-      0.224489 * imageWidth,
-      0.679856 * imageHeight,
-      0.5 * imageWidth,
-      0.679856 * imageHeight
+      0.600719 * height,
+      0.224489 * width,
+      0.679856 * height,
+      0.5 * width,
+      0.679856 * height
     )
     ctx.bezierCurveTo(
-      0.77551 * imageWidth,
-      0.679856 * imageHeight,
-      imageWidth,
-      0.600719 * imageHeight,
-      imageWidth,
-      0.5 * imageHeight
+      0.77551 * width,
+      0.679856 * height,
+      width,
+      0.600719 * height,
+      width,
+      0.5 * height
     )
     ctx.bezierCurveTo(
-      0.908163 * imageWidth,
-      0.442446 * imageHeight,
-      0.704081 * imageWidth,
-      0.377697 * imageHeight,
-      0.5 * imageWidth,
-      0.377697 * imageHeight
+      0.908163 * width,
+      0.442446 * height,
+      0.704081 * width,
+      0.377697 * height,
+      0.5 * width,
+      0.377697 * height
     )
     ctx.bezierCurveTo(
-      0.285714 * imageWidth,
-      0.377697 * imageHeight,
-      0.081632 * imageWidth,
-      0.442446 * imageHeight,
+      0.285714 * width,
+      0.377697 * height,
+      0.081632 * width,
+      0.442446 * height,
       0,
-      0.503597 * imageHeight
+      0.503597 * height
     )
     ctx.closePath()
     const yellowOnGlowFill = ctx.createRadialGradient(
-      0.5 * imageWidth,
-      0.5 * imageHeight,
+      0.5 * width,
+      0.5 * height,
       0,
-      0.5 * imageWidth,
-      0.5 * imageHeight,
-      0.515306 * imageWidth
+      0.5 * width,
+      0.5 * height,
+      0.515306 * width
     )
     yellowOnGlowFill.addColorStop(0, '#fed434')
     yellowOnGlowFill.addColorStop(1, 'rgba(130, 51, 12, 0)')
@@ -635,20 +534,20 @@ const Trafficlight = function (canvas, parameters) {
     ctx.scale(1, 1)
     ctx.beginPath()
     ctx.arc(
-      0.5 * imageWidth,
-      0.5 * imageHeight,
-      0.32653 * imageWidth,
+      0.5 * width,
+      0.5 * height,
+      0.32653 * width,
       0,
       TWO_PI,
       false
     )
     const yellowOffFill = ctx.createRadialGradient(
-      0.5 * imageWidth,
-      0.5 * imageHeight,
+      0.5 * width,
+      0.5 * height,
       0,
-      0.5 * imageWidth,
-      0.5 * imageHeight,
-      0.32653 * imageWidth
+      0.5 * width,
+      0.5 * height,
+      0.32653 * width
     )
     yellowOffFill.addColorStop(0, 'rgba(255, 255, 0, 0.25)')
     yellowOffFill.addColorStop(1, 'rgba(255, 255, 0, 0.05)')
@@ -660,20 +559,20 @@ const Trafficlight = function (canvas, parameters) {
     ctx.scale(1, 1)
     ctx.beginPath()
     ctx.arc(
-      0.5 * imageWidth,
-      0.5 * imageHeight,
-      0.32653 * imageWidth,
+      0.5 * width,
+      0.5 * height,
+      0.32653 * width,
       0,
       TWO_PI,
       false
     )
     const yellowOffInnerShadowFill = ctx.createRadialGradient(
-      0.5 * imageWidth,
-      0.5 * imageHeight,
+      0.5 * width,
+      0.5 * height,
       0,
-      0.5 * imageWidth,
-      0.5 * imageHeight,
-      0.32653 * imageWidth
+      0.5 * width,
+      0.5 * height,
+      0.32653 * width
     )
     yellowOffInnerShadowFill.addColorStop(0, 'rgba(1, 1, 1, 0)')
     yellowOffInnerShadowFill.addColorStop(0.55, 'rgba(0, 0, 0, 0)')
@@ -699,18 +598,18 @@ const Trafficlight = function (canvas, parameters) {
     ctx.scale(1, 1)
     ctx.beginPath()
     ctx.arc(
-      0.5 * imageWidth,
-      0.18705 * imageHeight,
-      0.397959 * imageWidth,
+      0.5 * width,
+      0.18705 * height,
+      0.397959 * width,
       0,
       TWO_PI,
       false
     )
     const lightRedFrameFill = ctx.createLinearGradient(
-      0.5 * imageWidth,
-      0.046762 * imageHeight,
-      0.5 * imageWidth,
-      0.327338 * imageHeight
+      0.5 * width,
+      0.046762 * height,
+      0.5 * width,
+      0.327338 * height
     )
     lightRedFrameFill.addColorStop(0, '#ffffff')
     lightRedFrameFill.addColorStop(0.05, '#cccccc')
@@ -727,18 +626,18 @@ const Trafficlight = function (canvas, parameters) {
     ctx.scale(1.083333, 1)
     ctx.beginPath()
     ctx.arc(
-      0.461538 * imageWidth,
-      0.197841 * imageHeight,
-      0.367346 * imageWidth,
+      0.461538 * width,
+      0.197841 * height,
+      0.367346 * width,
       0,
       TWO_PI,
       false
     )
     const lightRedInnerFill = ctx.createLinearGradient(
-      0.5 * imageWidth,
-      0.068345 * imageHeight,
-      0.5 * imageWidth,
-      0.327338 * imageHeight
+      0.5 * width,
+      0.068345 * height,
+      0.5 * width,
+      0.327338 * height
     )
     lightRedInnerFill.addColorStop(0, '#000000')
     lightRedInnerFill.addColorStop(0.35, '#040404')
@@ -753,20 +652,20 @@ const Trafficlight = function (canvas, parameters) {
     ctx.scale(1, 1)
     ctx.beginPath()
     ctx.arc(
-      0.5 * imageWidth,
-      0.190647 * imageHeight,
-      0.357142 * imageWidth,
+      0.5 * width,
+      0.190647 * height,
+      0.357142 * width,
       0,
       TWO_PI,
       false
     )
     const lightRedEffectFill = ctx.createRadialGradient(
-      0.5 * imageWidth,
-      0.190647 * imageHeight,
+      0.5 * width,
+      0.190647 * height,
       0,
-      0.5 * imageWidth,
-      0.190647 * imageHeight,
-      0.362244 * imageWidth
+      0.5 * width,
+      0.190647 * height,
+      0.362244 * width
     )
     lightRedEffectFill.addColorStop(0, '#000000')
     lightRedEffectFill.addColorStop(0.88, '#000000')
@@ -781,18 +680,18 @@ const Trafficlight = function (canvas, parameters) {
     ctx.scale(1, 1)
     ctx.beginPath()
     ctx.arc(
-      0.5 * imageWidth,
-      0.190647 * imageHeight,
-      0.357142 * imageWidth,
+      0.5 * width,
+      0.190647 * height,
+      0.357142 * width,
       0,
       TWO_PI,
       false
     )
     const lightRedInnerShadowFill = ctx.createLinearGradient(
-      0.5 * imageWidth,
-      0.068345 * imageHeight,
-      0.5 * imageWidth,
-      0.298561 * imageHeight
+      0.5 * width,
+      0.068345 * height,
+      0.5 * width,
+      0.298561 * height
     )
     lightRedInnerShadowFill.addColorStop(0, '#000000')
     lightRedInnerShadowFill.addColorStop(1, 'rgba(1, 1, 1, 0)')
@@ -809,20 +708,20 @@ const Trafficlight = function (canvas, parameters) {
     ctx.scale(1, 1)
     ctx.beginPath()
     ctx.arc(
-      0.5 * imageWidth,
-      0.190647 * imageHeight,
-      0.32653 * imageWidth,
+      0.5 * width,
+      0.190647 * height,
+      0.32653 * width,
       0,
       TWO_PI,
       false
     )
     const redOnFill = ctx.createRadialGradient(
-      0.5 * imageWidth,
-      0.190647 * imageHeight,
+      0.5 * width,
+      0.190647 * height,
       0,
-      0.5 * imageWidth,
-      0.190647 * imageHeight,
-      0.32653 * imageWidth
+      0.5 * width,
+      0.190647 * height,
+      0.32653 * width
     )
     redOnFill.addColorStop(0, '#ff0000')
     redOnFill.addColorStop(1, '#410004')
@@ -832,47 +731,47 @@ const Trafficlight = function (canvas, parameters) {
 
     ctx.save()
     ctx.beginPath()
-    ctx.moveTo(0, 0.194244 * imageHeight)
+    ctx.moveTo(0, 0.194244 * height)
     ctx.bezierCurveTo(
       0,
-      0.291366 * imageHeight,
-      0.224489 * imageWidth,
-      0.370503 * imageHeight,
-      0.5 * imageWidth,
-      0.370503 * imageHeight
+      0.291366 * height,
+      0.224489 * width,
+      0.370503 * height,
+      0.5 * width,
+      0.370503 * height
     )
     ctx.bezierCurveTo(
-      0.77551 * imageWidth,
-      0.370503 * imageHeight,
-      imageWidth,
-      0.291366 * imageHeight,
-      imageWidth,
-      0.190647 * imageHeight
+      0.77551 * width,
+      0.370503 * height,
+      width,
+      0.291366 * height,
+      width,
+      0.190647 * height
     )
     ctx.bezierCurveTo(
-      0.908163 * imageWidth,
-      0.133093 * imageHeight,
-      0.704081 * imageWidth,
-      0.068345 * imageHeight,
-      0.5 * imageWidth,
-      0.068345 * imageHeight
+      0.908163 * width,
+      0.133093 * height,
+      0.704081 * width,
+      0.068345 * height,
+      0.5 * width,
+      0.068345 * height
     )
     ctx.bezierCurveTo(
-      0.285714 * imageWidth,
-      0.068345 * imageHeight,
-      0.081632 * imageWidth,
-      0.133093 * imageHeight,
+      0.285714 * width,
+      0.068345 * height,
+      0.081632 * width,
+      0.133093 * height,
       0,
-      0.194244 * imageHeight
+      0.194244 * height
     )
     ctx.closePath()
     const redOnGlowFill = ctx.createRadialGradient(
-      0.5 * imageWidth,
-      0.190647 * imageHeight,
+      0.5 * width,
+      0.190647 * height,
       0,
-      0.5 * imageWidth,
-      0.190647 * imageHeight,
-      0.515306 * imageWidth
+      0.5 * width,
+      0.190647 * height,
+      0.515306 * width
     )
     redOnGlowFill.addColorStop(0, '#ff0000')
     redOnGlowFill.addColorStop(1, 'rgba(118, 5, 1, 0)')
@@ -890,20 +789,20 @@ const Trafficlight = function (canvas, parameters) {
     ctx.scale(1, 1)
     ctx.beginPath()
     ctx.arc(
-      0.5 * imageWidth,
-      0.190647 * imageHeight,
-      0.32653 * imageWidth,
+      0.5 * width,
+      0.190647 * height,
+      0.32653 * width,
       0,
       TWO_PI,
       false
     )
     const redOffFill = ctx.createRadialGradient(
-      0.5 * imageWidth,
-      0.190647 * imageHeight,
+      0.5 * width,
+      0.190647 * height,
       0,
-      0.5 * imageWidth,
-      0.190647 * imageHeight,
-      0.32653 * imageWidth
+      0.5 * width,
+      0.190647 * height,
+      0.32653 * width
     )
     redOffFill.addColorStop(0, 'rgba(255, 0, 0, 0.25)')
     redOffFill.addColorStop(1, 'rgba(255, 0, 0, 0.05)')
@@ -915,20 +814,20 @@ const Trafficlight = function (canvas, parameters) {
     ctx.scale(1, 1)
     ctx.beginPath()
     ctx.arc(
-      0.5 * imageWidth,
-      0.190647 * imageHeight,
-      0.32653 * imageWidth,
+      0.5 * width,
+      0.190647 * height,
+      0.32653 * width,
       0,
       TWO_PI,
       false
     )
     const redOffInnerShadowFill = ctx.createRadialGradient(
-      0.5 * imageWidth,
-      0.190647 * imageHeight,
+      0.5 * width,
+      0.190647 * height,
       0,
-      0.5 * imageWidth,
-      0.190647 * imageHeight,
-      0.32653 * imageWidth
+      0.5 * width,
+      0.190647 * height,
+      0.32653 * width
     )
     redOffInnerShadowFill.addColorStop(0, 'rgba(1, 1, 1, 0)')
     redOffInnerShadowFill.addColorStop(0.55, 'rgba(0, 0, 0, 0)')
@@ -946,51 +845,33 @@ const Trafficlight = function (canvas, parameters) {
     ctx.restore()
   }
 
-  function drawToBuffer (width, height, drawFunction) {
-    const buffer = doc.createElement('canvas')
-    buffer.width = width
-    buffer.height = height
-    drawFunction(buffer.getContext('2d'))
-    return buffer
-  }
-
-  const hatchBuffer = drawToBuffer(2, 2, function (ctx) {
-    ctx.save()
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)'
-    ctx.beginPath()
-    ctx.lineTo(0, 0, 1, 0)
-    ctx.lineTo(0, 1, 0, 1)
-    ctx.stroke()
-    ctx.restore()
-  })
-
   const init = function () {
-    initialized = true
-
+    // Housing
     drawHousing(housingCtx)
-    drawLightGreen(lightGreenCtx)
+    drawLightGreen(housingCtx)
+    drawLightYellow(housingCtx)
+    drawLightRed(housingCtx)
+
+    // Lights Off
+    drawGreenOff(offLightsCtx)
+    drawYellowOff(offLightsCtx)
+    drawRedOff(offLightsCtx)
+
+    // Lights On
     drawGreenOn(greenOnCtx)
-    drawGreenOff(greenOffCtx)
-    drawLightYellow(lightYellowCtx)
     drawYellowOn(yellowOnCtx)
-    drawYellowOff(yellowOffCtx)
-    drawLightRed(lightRedCtx)
     drawRedOn(redOnCtx)
-    drawRedOff(redOffCtx)
+
+    initialized = true
   }
 
-  // **************   P U B L I C   M E T H O D S   ********************************
-  this.setRedOn = function (on) {
-    redOn = !!on
-    this.repaint()
-  }
-
+  // **********  PUBLIC METHODS  **********
   this.isRedOn = function () {
     return redOn
   }
 
-  this.setYellowOn = function (on) {
-    yellowOn = !!on
+  this.setRedOn = function (on) {
+    redOn = !!on
     this.repaint()
   }
 
@@ -998,13 +879,18 @@ const Trafficlight = function (canvas, parameters) {
     return yellowOn
   }
 
-  this.setGreenOn = function (on) {
-    greenOn = !!on
+  this.setYellowOn = function (on) {
+    yellowOn = !!on
     this.repaint()
   }
 
   this.isGreenOn = function () {
     return greenOn
+  }
+
+  this.setGreenOn = function (on) {
+    greenOn = !!on
+    this.repaint()
   }
 
   this.repaint = function () {
@@ -1018,32 +904,24 @@ const Trafficlight = function (canvas, parameters) {
     // housing
     mainCtx.drawImage(housingBuffer, 0, 0)
 
-    // Green light
-    mainCtx.drawImage(lightGreenBuffer, 0, 0)
-
+    // Green Light On
     if (greenOn) {
       mainCtx.drawImage(greenOnBuffer, 0, 0)
     }
 
-    mainCtx.drawImage(greenOffBuffer, 0, 0)
-
-    // Yellow light
-    mainCtx.drawImage(lightYellowBuffer, 0, 0)
-
+    // Yellow Light On
     if (yellowOn) {
       mainCtx.drawImage(yellowOnBuffer, 0, 0)
     }
 
-    mainCtx.drawImage(yellowOffBuffer, 0, 0)
-
-    // Red light
-    mainCtx.drawImage(lightRedBuffer, 0, 0)
-
+    // Red Light On
     if (redOn) {
       mainCtx.drawImage(redOnBuffer, 0, 0)
     }
 
-    mainCtx.drawImage(redOffBuffer, 0, 0)
+    // Lights Off
+    mainCtx.drawImage(offLightsBuffer, 0, 0)
+
     mainCtx.restore()
   }
 
@@ -1052,5 +930,3 @@ const Trafficlight = function (canvas, parameters) {
 
   return this
 }
-
-export default Trafficlight

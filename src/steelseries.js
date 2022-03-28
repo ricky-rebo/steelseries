@@ -11,7 +11,7 @@ import RadialVertical from './RadialVertical'
 // import LinearBargraph from './LinearBargraph'
 import WindDirection from './WindDirection'
 import StopWatch from './StopWatch'
-import TrafficLight from './TrafficLight'
+// import Trafficlight from './TrafficLight'
 import drawFrame from './tools/drawFrame'
 import drawBackground from './tools/drawBackground'
 import drawForeground from './tools/drawForeground'
@@ -30,6 +30,7 @@ export { Lightbulb as LightBulb } from './LightBulb'
 export { Linear } from './Linear'
 export { LinearBargraph } from './LinearBargraph'
 export { Odometer } from './Odometer'
+export { Trafficlight as TrafficLight } from './TrafficLight'
 
 export {
   rgbaColor,
@@ -76,7 +77,6 @@ export { WindDirection }
 // export { Battery }
 export { StopWatch }
 // export { Altimeter }
-export { TrafficLight }
 // export { Lightbulb as LightBulb }
 // export { Odometer }
 
@@ -84,29 +84,3 @@ export { TrafficLight }
 export { drawFrame }
 export { drawBackground }
 export { drawForeground }
-
-// Tools
-// export { rgbaColor }
-// export { ConicalGradient }
-// export { setAlpha }
-// export { getColorFromFraction }
-// export { gradientWrapper }
-
-// Constants
-// export { BackgroundColor }
-// export { LcdColor }
-// export { ColorDef }
-// export { LedColor }
-// export { GaugeType }
-// export { Orientation }
-// export { FrameDesign }
-// export { PointerType }
-// export { ForegroundType }
-// export { KnobType }
-// export { KnobStyle }
-// export { LabelNumberFormat }
-// export { TickLabelOrientation }
-// export { TrendState }
-
-// Other
-// export { Section }

@@ -177,7 +177,7 @@ export const Odometer = function (canvas, parameters) {
   this.setValue = function (newVal) {
     newVal = parseFloat(newVal)
     if (!isNaN(newVal)) {
-      const target = value < 0 ? 0 : value
+      const target = newVal < 0 ? 0 : newVal
       if (target !== value) {
         if (undefined !== tween && tween.isPlaying) {
           tween.stop()
