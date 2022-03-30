@@ -2,7 +2,7 @@ name: SonarScanner
 on:
   push:
     branches:
-      - main
+      - master
 jobs:
   scan:
     name: Scan
