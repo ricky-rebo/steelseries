@@ -12,11 +12,8 @@ export const Led = function (canvas, parameters) {
     : parameters._context
 
   // Parameters
-  const size = undefined === parameters.size
-    ? Math.min(mainCtx.canvas.width, mainCtx.canvas.height)
-    : parameters.size
-  let ledColor =
-    undefined === parameters.ledColor ? LedColor.RED_LED : parameters.ledColor
+  const size = undefined === parameters.size ? Math.min(mainCtx.canvas.width, mainCtx.canvas.height) : parameters.size
+  let ledColor = undefined === parameters.ledColor ? LedColor.RED_LED : parameters.ledColor
 
   // Set the size - also clears the canvas
   mainCtx.canvas.width = size
@@ -50,10 +47,8 @@ export const Led = function (canvas, parameters) {
     ledOffCtx.drawImage(createLedImage(size, 0, ledColor), 0, 0)
   }
 
-  this.toggleLed = function () {
-    ledOn = !ledOn
-    repaint()
-    return this
+  this.getLedColor = function () {
+    return ledColor
   }
 
   this.setLedColor = function (newColor) {
@@ -66,25 +61,32 @@ export const Led = function (canvas, parameters) {
     return this
   }
 
+  this.isLedOn = function () {
+    return ledOn
+  }
+
   this.setLedOnOff = function (on) {
     ledOn = !!on
     repaint()
     return this
   }
 
+  this.toggleLed = function () {
+    ledOn = !ledOn
+    repaint()
+    return this
+  }
+
   this.blink = function (blink) {
-    if (blink) {
-      if (!ledBlinking) {
-        ledTimerId = setInterval(this.toggleLed, 1000)
-        ledBlinking = true
-      }
-    } else {
-      if (ledBlinking) {
-        clearInterval(ledTimerId)
-        ledOn = false
-        ledBlinking = false
-      }
+    if (blink && !ledBlinking) {
+      ledTimerId = setInterval(this.toggleLed, 1000)
+      ledBlinking = true
+    } else if (!blink && ledBlinking) {
+      clearInterval(ledTimerId)
+      ledOn = false
+      ledBlinking = false
     }
+
     return this
   }
 
