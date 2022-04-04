@@ -4,7 +4,7 @@
 // Array.prototype.find
 // Array.prototype.every
 
-import Radial from './Radial'
+// import Radial from './Radial'
 import RadialBargraph from './RadialBargraph'
 import RadialVertical from './RadialVertical'
 // import Linear from './Linear'
@@ -12,6 +12,7 @@ import RadialVertical from './RadialVertical'
 import WindDirection from './WindDirection'
 import StopWatch from './StopWatch'
 // import Trafficlight from './TrafficLight'
+
 import drawFrame from './tools/drawFrame'
 import drawBackground from './tools/drawBackground'
 import drawForeground from './tools/drawForeground'
@@ -30,6 +31,7 @@ export { Lightbulb as LightBulb } from './LightBulb'
 export { Linear } from './Linear'
 export { LinearBargraph } from './LinearBargraph'
 export { Odometer } from './Odometer'
+export { Radial } from './Radial'
 export { Trafficlight as TrafficLight } from './TrafficLight'
 
 export {
@@ -58,10 +60,7 @@ export {
   TrendState
 } from './tools/definitions'
 
-// DEBUG
-export { Radial as Radial2 } from './Radial_2'
-
-export { Radial }
+// export { Radial }
 export { RadialBargraph }
 export { RadialVertical }
 // export { Linear }
