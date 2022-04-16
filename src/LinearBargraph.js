@@ -31,6 +31,7 @@ import {
   LabelNumberFormat
 } from './tools/definitions'
 import { validBackgroundColor, validColor, validFrameDesign } from './tools/validation.js'
+import { drawActiveBargraphLed } from './tools/draw/drawActiveBargraphLed.js'
 
 export const LinearBargraph = function (canvas, parameters) {
   // Get the canvas context
@@ -283,7 +284,7 @@ export const LinearBargraph = function (canvas, parameters) {
 
       // Has LED color changed? If so redraw the buffer
       if (lastLedColor.medium.getHexColor() !== ledColor.medium.getHexColor()) {
-        drawActiveLed(activeLedContext, ledColor)
+        drawActiveBargraphLed(activeLedContext, ledColor, mainCtx, vertical)
         lastLedColor = ledColor
       }
 
@@ -319,29 +320,6 @@ export const LinearBargraph = function (canvas, parameters) {
     ctx.restore()
   }
 
-  const drawActiveLed = function (ctx, color) {
-    ctx.save()
-
-    // Draw path
-    ctx.beginPath()
-    ctx.rect(0, 0, ctx.canvas.width, ctx.canvas.height)
-    ctx.closePath()
-
-    // Create gradient
-    const centerX = ctx.canvas.width / 2
-    const centerY = ctx.canvas.height / 2
-    const outerRadius = vertical ? centerX : centerY
-    const ledGradient = mainCtx.createRadialGradient(centerX, centerY, 0, centerX, centerY, outerRadius)
-    ledGradient.addColorStop(0, color.light.getRgbaColor())
-    ledGradient.addColorStop(1, color.dark.getRgbaColor())
-
-    // Color path
-    ctx.fillStyle = ledGradient
-    ctx.fill()
-
-    ctx.restore()
-  }
-
   // **************   Initialization  ********************
   const init = function (buffers) {
     buffers = buffers || {}
@@ -371,7 +349,7 @@ export const LinearBargraph = function (canvas, parameters) {
     // Draw leds of bargraph
     if (initBargraphLed) {
       drawInactiveLed(inactiveLedContext)
-      drawActiveLed(activeLedContext, valueColor)
+      drawActiveBargraphLed(activeLedContext, valueColor, mainCtx, vertical)
     }
 
     // Create frame in frame buffer (backgroundBuffer)
