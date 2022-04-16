@@ -5,8 +5,6 @@ import drawBackground from './tools/drawBackground'
 import drawRadialCustomImage from './tools/drawRadialCustomImage'
 import drawForeground from './tools/drawForeground'
 import createKnobImage from './tools/createKnobImage'
-// import createLedImage from './tools/createLedImage'
-// import createLcdBackgroundImage from './tools/createLcdBackgroundImage'
 import createMeasuredValueImage from './tools/createMeasuredValueImage'
 import createTrendIndicator from './tools/createTrendIndicator'
 import createThresholdImage from './tools/createThresholdImage'
@@ -17,10 +15,6 @@ import {
   requestAnimFrame,
   getCanvasContext,
   HALF_PI,
-  TWO_PI,
-  PI,
-  RAD_FACTOR,
-  stdFontName,
   setInRange,
   getOrDefault,
   createAudioElement
@@ -46,6 +40,8 @@ import { Odometer } from './Odometer'
 import { Led } from './Led.js'
 import { DisplaySingle } from './DisplaySingle.js'
 import { validBackgroundColor, validColor, validForegroundType, validFrameDesign, validLabelNumberFormat, validLcdColor, validPointerType, validTrendState } from './tools/validation.js'
+import { drawRadialTickmarksImage, MAX_MAJOR_TICKS_COUNT } from './tools/draw/drawRadialTickmarksImage.js'
+import { getRadialRotationParams } from './tools/radial.js'
 
 export const Radial = function (canvas, parameters) {
   // Get the canvas context
@@ -106,13 +102,15 @@ export const Radial = function (canvas, parameters) {
   const odometerUseValue = undefined === parameters.odometerUseValue ? false : parameters.odometerUseValue
   const fullScaleDeflectionTime = undefined === parameters.fullScaleDeflectionTime ? 2.5 : parameters.fullScaleDeflectionTime
 
-  // Set the size - also clears the canvas
+  // Set the size
   mainCtx.canvas.width = size
   mainCtx.canvas.height = size
 
   // Properties
   let value = minValue
   let odoValue = minValue
+
+  let range
 
   let minMeasuredValue = maxValue
   let maxMeasuredValue = minValue
@@ -129,15 +127,8 @@ export const Radial = function (canvas, parameters) {
 
   let initialized = false
 
-  // Tickmark specific private variables
-  let range
-  let minorTickSpacing = 0
-  let majorTickSpacing = 0
-
   // GaugeType specific private variables
-  let freeAreaAngle
-  let rotationOffset
-  let angleRange
+  const { rotationOffset, angleRange } = getRadialRotationParams(gaugeType)
   let angleStep
   let angle
 
@@ -175,16 +166,6 @@ export const Radial = function (canvas, parameters) {
   const minMaxSize = Math.ceil(size * 0.028037)
   const minMaxRefX = mainCtx.canvas.width * 0.4865
   const minMaxRefY = mainCtx.canvas.height * 0.105
-
-  // Tickmarks specific
-  const maxNoOfMinorTicks = 10
-  const maxNoOfMajorTicks = 10
-
-  // Labels specific
-  const TEXT_TRANSLATE_X = size * 0.3
-  const TEXT_WIDTH = (gaugeType.type === 'type1' || gaugeType.type === 'type2')
-    ? size * 0.04
-    : size * 0.1
 
   // Create audio tag for alarm sound
   const audioElement = (playAlarm && alarmSound !== false) ? createAudioElement(alarmSound) : null
@@ -238,8 +219,7 @@ export const Radial = function (canvas, parameters) {
   const calculate = function calculate () {
     if (niceScale) {
       const niceRange = calcNiceNumber(maxValue - minValue, false)
-      majorTickSpacing = calcNiceNumber(niceRange / (maxNoOfMajorTicks - 1), true)
-      minorTickSpacing = calcNiceNumber(majorTickSpacing / (maxNoOfMinorTicks - 1), true)
+      const majorTickSpacing = calcNiceNumber(niceRange / (MAX_MAJOR_TICKS_COUNT - 1), true)
 
       minValue = Math.floor(minValue / majorTickSpacing) * majorTickSpacing
       maxValue = Math.ceil(maxValue / majorTickSpacing) * majorTickSpacing
@@ -252,37 +232,9 @@ export const Radial = function (canvas, parameters) {
       threshold = setInRange(threshold, minValue, maxValue)
     } else {
       range = maxValue - minValue
-      majorTickSpacing = calcNiceNumber(range / (maxNoOfMajorTicks - 1), true)
-      minorTickSpacing = calcNiceNumber(majorTickSpacing / (maxNoOfMinorTicks - 1), true)
     }
 
-    switch (gaugeType.type) {
-      case 'type1':
-        freeAreaAngle = 0
-        rotationOffset = PI
-        angleRange = HALF_PI
-        angleStep = angleRange / range
-        break
-      case 'type2':
-        freeAreaAngle = 0
-        rotationOffset = PI
-        angleRange = PI
-        angleStep = angleRange / range
-        break
-      case 'type3':
-        freeAreaAngle = 0
-        rotationOffset = HALF_PI
-        angleRange = 1.5 * PI
-        angleStep = angleRange / range
-        break
-      case 'type4':
-      default:
-        freeAreaAngle = 60 * RAD_FACTOR
-        rotationOffset = HALF_PI + freeAreaAngle / 2
-        angleRange = TWO_PI - freeAreaAngle
-        angleStep = angleRange / range
-        break
-    }
+    angleStep = angleRange / range
     angle = rotationOffset + (value - minValue) * angleStep
   }
 
@@ -363,100 +315,6 @@ export const Radial = function (canvas, parameters) {
 
     // Max post
     ctx.drawImage(POST_KNOB, maxX, maxY)
-
-    ctx.restore()
-  }
-
-  const drawTickmark = function (ctx, lineWidth, outerPoint, innerPoint) {
-    ctx.save()
-
-    ctx.lineWidth = lineWidth
-    ctx.beginPath()
-    ctx.moveTo(outerPoint, 0)
-    ctx.lineTo(innerPoint, 0)
-    ctx.closePath()
-    ctx.stroke()
-
-    ctx.restore()
-  }
-
-  const drawLabel = function (ctx, labelNum, alpha) {
-    ctx.save()
-
-    ctx.translate(TEXT_TRANSLATE_X, 0)
-
-    let textRotationAngle
-    switch (tickLabelOrientation.type) {
-      case 'horizontal': textRotationAngle = -alpha; break
-      case 'tangent': textRotationAngle = alpha <= HALF_PI + PI ? PI : 0; break
-      case 'normal':
-      default: textRotationAngle = HALF_PI
-    }
-    ctx.rotate(textRotationAngle)
-
-    switch (labelNumberFormat.format) {
-      case 'fractional': ctx.fillText(labelNum.toFixed(fractionalScaleDecimals), 0, 0, TEXT_WIDTH); break
-      case 'scientific': ctx.fillText(labelNum.toPrecision(2), 0, 0, TEXT_WIDTH); break
-      case 'standard':
-      default: ctx.fillText(labelNum.toFixed(0), 0, 0, TEXT_WIDTH)
-    }
-    ctx.translate(-TEXT_TRANSLATE_X, 0)
-
-    ctx.restore()
-  }
-
-  const drawTickmarksImage = function (ctx) {
-    const FONT_SIZE = Math.ceil(size * 0.04)
-    const ROTATION_STEP = angleStep * minorTickSpacing
-    const OUTER_POINT = size * 0.38
-    const MAJOR_INNER_POINT = size * 0.35
-    const MED_INNER_POINT = size * 0.355
-    const MINOR_INNER_POINT = size * 0.36
-    const HALF_MAX_NO_OF_MINOR_TICKS = maxNoOfMinorTicks / 2
-    const MAX_VALUE_ROUNDED = parseFloat(maxValue.toFixed(2))
-
-    let alpha = rotationOffset // Tracks total rotation
-    let labelCounter = minValue
-    let majorTickCounter = maxNoOfMinorTicks - 1
-
-    backgroundColor.labelColor.setAlpha(1)
-
-    ctx.save()
-
-    // Init context
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-    ctx.font = FONT_SIZE + 'px ' + stdFontName
-    ctx.strokeStyle = backgroundColor.labelColor.getRgbaColor()
-    ctx.fillStyle = backgroundColor.labelColor.getRgbaColor()
-    ctx.translate(center, center)
-    ctx.rotate(rotationOffset)
-
-    for (let i = minValue; parseFloat(i.toFixed(2)) <= MAX_VALUE_ROUNDED; i += minorTickSpacing) {
-      majorTickCounter++
-
-      // Draw major tickmarks
-      if (majorTickCounter === maxNoOfMinorTicks) {
-        drawTickmark(ctx, 1.5, OUTER_POINT, MAJOR_INNER_POINT)
-        drawLabel(ctx, labelCounter, alpha)
-
-        labelCounter += majorTickSpacing
-        majorTickCounter = 0
-        ctx.rotate(ROTATION_STEP)
-        alpha += ROTATION_STEP
-        continue
-      }
-
-      // Draw tickmark every minor tickmark spacing
-      if (maxNoOfMinorTicks % 2 === 0 && majorTickCounter === HALF_MAX_NO_OF_MINOR_TICKS) {
-        drawTickmark(ctx, 1, OUTER_POINT, MED_INNER_POINT)
-      } else {
-        drawTickmark(ctx, 0.5, OUTER_POINT, MINOR_INNER_POINT)
-      }
-
-      ctx.rotate(ROTATION_STEP)
-      alpha += ROTATION_STEP
-    }
 
     ctx.restore()
   }
@@ -616,7 +474,21 @@ export const Radial = function (canvas, parameters) {
       }
 
       // Create tickmarks in background buffer (backgroundBuffer)
-      drawTickmarksImage(backgroundCtx, labelNumberFormat)
+      // drawTickmarksImage(backgroundCtx, labelNumberFormat)
+      drawRadialTickmarksImage(
+        backgroundCtx,
+        size,
+        gaugeType,
+        minValue,
+        maxValue,
+        niceScale,
+        backgroundColor,
+        tickLabelOrientation,
+        labelNumberFormat,
+        fractionalScaleDecimals,
+        false,
+        false
+      )
 
       // Create title in background buffer (backgroundBuffer)
       drawTitleImage(
