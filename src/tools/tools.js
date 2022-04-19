@@ -262,6 +262,10 @@ export const gradientWrapper = function (start, end, fractions, colors) {
   this.getEnd = function () {
     return end
   }
+
+  this.getRange = function () {
+    return end - start
+  }
 }
 
 export function setAlpha (hex, alpha) {
