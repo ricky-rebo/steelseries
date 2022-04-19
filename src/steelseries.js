@@ -5,7 +5,7 @@
 // Array.prototype.every
 
 // import Radial from './Radial'
-import RadialBargraph from './RadialBargraph'
+// import RadialBargraph from './RadialBargraph'
 import RadialVertical from './RadialVertical'
 // import Linear from './Linear'
 // import LinearBargraph from './LinearBargraph'
@@ -32,6 +32,7 @@ export { Linear } from './Linear'
 export { LinearBargraph } from './LinearBargraph'
 export { Odometer } from './Odometer'
 export { Radial } from './Radial'
+export { RadialBargraph } from './RadialBargraph'
 export { Trafficlight as TrafficLight } from './TrafficLight'
 
 export {
@@ -61,7 +62,7 @@ export {
 } from './tools/definitions'
 
 // export { Radial }
-export { RadialBargraph }
+// export { RadialBargraph }
 export { RadialVertical }
 // export { Linear }
 // export { LinearBargraph }
