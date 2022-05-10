@@ -17,7 +17,7 @@ import {
   RAD_FACTOR,
   DEG_FACTOR,
   createAudioElement,
-  getOrDefault,
+  coalesce,
   setInRange
 } from './tools/tools'
 
@@ -236,14 +236,14 @@ export const RadialBargraph = function (canvas, parameters) {
   // Draw all static painting code to background
   const init = function (buffers) {
     buffers = buffers || {}
-    const initFrame = getOrDefault(buffers.frame, false)
-    const initBackground = getOrDefault(buffers.background, false)
-    const initLed = getOrDefault(buffers.led, false)
-    const initUserLed = getOrDefault(buffers.userLed, false)
-    const initLcd = getOrDefault(buffers.lcd, false)
-    const initValue = getOrDefault(buffers.value, false)
-    const initForeground = getOrDefault(buffers.foreground, false)
-    const initTrend = getOrDefault(buffers.trend, false)
+    const initFrame = coalesce(buffers.frame, false)
+    const initBackground = coalesce(buffers.background, false)
+    const initLed = coalesce(buffers.led, false)
+    const initUserLed = coalesce(buffers.userLed, false)
+    const initLcd = coalesce(buffers.lcd, false)
+    const initValue = coalesce(buffers.value, false)
+    const initForeground = coalesce(buffers.foreground, false)
+    const initTrend = coalesce(buffers.trend, false)
 
     calculate()
 

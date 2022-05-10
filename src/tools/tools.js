@@ -9,7 +9,7 @@ export const doc = document
 export const lcdFontName = 'LCDMono2Ultra,Arial,Verdana,sans-serif'
 export const stdFontName = 'Arial,Verdana,sans-serif'
 
-export const getOrDefault = function (prop, _default = undefined) {
+export const coalesce = function (prop, _default = undefined) {
   return prop !== undefined ? prop : _default
 }
 

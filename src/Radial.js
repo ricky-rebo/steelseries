@@ -16,7 +16,7 @@ import {
   getCanvasContext,
   HALF_PI,
   setInRange,
-  getOrDefault,
+  coalesce,
   createAudioElement
 } from './tools/tools'
 
@@ -369,17 +369,17 @@ export const Radial = function (canvas, parameters) {
   // Draw all static painting code to background
   const init = function (buffers) {
     buffers = buffers || {}
-    const initFrame = getOrDefault(buffers.frame, false)
-    const initBackground = getOrDefault(buffers.background, false)
-    const initLed = getOrDefault(buffers.led, false)
-    const initThreshold = getOrDefault(buffers.threshold, false)
-    const initUserLed = getOrDefault(buffers.userLed, false)
-    const initMinMeasured = getOrDefault(buffers.minMeasured, false)
-    const initMaxMeasured = getOrDefault(buffers.maxMeasured, false)
-    const initLcd = getOrDefault(buffers.lcd, false)
-    const initPointer = getOrDefault(buffers.pointer, false)
-    const initForeground = getOrDefault(buffers.foreground, false)
-    const initTrend = getOrDefault(buffers.trend, false)
+    const initFrame = coalesce(buffers.frame, false)
+    const initBackground = coalesce(buffers.background, false)
+    const initLed = coalesce(buffers.led, false)
+    const initThreshold = coalesce(buffers.threshold, false)
+    const initUserLed = coalesce(buffers.userLed, false)
+    const initMinMeasured = coalesce(buffers.minMeasured, false)
+    const initMaxMeasured = coalesce(buffers.maxMeasured, false)
+    const initLcd = coalesce(buffers.lcd, false)
+    const initPointer = coalesce(buffers.pointer, false)
+    const initForeground = coalesce(buffers.foreground, false)
+    const initTrend = coalesce(buffers.trend, false)
 
     initialized = true
 
