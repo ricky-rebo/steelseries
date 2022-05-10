@@ -1,4 +1,4 @@
-import Tween from './tools/tween.js'
+import Tween from './libs/tween.js'
 import drawPointerImage from './tools/drawPointerImage'
 import drawFrame from './tools/drawFrame'
 import drawBackground from './tools/drawBackground'

@@ -1,4 +1,4 @@
-import Tween from './tools/tween.js'
+import Tween from './libs/tween.js'
 import drawFrame from './tools/drawFrame'
 import drawBackground from './tools/drawBackground'
 import drawRadialCustomImage from './tools/drawRadialCustomImage'

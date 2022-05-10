@@ -1,4 +1,4 @@
-import Tween from './tools/tween.js'
+import Tween from './libs/tween.js'
 import drawLinearFrameImage from './tools/drawLinearFrameImage'
 import drawLinearBackgroundImage from './tools/drawLinearBackgroundImage'
 import drawLinearForegroundImage from './tools/drawLinearForegroundImage'
