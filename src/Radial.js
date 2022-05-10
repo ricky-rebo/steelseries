@@ -20,7 +20,7 @@ import {
   setInRange,
   coalesce,
   createAudioElement
-} from './utils/tools'
+} from './utils/common'
 import { getRadialRotationParams } from './utils/radial.js'
 
 import { BackgroundColor, LcdColor, LedColor, ColorDef } from './tools/customization/colors'

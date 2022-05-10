@@ -1,4 +1,4 @@
-import { HALF_PI, PI, stdFontName, calcNiceNumber } from '../../utils/tools'
+import { HALF_PI, PI, stdFontName, calcNiceNumber } from '../../utils/common'
 import { getRadialRotationParams } from '../../utils/radial.js'
 
 const MAX_MINOR_TICKS_COUNT = 10

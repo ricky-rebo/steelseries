@@ -1,4 +1,4 @@
-import { drawToBuffer } from '../utils/tools'
+import { drawToBuffer } from '../utils/common'
 
 const carbonBuffer = drawToBuffer(12, 12, function (ctx) {
   const imageWidth = ctx.canvas.width

@@ -1,4 +1,4 @@
-import { createBuffer, TWO_PI } from '../../utils/tools'
+import { createBuffer, TWO_PI } from '../../utils/common'
 
 const createKnobImage = function (size, knob, style) {
   let knobBuffer

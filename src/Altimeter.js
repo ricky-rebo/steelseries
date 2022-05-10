@@ -14,7 +14,7 @@ import {
   TWO_PI,
   PI,
   stdFontName
-} from './utils/tools'
+} from './utils/common'
 
 import { BackgroundColor, LcdColor } from './tools/customization/colors'
 import { KnobType, KnobStyle, FrameDesign, ForegroundType } from './tools/customization/types'

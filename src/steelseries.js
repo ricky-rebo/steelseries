@@ -42,7 +42,7 @@ export {
   setAlpha,
   getColorFromFraction,
   Section
-} from './utils/tools'
+} from './utils/common'
 
 export {
   BackgroundColor,

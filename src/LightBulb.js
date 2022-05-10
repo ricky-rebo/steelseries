@@ -4,7 +4,7 @@ import {
   getCanvasContext,
   isHexColor,
   getColorValues
-} from './utils/tools'
+} from './utils/common'
 
 // TODO fix screw image (and extracxt SVG paths from code ?)
 

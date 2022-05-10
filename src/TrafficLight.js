@@ -1,4 +1,4 @@
-import { TWO_PI, createBuffer, drawToBuffer, getCanvasContext } from './utils/tools'
+import { TWO_PI, createBuffer, drawToBuffer, getCanvasContext } from './utils/common'
 
 export const Trafficlight = function (canvas, parameters) {
   // Get canvas context

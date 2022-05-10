@@ -22,7 +22,7 @@ import {
   createAudioElement,
   coalesce,
   setInRange
-} from './utils/tools'
+} from './utils/common'
 
 import { BackgroundColor, LcdColor, ColorDef, LedColor } from './tools/customization/colors'
 import {

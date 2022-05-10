@@ -16,7 +16,7 @@ import {
   RAD_FACTOR,
   lcdFontName,
   stdFontName
-} from './utils/tools'
+} from './utils/common'
 
 import { BackgroundColor, LcdColor, ColorDef } from './tools/customization/colors'
 import {

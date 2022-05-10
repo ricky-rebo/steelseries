@@ -9,7 +9,7 @@ import {
   PI,
   RAD_FACTOR,
   stdFontName
-} from './utils/tools'
+} from './utils/common'
 
 import { BackgroundColor, ColorDef } from './tools/customization/colors'
 import { FrameDesign, ForegroundType } from './tools/customization/types'

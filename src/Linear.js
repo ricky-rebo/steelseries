@@ -19,7 +19,7 @@ import {
   requestAnimFrame,
   getCanvasContext,
   HALF_PI
-} from './utils/tools'
+} from './utils/common'
 
 import { BackgroundColor, LcdColor, ColorDef, LedColor } from './tools/customization/colors'
 import { GaugeType, FrameDesign, LabelNumberFormat } from './tools/customization/types'

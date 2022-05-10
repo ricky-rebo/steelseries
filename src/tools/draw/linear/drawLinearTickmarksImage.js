@@ -1,4 +1,4 @@
-import { calcNiceNumber } from '../../../utils/tools'
+import { calcNiceNumber } from '../../../utils/common'
 
 const MAX_MAJOR_TICKS_COUNT = 10
 const MAX_MINOR_TICKS_COUNT = 10

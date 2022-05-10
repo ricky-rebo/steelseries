@@ -15,7 +15,7 @@ import {
   PI,
   doc,
   stdFontName
-} from './utils/tools'
+} from './utils/common'
 
 import { BackgroundColor, ColorDef, LedColor } from './tools/customization/colors'
 import {

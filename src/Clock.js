@@ -2,7 +2,7 @@ import drawFrame from './tools/draw/drawFrame'
 import drawBackground from './tools/draw/drawBackground'
 import drawRadialCustomImage from './tools/draw/drawRadialCustomImage'
 import drawForeground from './tools/draw/drawForeground'
-import { createBuffer, getCanvasContext, TWO_PI, RAD_FACTOR } from './utils/tools'
+import { createBuffer, getCanvasContext, TWO_PI, RAD_FACTOR } from './utils/common'
 
 import { BackgroundColor, ColorDef } from './tools/customization/colors'
 import { FrameDesign, PointerType, ForegroundType } from './tools/customization/types'

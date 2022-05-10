@@ -1,4 +1,4 @@
-import { createBuffer } from '../../utils/tools'
+import { createBuffer } from '../../utils/common'
 
 const createThresholdImage = function (width, height, radial, vertical) {
   const cacheKey = width.toString() + height.toString() + radial + vertical
