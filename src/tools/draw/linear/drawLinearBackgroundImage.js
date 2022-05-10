@@ -1,13 +1,13 @@
-import carbonBuffer from './carbonBuffer'
-import punchedSheetBuffer from './punchedSheetBuffer'
-import brushedMetalTexture from './brushedMetalTexture'
+import carbonBuffer from '../../carbonBuffer'
+import punchedSheetBuffer from '../../punchedSheetBuffer'
+import brushedMetalTexture from '../../brushedMetalTexture'
 import {
   rgbaColor,
   ConicalGradient,
   roundedRectangle,
   createBuffer,
   TWO_PI
-} from './tools'
+} from '../../tools'
 
 const drawLinearBackgroundImage = function (
   ctx,

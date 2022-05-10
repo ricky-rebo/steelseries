@@ -1,4 +1,4 @@
-import { createBuffer } from './tools'
+import { createBuffer } from '../../tools'
 
 const drawLinearForegroundImage = function (
   ctx,

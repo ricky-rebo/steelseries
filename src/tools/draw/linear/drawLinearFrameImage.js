@@ -3,7 +3,7 @@ import {
   ConicalGradient,
   roundedRectangle,
   createBuffer
-} from './tools'
+} from '../../tools'
 
 const drawLinearFrameImage = function (
   ctx,
