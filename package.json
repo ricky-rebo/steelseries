@@ -31,14 +31,17 @@
   "homepage": "https://github.com/nicolas-van/steelseries#readme",
   "devDependencies": {
     "eslint": "^6.6.0",
+    "eslint-config-prettier": "^8.5.0",
     "eslint-config-standard": "^14.1.0",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-node": "^10.0.0",
+    "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
-    "nunjucks": "^3.2.0",
+    "nunjucks": "^3.2.3",
     "parcel-bundler": "^1.12.3",
     "parcel-plugin-nunjucks": "^1.1.0",
+    "prettier": "^2.6.2",
     "webpack": "^4.35.3",
     "webpack-cli": "^3.3.6"
   },
