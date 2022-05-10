@@ -3,9 +3,9 @@ import drawPointerImage from './tools/drawPointerImage'
 import drawFrame from './tools/drawFrame'
 import drawBackground from './tools/drawBackground'
 import drawForeground from './tools/drawForeground'
-import createKnobImage from './tools/createKnobImage'
-import createLedImage from './tools/createLedImage'
-import createMeasuredValueImage from './tools/createMeasuredValueImage'
+import createKnobImage from './tools/create/createKnobImage'
+import createLedImage from './tools/create/createLedImage'
+import createMeasuredValueImage from './tools/create/createMeasuredValueImage'
 import {
   calcNiceNumber,
   createBuffer,

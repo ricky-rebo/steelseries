@@ -3,7 +3,7 @@ import drawFrame from './tools/drawFrame'
 import drawBackground from './tools/drawBackground'
 import drawRadialCustomImage from './tools/drawRadialCustomImage'
 import drawForeground from './tools/drawForeground'
-import createTrendIndicator from './tools/createTrendIndicator'
+import createTrendIndicator from './tools/create/createTrendIndicator'
 import drawTitleImage from './tools/drawTitleImage'
 import { drawActiveBargraphLed } from './tools/draw/drawActiveBargraphLed'
 import {

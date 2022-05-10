@@ -1,4 +1,4 @@
-import createLcdBackgroundImage from './tools/createLcdBackgroundImage'
+import createLcdBackgroundImage from './tools/create/createLcdBackgroundImage'
 import {
   roundedRectangle,
   createBuffer,

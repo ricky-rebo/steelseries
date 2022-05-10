@@ -1,4 +1,4 @@
-import createKnobImage from './createKnobImage'
+import createKnobImage from './create/createKnobImage'
 import { createBuffer } from './tools'
 
 import { GaugeType, Orientation } from './definitions'

@@ -4,7 +4,7 @@ import drawFrame from './tools/drawFrame'
 import drawBackground from './tools/drawBackground'
 import drawRadialCustomImage from './tools/drawRadialCustomImage'
 import drawForeground from './tools/drawForeground'
-import createLcdBackgroundImage from './tools/createLcdBackgroundImage'
+import createLcdBackgroundImage from './tools/create/createLcdBackgroundImage'
 import drawRoseImage from './tools/drawRoseImage'
 import {
   createBuffer,
