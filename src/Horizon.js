@@ -1,6 +1,6 @@
 import Tween from './libs/tween.js'
-import drawFrame from './tools/drawFrame'
-import drawForeground from './tools/drawForeground'
+import drawFrame from './tools/draw/drawFrame'
+import drawForeground from './tools/draw/drawForeground'
 import {
   createBuffer,
   requestAnimFrame,

@@ -1,9 +1,9 @@
 import Tween from './libs/tween.js'
-import drawFrame from './tools/drawFrame'
-import drawBackground from './tools/drawBackground'
-import drawRadialCustomImage from './tools/drawRadialCustomImage'
-import drawForeground from './tools/drawForeground'
-import drawRoseImage from './tools/drawRoseImage'
+import drawFrame from './tools/draw/drawFrame'
+import drawBackground from './tools/draw/drawBackground'
+import drawRadialCustomImage from './tools/draw/drawRadialCustomImage'
+import drawForeground from './tools/draw/drawForeground'
+import drawRoseImage from './tools/draw/drawRoseImage'
 import {
   createBuffer,
   getShortestAngle,

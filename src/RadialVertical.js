@@ -1,11 +1,11 @@
 import Tween from './libs/tween.js'
-import drawPointerImage from './tools/drawPointerImage'
-import drawFrame from './tools/drawFrame'
-import drawBackground from './tools/drawBackground'
-import drawForeground from './tools/drawForeground'
 import createKnobImage from './tools/create/createKnobImage'
 import createLedImage from './tools/create/createLedImage'
 import createMeasuredValueImage from './tools/create/createMeasuredValueImage'
+import drawPointerImage from './tools/draw/drawPointerImage'
+import drawFrame from './tools/draw/drawFrame'
+import drawBackground from './tools/draw/drawBackground'
+import drawForeground from './tools/draw/drawForeground'
 import {
   calcNiceNumber,
   createBuffer,

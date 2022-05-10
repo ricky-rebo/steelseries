@@ -1,14 +1,14 @@
 import Tween from './libs/tween.js'
-import drawPointerImage from './tools/drawPointerImage'
-import drawFrame from './tools/drawFrame'
-import drawBackground from './tools/drawBackground'
-import drawRadialCustomImage from './tools/drawRadialCustomImage'
-import drawForeground from './tools/drawForeground'
 import createKnobImage from './tools/create/createKnobImage'
 import createMeasuredValueImage from './tools/create/createMeasuredValueImage'
 import createTrendIndicator from './tools/create/createTrendIndicator'
 import createThresholdImage from './tools/create/createThresholdImage'
-import drawTitleImage from './tools/drawTitleImage'
+import drawPointerImage from './tools/draw/drawPointerImage'
+import drawFrame from './tools/draw/drawFrame'
+import drawBackground from './tools/draw/drawBackground'
+import drawRadialCustomImage from './tools/draw/drawRadialCustomImage'
+import drawForeground from './tools/draw/drawForeground'
+import drawTitleImage from './tools/draw/drawTitleImage'
 import {
   calcNiceNumber,
   createBuffer,

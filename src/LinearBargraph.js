@@ -4,7 +4,7 @@ import drawLinearBackgroundImage from './tools/draw/linear/drawLinearBackgroundI
 import drawLinearForegroundImage from './tools/draw/linear/drawLinearForegroundImage'
 import drawLinearIndicator from './tools/draw/linear/drawLinearIndicator.js'
 import drawLinearTickmarksImage from './tools/draw/linear/drawLinearTickmarksImage.js'
-import drawTitleImage from './tools/drawTitleImage'
+import drawTitleImage from './tools/draw/drawTitleImage'
 import createMeasuredValueImage from './tools/create/createMeasuredValueImage'
 import createThresholdImage from './tools/create/createThresholdImage.js'
 

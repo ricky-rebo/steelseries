@@ -1,7 +1,7 @@
-import drawFrame from './tools/drawFrame'
-import drawBackground from './tools/drawBackground'
-import drawRadialCustomImage from './tools/drawRadialCustomImage'
-import drawForeground from './tools/drawForeground'
+import drawFrame from './tools/draw/drawFrame'
+import drawBackground from './tools/draw/drawBackground'
+import drawRadialCustomImage from './tools/draw/drawRadialCustomImage'
+import drawForeground from './tools/draw/drawForeground'
 import { createBuffer, getCanvasContext, TWO_PI, RAD_FACTOR } from './tools/tools'
 
 import {
