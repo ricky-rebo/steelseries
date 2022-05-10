@@ -1,4 +1,4 @@
-import { createBuffer, PI } from './tools'
+import { createBuffer, PI } from '../utils/tools'
 
 const brushedMetalTexture = function (color, radius, amount, monochrome, shine) {
   this.fill = function (startX, startY, endX, endY) {

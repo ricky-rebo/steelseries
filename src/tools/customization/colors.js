@@ -1,4 +1,4 @@
-import { rgbaColor } from '../tools'
+import { rgbaColor } from '../../utils/tools'
 import {
   BackgroundColorDef,
   LcdColorDef,

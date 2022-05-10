@@ -1,4 +1,4 @@
-import { ColorDef } from './customization/color-descriptors'
+import { ColorDef } from '../tools/customization/color-descriptors'
 
 export const HALF_PI = Math.PI * 0.5
 export const TWO_PI = Math.PI * 2

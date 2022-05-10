@@ -11,7 +11,7 @@ import {
   getCanvasContext,
   HALF_PI,
   RAD_FACTOR
-} from './tools/tools'
+} from './utils/tools'
 
 import { BackgroundColor, ColorDef } from './tools/customization/colors'
 import {

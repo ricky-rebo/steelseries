@@ -7,7 +7,7 @@ import {
   createBuffer,
   TWO_PI,
   RAD_FACTOR
-} from '../tools'
+} from '../../utils/tools'
 
 const drawBackground = function (
   ctx,

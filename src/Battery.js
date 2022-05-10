@@ -1,4 +1,4 @@
-import { rgbaColor, gradientWrapper, getCanvasContext } from './tools/tools'
+import { rgbaColor, gradientWrapper, getCanvasContext } from './utils/tools'
 
 export const Battery = function (canvas, parameters) {
   // Get the canvas context and clear it

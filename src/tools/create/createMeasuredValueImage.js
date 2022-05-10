@@ -1,4 +1,4 @@
-import { doc } from '../tools'
+import { doc } from '../../utils/tools'
 
 const createMeasuredValueImage = function (
   size,

@@ -1,4 +1,4 @@
-import { stdFontName } from '../tools'
+import { stdFontName } from '../../utils/tools'
 
 import { GaugeType } from '../customization/types'
 

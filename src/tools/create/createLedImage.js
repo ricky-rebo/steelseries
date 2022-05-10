@@ -1,4 +1,4 @@
-import { setAlpha, createBuffer, TWO_PI } from '../tools'
+import { setAlpha, createBuffer, TWO_PI } from '../../utils/tools'
 
 const createLedImage = function (size, state, ledColor) {
   let ledBuffer

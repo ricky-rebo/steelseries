@@ -1,5 +1,5 @@
 import createLcdBackgroundImage from './tools/create/createLcdBackgroundImage'
-import { createBuffer, getCanvasContext, lcdFontName, stdFontName } from './tools/tools'
+import { createBuffer, getCanvasContext, lcdFontName, stdFontName } from './utils/tools'
 
 import { LcdColor } from './tools/customization/colors'
 

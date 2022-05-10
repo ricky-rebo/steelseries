@@ -1,5 +1,5 @@
 import createLedImage from './tools/create/createLedImage'
-import { getCanvasContext, createBuffer } from './tools/tools'
+import { getCanvasContext, createBuffer } from './utils/tools'
 
 import { LedColor } from './tools/customization/colors'
 

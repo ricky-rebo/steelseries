@@ -8,7 +8,7 @@ import { drawRadialTickmarksImage, MAX_MAJOR_TICKS_COUNT } from './tools/draw/dr
 import drawForeground from './tools/draw/drawForeground'
 import drawTitleImage from './tools/draw/drawTitleImage'
 
-import { getRadialRotationParams } from './tools/radial'
+import { getRadialRotationParams } from './utils/radial'
 import {
   calcNiceNumber,
   createBuffer,
@@ -22,7 +22,7 @@ import {
   createAudioElement,
   coalesce,
   setInRange
-} from './tools/tools'
+} from './utils/tools'
 
 import { BackgroundColor, LcdColor, ColorDef, LedColor } from './tools/customization/colors'
 import {
@@ -40,7 +40,7 @@ import {
   validFrameDesign,
   validLabelNumberFormat,
   validTrendState
-} from './tools/validation.js'
+} from './utils/validation.js'
 
 import { Led } from './Led.js'
 import { DisplaySingle } from './DisplaySingle.js'

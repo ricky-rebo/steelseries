@@ -20,7 +20,8 @@ import {
   setInRange,
   coalesce,
   createAudioElement
-} from './tools/tools'
+} from './utils/tools'
+import { getRadialRotationParams } from './utils/radial.js'
 
 import { BackgroundColor, LcdColor, LedColor, ColorDef } from './tools/customization/colors'
 import {
@@ -43,12 +44,11 @@ import {
   validLcdColor,
   validPointerType,
   validTrendState
-} from './tools/validation.js'
+} from './utils/validation.js'
 
 import { DisplaySingle } from './DisplaySingle.js'
 import { Led } from './Led.js'
 import { Odometer } from './Odometer'
-import { getRadialRotationParams } from './tools/radial.js'
 
 export const Radial = function (canvas, parameters) {
   // Get the canvas context

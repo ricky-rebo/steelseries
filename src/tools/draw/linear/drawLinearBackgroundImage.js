@@ -7,7 +7,7 @@ import {
   roundedRectangle,
   createBuffer,
   TWO_PI
-} from '../../tools'
+} from '../../../utils/tools'
 
 const drawLinearBackgroundImage = function (
   ctx,

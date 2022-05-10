@@ -9,7 +9,7 @@ import {
   getCanvasContext,
   lcdFontName,
   stdFontName
-} from './tools/tools'
+} from './utils/tools'
 
 import { LcdColor } from './tools/customization/colors'
 

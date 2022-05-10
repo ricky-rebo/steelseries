@@ -20,11 +20,11 @@ import {
   getCanvasContext,
   createAudioElement,
   setInRange
-} from './tools/tools'
+} from './utils/tools'
 
 import { BackgroundColor, LcdColor, ColorDef, LedColor } from './tools/customization/colors'
 import { GaugeType, FrameDesign, LabelNumberFormat } from './tools/customization/types'
-import { validBackgroundColor, validColor, validFrameDesign } from './tools/validation.js'
+import { validBackgroundColor, validColor, validFrameDesign } from './utils/validation.js'
 
 export const LinearBargraph = function (canvas, parameters) {
   // Get the canvas context
