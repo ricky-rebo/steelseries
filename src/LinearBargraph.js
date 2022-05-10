@@ -1,12 +1,13 @@
 import Tween from './libs/tween.js'
+import createMeasuredValueImage from './tools/create/createMeasuredValueImage'
+import createThresholdImage from './tools/create/createThresholdImage.js'
+import { drawActiveBargraphLed } from './tools/draw/drawActiveBargraphLed.js'
 import drawLinearFrameImage from './tools/draw/linear/drawLinearFrameImage'
 import drawLinearBackgroundImage from './tools/draw/linear/drawLinearBackgroundImage'
 import drawLinearForegroundImage from './tools/draw/linear/drawLinearForegroundImage'
 import drawLinearIndicator from './tools/draw/linear/drawLinearIndicator.js'
 import drawLinearTickmarksImage from './tools/draw/linear/drawLinearTickmarksImage.js'
 import drawTitleImage from './tools/draw/drawTitleImage'
-import createMeasuredValueImage from './tools/create/createMeasuredValueImage'
-import createThresholdImage from './tools/create/createThresholdImage.js'
 
 import { DisplaySingle } from './DisplaySingle.js'
 import { Led } from './Led.js'
@@ -21,17 +22,9 @@ import {
   setInRange
 } from './tools/tools'
 
-import {
-  GaugeType,
-  BackgroundColor,
-  LcdColor,
-  ColorDef,
-  LedColor,
-  FrameDesign,
-  LabelNumberFormat
-} from './tools/definitions'
+import { BackgroundColor, LcdColor, ColorDef, LedColor } from './tools/customization/colors'
+import { GaugeType, FrameDesign, LabelNumberFormat } from './tools/customization/types'
 import { validBackgroundColor, validColor, validFrameDesign } from './tools/validation.js'
-import { drawActiveBargraphLed } from './tools/draw/drawActiveBargraphLed.js'
 
 export const LinearBargraph = function (canvas, parameters) {
   // Get the canvas context

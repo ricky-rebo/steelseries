@@ -7,8 +7,10 @@ import drawPointerImage from './tools/draw/drawPointerImage'
 import drawFrame from './tools/draw/drawFrame'
 import drawBackground from './tools/draw/drawBackground'
 import drawRadialCustomImage from './tools/draw/drawRadialCustomImage'
+import { drawRadialTickmarksImage, MAX_MAJOR_TICKS_COUNT } from './tools/draw/drawRadialTickmarksImage.js'
 import drawForeground from './tools/draw/drawForeground'
 import drawTitleImage from './tools/draw/drawTitleImage'
+
 import {
   calcNiceNumber,
   createBuffer,
@@ -20,11 +22,8 @@ import {
   createAudioElement
 } from './tools/tools'
 
+import { BackgroundColor, LcdColor, LedColor, ColorDef } from './tools/customization/colors'
 import {
-  BackgroundColor,
-  LcdColor,
-  ColorDef,
-  LedColor,
   GaugeType,
   KnobType,
   KnobStyle,
@@ -34,13 +33,21 @@ import {
   LabelNumberFormat,
   TickLabelOrientation,
   TrendState
-} from './tools/definitions'
+} from './tools/customization/types'
+import {
+  validBackgroundColor,
+  validColor,
+  validForegroundType,
+  validFrameDesign,
+  validLabelNumberFormat,
+  validLcdColor,
+  validPointerType,
+  validTrendState
+} from './tools/validation.js'
 
-import { Odometer } from './Odometer'
-import { Led } from './Led.js'
 import { DisplaySingle } from './DisplaySingle.js'
-import { validBackgroundColor, validColor, validForegroundType, validFrameDesign, validLabelNumberFormat, validLcdColor, validPointerType, validTrendState } from './tools/validation.js'
-import { drawRadialTickmarksImage, MAX_MAJOR_TICKS_COUNT } from './tools/draw/drawRadialTickmarksImage.js'
+import { Led } from './Led.js'
+import { Odometer } from './Odometer'
 import { getRadialRotationParams } from './tools/radial.js'
 
 export const Radial = function (canvas, parameters) {

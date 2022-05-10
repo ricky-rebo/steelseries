@@ -4,13 +4,8 @@ import drawRadialCustomImage from './tools/draw/drawRadialCustomImage'
 import drawForeground from './tools/draw/drawForeground'
 import { createBuffer, getCanvasContext, TWO_PI, RAD_FACTOR } from './tools/tools'
 
-import {
-  BackgroundColor,
-  ColorDef,
-  FrameDesign,
-  PointerType,
-  ForegroundType
-} from './tools/definitions'
+import { BackgroundColor, ColorDef } from './tools/customization/colors'
+import { FrameDesign, PointerType, ForegroundType } from './tools/customization/types'
 
 export const Clock = function (canvas, parameters) {
   // Get the canvas context and clear it

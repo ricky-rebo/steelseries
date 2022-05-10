@@ -12,11 +12,8 @@ import {
   stdFontName
 } from './tools/tools'
 
-import {
-  ColorDef,
-  FrameDesign,
-  ForegroundType
-} from './tools/definitions'
+import { ColorDef } from './tools/customization/colors'
+import { FrameDesign, ForegroundType } from './tools/customization/types'
 
 export const Horizon = function (canvas, parameters) {
   // Get the canvas context

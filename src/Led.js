@@ -1,7 +1,7 @@
 import createLedImage from './tools/create/createLedImage'
 import { getCanvasContext, createBuffer } from './tools/tools'
 
-import { LedColor } from './tools/definitions'
+import { LedColor } from './tools/customization/colors'
 
 export const Led = function (canvas, parameters) {
   parameters = parameters || {}

@@ -11,7 +11,7 @@ import {
   stdFontName
 } from './tools/tools'
 
-import { LcdColor } from './tools/definitions'
+import { LcdColor } from './tools/customization/colors'
 
 export const DisplaySingle = function (canvas, parameters) {
   parameters = parameters || {}

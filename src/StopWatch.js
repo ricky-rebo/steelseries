@@ -11,12 +11,8 @@ import {
   stdFontName
 } from './tools/tools'
 
-import {
-  BackgroundColor,
-  ColorDef,
-  FrameDesign,
-  ForegroundType
-} from './tools/definitions'
+import { BackgroundColor, ColorDef } from './tools/customization/colors'
+import { FrameDesign, ForegroundType } from './tools/customization/types'
 
 const Stopwatch = function (canvas, parameters) {
   parameters = parameters || {}

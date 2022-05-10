@@ -48,7 +48,10 @@ export {
   BackgroundColor,
   LcdColor,
   ColorDef,
-  LedColor,
+  LedColor
+} from './tools/customization/colors'
+
+export {
   GaugeType,
   Orientation,
   KnobType,
@@ -59,7 +62,7 @@ export {
   LabelNumberFormat,
   TickLabelOrientation,
   TrendState
-} from './tools/definitions'
+} from './tools/customization/types'
 
 // export { Radial }
 // export { RadialBargraph }

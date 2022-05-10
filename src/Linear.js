@@ -21,15 +21,8 @@ import {
   HALF_PI
 } from './tools/tools'
 
-import {
-  BackgroundColor as BgColor,
-  LcdColor,
-  ColorDef,
-  LedColor,
-  GaugeType,
-  FrameDesign,
-  LabelNumberFormat
-} from './tools/definitions'
+import { BackgroundColor, LcdColor, ColorDef, LedColor } from './tools/customization/colors'
+import { GaugeType, FrameDesign, LabelNumberFormat } from './tools/customization/types'
 
 export const Linear = function (canvas, parameters) {
   // Get the canvas context
@@ -70,7 +63,7 @@ export const Linear = function (canvas, parameters) {
     ? true
     : parameters.frameVisible
   let backgroundColor = undefined === parameters.backgroundColor
-    ? BgColor.DARK_GRAY
+    ? BackgroundColor.DARK_GRAY
     : parameters.backgroundColor
   const backgroundVisible = undefined === parameters.backgroundVisible
     ? true
@@ -401,7 +394,7 @@ export const Linear = function (canvas, parameters) {
 
     // Create background track gradient
     const darker =
-      [BgColor.CARBON, BgColor.PUNCHED_SHEET, BgColor.STAINLESS, BgColor.BRUSHED_STAINLESS, BgColor.TURNED].includes(backgroundColor)
+      [BackgroundColor.CARBON, BackgroundColor.PUNCHED_SHEET, BackgroundColor.STAINLESS, BackgroundColor.BRUSHED_STAINLESS, BackgroundColor.TURNED].includes(backgroundColor)
         ? 0.3
         : 0
     const bgTrackGradient = ctx.createLinearGradient(bgStartX, bgStartY, bgStopX, bgStopY)

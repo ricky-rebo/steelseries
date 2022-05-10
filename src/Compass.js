@@ -13,15 +13,14 @@ import {
   RAD_FACTOR
 } from './tools/tools'
 
+import { BackgroundColor, ColorDef } from './tools/customization/colors'
 import {
-  BackgroundColor,
-  ColorDef,
   KnobType,
   KnobStyle,
   FrameDesign,
   PointerType,
   ForegroundType
-} from './tools/definitions'
+} from './tools/customization/types'
 
 export const Compass = function (canvas, parameters) {
   // Get the canvas context and clear it

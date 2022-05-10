@@ -17,10 +17,8 @@ import {
   stdFontName
 } from './tools/tools'
 
+import { BackgroundColor, ColorDef, LedColor } from './tools/customization/colors'
 import {
-  BackgroundColor,
-  ColorDef,
-  LedColor,
   GaugeType,
   Orientation,
   KnobType,
@@ -29,7 +27,7 @@ import {
   PointerType,
   ForegroundType,
   LabelNumberFormat
-} from './tools/definitions'
+} from './tools/customization/types'
 
 const RadialVertical = function (canvas, parameters) {
   parameters = parameters || {}

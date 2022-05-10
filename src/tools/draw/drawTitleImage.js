@@ -1,6 +1,6 @@
 import { stdFontName } from '../tools'
 
-import { GaugeType } from '../definitions'
+import { GaugeType } from '../customization/types'
 
 const drawTitleImage = function (
   ctx,

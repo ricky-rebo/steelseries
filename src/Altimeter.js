@@ -16,14 +16,8 @@ import {
   stdFontName
 } from './tools/tools'
 
-import {
-  BackgroundColor,
-  LcdColor,
-  KnobType,
-  KnobStyle,
-  FrameDesign,
-  ForegroundType
-} from './tools/definitions'
+import { BackgroundColor, LcdColor } from './tools/customization/colors'
+import { KnobType, KnobStyle, FrameDesign, ForegroundType } from './tools/customization/types'
 
 export const Altimeter = function (canvas, parameters) {
   // Get the canvas context and clear it

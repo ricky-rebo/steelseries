@@ -18,16 +18,10 @@ import {
   stdFontName
 } from './tools/tools'
 
+import { BackgroundColor, LcdColor, ColorDef } from './tools/customization/colors'
 import {
-  BackgroundColor,
-  LcdColor,
-  ColorDef,
-  KnobType,
-  KnobStyle,
-  FrameDesign,
-  PointerType,
-  ForegroundType
-} from './tools/definitions'
+  KnobType, KnobStyle, FrameDesign, PointerType, ForegroundType
+} from './tools/customization/types'
 
 const WindDirection = function (canvas, parameters) {
   parameters = parameters || {}

@@ -1,11 +1,14 @@
 import Tween from './libs/tween.js'
 import createTrendIndicator from './tools/create/createTrendIndicator'
+import { drawActiveBargraphLed } from './tools/draw/drawActiveBargraphLed'
 import drawFrame from './tools/draw/drawFrame'
 import drawBackground from './tools/draw/drawBackground'
 import drawRadialCustomImage from './tools/draw/drawRadialCustomImage'
+import { drawRadialTickmarksImage, MAX_MAJOR_TICKS_COUNT } from './tools/draw/drawRadialTickmarksImage.js'
 import drawForeground from './tools/draw/drawForeground'
 import drawTitleImage from './tools/draw/drawTitleImage'
-import { drawActiveBargraphLed } from './tools/draw/drawActiveBargraphLed'
+
+import { getRadialRotationParams } from './tools/radial'
 import {
   calcNiceNumber,
   createBuffer,
@@ -21,23 +24,26 @@ import {
   setInRange
 } from './tools/tools'
 
+import { BackgroundColor, LcdColor, ColorDef, LedColor } from './tools/customization/colors'
 import {
-  BackgroundColor,
-  LcdColor,
-  ColorDef,
-  LedColor,
   GaugeType,
   FrameDesign,
   ForegroundType,
   LabelNumberFormat,
   TickLabelOrientation,
   TrendState
-} from './tools/definitions'
+} from './tools/customization/types'
+import {
+  validBackgroundColor,
+  validColor,
+  validForegroundType,
+  validFrameDesign,
+  validLabelNumberFormat,
+  validTrendState
+} from './tools/validation.js'
+
 import { Led } from './Led.js'
 import { DisplaySingle } from './DisplaySingle.js'
-import { drawRadialTickmarksImage, MAX_MAJOR_TICKS_COUNT } from './tools/draw/drawRadialTickmarksImage.js'
-import { getRadialRotationParams } from './tools/radial'
-import { validBackgroundColor, validColor, validForegroundType, validFrameDesign, validLabelNumberFormat, validTrendState } from './tools/validation.js'
 
 export const RadialBargraph = function (canvas, parameters) {
   // Get the canvas context
