@@ -1,4 +1,5 @@
-import { setAlpha, createBuffer, TWO_PI } from '../../utils/common'
+import { setAlpha, createBuffer } from '../../utils/common'
+import { TWO_PI } from '../../utils/constants'
 
 const createTrendIndicator = function (width, onSection, colors) {
   const height = width * 2

@@ -6,22 +6,16 @@ import drawBackground from './tools/draw/drawBackground'
 import drawRadialCustomImage from './tools/draw/drawRadialCustomImage'
 import drawForeground from './tools/draw/drawForeground'
 import drawRoseImage from './tools/draw/drawRoseImage'
-import {
-  createBuffer,
-  getShortestAngle,
-  requestAnimFrame,
-  getCanvasContext,
-  HALF_PI,
-  TWO_PI,
-  RAD_FACTOR,
-  lcdFontName,
-  stdFontName
-} from './utils/common'
 
 import { BackgroundColor, LcdColor, ColorDef } from './tools/customization/colors'
 import {
   KnobType, KnobStyle, FrameDesign, PointerType, ForegroundType
 } from './tools/customization/types'
+
+import {
+  createBuffer, getShortestAngle, requestAnimFrame, getCanvasContext
+} from './utils/common'
+import { HALF_PI, TWO_PI, RAD_FACTOR, lcdFontName, stdFontName } from './utils/constants'
 
 const WindDirection = function (canvas, parameters) {
   parameters = parameters || {}

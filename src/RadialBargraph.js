@@ -8,21 +8,18 @@ import { drawRadialTickmarksImage, MAX_MAJOR_TICKS_COUNT } from './tools/draw/dr
 import drawForeground from './tools/draw/drawForeground'
 import drawTitleImage from './tools/draw/drawTitleImage'
 
-import { getRadialRotationParams } from './utils/radial'
 import {
   calcNiceNumber,
   createBuffer,
   customColorDef,
   requestAnimFrame,
   getCanvasContext,
-  HALF_PI,
-  TWO_PI,
-  RAD_FACTOR,
-  DEG_FACTOR,
   createAudioElement,
   coalesce,
   setInRange
 } from './utils/common'
+import { HALF_PI, TWO_PI, RAD_FACTOR, DEG_FACTOR } from './utils/constants'
+import { getRadialRotationParams } from './utils/radial'
 
 import { BackgroundColor, LcdColor, ColorDef, LedColor } from './tools/customization/colors'
 import {

@@ -16,11 +16,11 @@ import {
   createBuffer,
   requestAnimFrame,
   getCanvasContext,
-  HALF_PI,
   setInRange,
   coalesce,
   createAudioElement
 } from './utils/common'
+import { HALF_PI } from './utils/constants'
 import { getRadialRotationParams } from './utils/radial.js'
 
 import { BackgroundColor, LcdColor, LedColor, ColorDef } from './tools/customization/colors'

@@ -1,4 +1,4 @@
-import { TWO_PI, RAD_FACTOR } from '../../utils/common'
+import { TWO_PI, RAD_FACTOR } from '../../utils/constants'
 
 const drawRoseImage = function (
   ctx,

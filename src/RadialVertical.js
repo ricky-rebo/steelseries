@@ -6,16 +6,6 @@ import drawPointerImage from './tools/draw/drawPointerImage'
 import drawFrame from './tools/draw/drawFrame'
 import drawBackground from './tools/draw/drawBackground'
 import drawForeground from './tools/draw/drawForeground'
-import {
-  calcNiceNumber,
-  createBuffer,
-  requestAnimFrame,
-  getCanvasContext,
-  HALF_PI,
-  PI,
-  doc,
-  stdFontName
-} from './utils/common'
 
 import { BackgroundColor, ColorDef, LedColor } from './tools/customization/colors'
 import {
@@ -28,6 +18,9 @@ import {
   ForegroundType,
   LabelNumberFormat
 } from './tools/customization/types'
+
+import { calcNiceNumber, createBuffer, requestAnimFrame, getCanvasContext } from './utils/common'
+import { HALF_PI, PI, stdFontName, doc } from './utils/constants'
 
 const RadialVertical = function (canvas, parameters) {
   parameters = parameters || {}

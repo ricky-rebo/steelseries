@@ -5,19 +5,13 @@ import drawRadialCustomImage from './tools/draw/drawRadialCustomImage'
 import drawForeground from './tools/draw/drawForeground'
 import drawTitleImage from './tools/draw/drawTitleImage'
 
-import { DisplaySingle } from './DisplaySingle.js'
-
-import {
-  createBuffer,
-  requestAnimFrame,
-  getCanvasContext,
-  TWO_PI,
-  PI,
-  stdFontName
-} from './utils/common'
-
 import { BackgroundColor, LcdColor } from './tools/customization/colors'
 import { KnobType, KnobStyle, FrameDesign, ForegroundType } from './tools/customization/types'
+
+import { DisplaySingle } from './DisplaySingle.js'
+
+import { createBuffer, requestAnimFrame, getCanvasContext } from './utils/common'
+import { TWO_PI, PI, stdFontName } from './utils/constants'
 
 export const Altimeter = function (canvas, parameters) {
   // Get the canvas context and clear it

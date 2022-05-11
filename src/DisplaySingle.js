@@ -1,4 +1,7 @@
 import createLcdBackgroundImage from './tools/create/createLcdBackgroundImage'
+import { LcdColor } from './tools/customization/colors'
+
+import { stdFontName, lcdFontName } from './utils/constants'
 import {
   roundedRectangle,
   createBuffer,
@@ -7,11 +10,7 @@ import {
   rgbToHsb,
   requestAnimFrame,
   getCanvasContext,
-  lcdFontName,
-  stdFontName
 } from './utils/common'
-
-import { LcdColor } from './tools/customization/colors'
 
 export const DisplaySingle = function (canvas, parameters) {
   parameters = parameters || {}

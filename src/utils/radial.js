@@ -1,4 +1,4 @@
-import { HALF_PI, PI, TWO_PI, RAD_FACTOR } from './common'
+import { HALF_PI, PI, TWO_PI, RAD_FACTOR } from './constants'
 
 export function getRadialRotationParams (gaugeType) {
   let freeAreaAngle, rotationOffset, angleRange

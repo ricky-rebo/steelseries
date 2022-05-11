@@ -1,7 +1,8 @@
 import createLcdBackgroundImage from './tools/create/createLcdBackgroundImage'
-import { createBuffer, getCanvasContext, lcdFontName, stdFontName } from './utils/common'
-
 import { LcdColor } from './tools/customization/colors'
+
+import { lcdFontName, stdFontName } from './utils/constants'
+import { createBuffer, getCanvasContext } from './utils/common'
 
 export const DisplayMulti = function (canvas, parameters) {
   // Get the canvas context

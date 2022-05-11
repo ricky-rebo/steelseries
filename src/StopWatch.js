@@ -4,12 +4,13 @@ import drawRadialCustomImage from './tools/draw/drawRadialCustomImage'
 import drawForeground from './tools/draw/drawForeground'
 import {
   createBuffer,
-  getCanvasContext,
+  getCanvasContext} from './utils/common'
+import {
   TWO_PI,
   PI,
   RAD_FACTOR,
   stdFontName
-} from './utils/common'
+} from "./utils/constants"
 
 import { BackgroundColor, ColorDef } from './tools/customization/colors'
 import { FrameDesign, ForegroundType } from './tools/customization/types'

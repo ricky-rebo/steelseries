@@ -1,13 +1,5 @@
 import { ColorDef } from '../tools/customization/color-descriptors'
-
-export const HALF_PI = Math.PI * 0.5
-export const TWO_PI = Math.PI * 2
-export const PI = Math.PI
-export const RAD_FACTOR = Math.PI / 180
-export const DEG_FACTOR = 180 / Math.PI
-export const doc = document
-export const lcdFontName = 'LCDMono2Ultra,Arial,Verdana,sans-serif'
-export const stdFontName = 'Arial,Verdana,sans-serif'
+import { TWO_PI, PI, doc } from './constants'
 
 export const coalesce = function (prop, _default = undefined) {
   return prop !== undefined ? prop : _default

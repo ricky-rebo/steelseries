@@ -1,4 +1,5 @@
-import { setAlpha, createBuffer, TWO_PI } from '../../utils/common'
+import { setAlpha, createBuffer } from '../../utils/common'
+import { TWO_PI } from '../../utils/constants'
 
 const createLedImage = function (size, state, ledColor) {
   let ledBuffer

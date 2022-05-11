@@ -1,4 +1,4 @@
-import { doc } from '../../utils/common'
+import { doc } from '../../utils/constants'
 
 const createMeasuredValueImage = function (
   size,

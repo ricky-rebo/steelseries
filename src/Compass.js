@@ -4,14 +4,8 @@ import drawBackground from './tools/draw/drawBackground'
 import drawRadialCustomImage from './tools/draw/drawRadialCustomImage'
 import drawForeground from './tools/draw/drawForeground'
 import drawRoseImage from './tools/draw/drawRoseImage'
-import {
-  createBuffer,
-  getShortestAngle,
-  requestAnimFrame,
-  getCanvasContext,
-  HALF_PI,
-  RAD_FACTOR
-} from './utils/common'
+import { createBuffer, getShortestAngle, requestAnimFrame, getCanvasContext } from './utils/common'
+import { HALF_PI, RAD_FACTOR } from './utils/constants'
 
 import { BackgroundColor, ColorDef } from './tools/customization/colors'
 import {

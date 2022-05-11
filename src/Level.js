@@ -2,19 +2,12 @@ import Tween from './libs/tween.js'
 import drawFrame from './tools/draw/drawFrame'
 import drawBackground from './tools/draw/drawBackground'
 import drawForeground from './tools/draw/drawForeground'
-import {
-  createBuffer,
-  requestAnimFrame,
-  getCanvasContext,
-  HALF_PI,
-  TWO_PI,
-  PI,
-  RAD_FACTOR,
-  stdFontName
-} from './utils/common'
 
 import { BackgroundColor, ColorDef } from './tools/customization/colors'
 import { FrameDesign, ForegroundType } from './tools/customization/types'
+
+import { HALF_PI, TWO_PI, PI, RAD_FACTOR, stdFontName } from './utils/constants'
+import { createBuffer, requestAnimFrame, getCanvasContext } from './utils/common'
 
 export const Level = function (canvas, parameters) {
   // Get the canvas context

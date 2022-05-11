@@ -17,9 +17,9 @@ import {
   setInRange,
   calcNiceNumber,
   requestAnimFrame,
-  getCanvasContext,
-  HALF_PI
+  getCanvasContext
 } from './utils/common'
+import { HALF_PI } from './utils/constants'
 
 import { BackgroundColor, LcdColor, ColorDef, LedColor } from './tools/customization/colors'
 import { GaugeType, FrameDesign, LabelNumberFormat } from './tools/customization/types'

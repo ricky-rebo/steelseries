@@ -4,10 +4,11 @@ import brushedMetalTexture from '../brushedMetalTexture'
 import {
   rgbaColor,
   ConicalGradient,
-  createBuffer,
+  createBuffer} from '../../utils/common'
+import {
   TWO_PI,
   RAD_FACTOR
-} from '../../utils/common'
+} from "../../utils/constants"
 
 const drawBackground = function (
   ctx,

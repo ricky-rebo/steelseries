@@ -1,4 +1,5 @@
-import { rgbaColor, ConicalGradient, createBuffer, TWO_PI } from '../../utils/common'
+import { rgbaColor, ConicalGradient, createBuffer } from '../../utils/common'
+import { TWO_PI } from "../../utils/constants"
 
 const drawFrame = function (
   ctx,
