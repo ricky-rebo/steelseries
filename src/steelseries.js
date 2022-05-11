@@ -3,6 +3,7 @@
 // Array.prototype.includes
 // Array.prototype.find
 // Array.prototype.every
+import './utils/polyfill'
 
 // import Radial from './Radial'
 // import RadialBargraph from './RadialBargraph'

@@ -320,10 +320,6 @@ export function Section (start, stop, color) {
   }
 }
 
-Math.log10 = function (value) {
-  return Math.log(value) / Math.LN10
-}
-
 export function calcNiceNumber (range, round) {
   const exponent = Math.floor(Math.log10(range)) // exponent of range
   const fraction = range / Math.pow(10, exponent) // fractional part of range
