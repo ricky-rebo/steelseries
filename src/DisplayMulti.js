@@ -1,7 +1,7 @@
-import createLcdBackgroundImage from './tools/create/createLcdBackgroundImage'
-import { LcdColor } from './tools/customization/colors'
+import { consts, LcdColor } from 'steelseries-tools'
 
-import { lcdFontName, stdFontName } from './utils/constants'
+import createLcdBackgroundImage from './tools/create/createLcdBackgroundImage'
+
 import { createBuffer, getCanvasContext } from './utils/common'
 
 export const DisplayMulti = function (canvas, parameters) {
@@ -48,10 +48,10 @@ export const DisplayMulti = function (canvas, parameters) {
   mainCtx.canvas.height = height
 
   // Constants
-  const stdFont = Math.floor(height / 1.875) + 'px ' + stdFontName
-  const lcdFont = Math.floor(height / 1.875) + 'px ' + lcdFontName
-  const stdAltFont = Math.floor(height / 3.5) + 'px ' + stdFontName
-  const lcdAltFont = Math.floor(height / 3.5) + 'px ' + lcdFontName
+  const stdFont = Math.floor(height / 1.875) + 'px ' + consts.STD_FONT_NAME
+  const lcdFont = Math.floor(height / 1.875) + 'px ' + consts.LCD_FONT_NAME
+  const stdAltFont = Math.floor(height / 3.5) + 'px ' + consts.STD_FONT_NAME
+  const lcdAltFont = Math.floor(height / 3.5) + 'px ' + consts.LCD_FONT_NAME
 
   // Internal Variables
   let unitStringWidth = 0
@@ -77,11 +77,11 @@ export const DisplayMulti = function (canvas, parameters) {
       if (unitStringVisible) {
         // Calc unitString text width
         const factor = headerStringVisible ? 3 : 2.5
-        ctx.font = Math.floor(height / factor) + 'px ' + stdFontName
+        ctx.font = Math.floor(height / factor) + 'px ' + consts.STD_FONT_NAME
         unitStringWidth = ctx.measureText(unitString).width
 
         // Draw unitString text
-        ctx.font = Math.floor(height / 3) + 'px ' + stdFontName
+        ctx.font = Math.floor(height / 3) + 'px ' + consts.STD_FONT_NAME
         ctx.fillText(unitString, width - 2, height * 0.55)
       } else {
         unitStringWidth = 0
@@ -90,13 +90,13 @@ export const DisplayMulti = function (canvas, parameters) {
       if (headerStringVisible) {
         // Draw headerString
         ctx.textAlign = 'center'
-        ctx.font = digitalFont ? lcdAltFont : (Math.floor(height / 5) + 'px ' + stdFontName)
+        ctx.font = digitalFont ? lcdAltFont : (Math.floor(height / 5) + 'px ' + consts.STD_FONT_NAME)
         ctx.fillText(headerString, width / 2, height * 0.16)
       }
     } else { // Non-Numeric values
       if (headerStringVisible) {
         // Draw headerString
-        ctx.font = Math.floor(height / 5) + 'px ' + stdFontName
+        ctx.font = Math.floor(height / 5) + 'px ' + consts.STD_FONT_NAME
         ctx.textAlign = 'center'
         ctx.fillText(headerString, width / 2, height * 0.17)
       }
@@ -129,7 +129,7 @@ export const DisplayMulti = function (canvas, parameters) {
         ? lcdAltFont
         : (
           headerStringVisible
-            ? (Math.floor(height / 5) + 'px ' + stdFontName)
+            ? (Math.floor(height / 5) + 'px ' + consts.STD_FONT_NAME)
             : stdAltFont
         )
       heightFactor = headerStringVisible ? 0.83 : 0.8
@@ -139,14 +139,14 @@ export const DisplayMulti = function (canvas, parameters) {
       heightFactor = headerStringVisible ? 0.48 : 0.38
       ctx.font = headerStringVisible
         ? stdAltFont
-        : Math.floor(height / 2.5) + 'px ' + stdFontName
+        : Math.floor(height / 2.5) + 'px ' + consts.STD_FONT_NAME
       ctx.fillText(value, width - 2, height * heightFactor)
 
       // Draw altValue
       ctx.textAlign = 'center'
       heightFactor = headerStringVisible ? 0.83 : 0.8
       ctx.font = headerStringVisible // Used as font itself here
-        ? Math.floor(height / 5) + 'px ' + stdFontName
+        ? Math.floor(height / 5) + 'px ' + consts.STD_FONT_NAME
         : stdAltFont
       ctx.fillText(altValue, width / 2, height * heightFactor)
     }

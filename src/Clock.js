@@ -1,12 +1,6 @@
-import drawFrame from './tools/draw/drawFrame'
-import drawBackground from './tools/draw/drawBackground'
-import drawRadialCustomImage from './tools/draw/drawRadialCustomImage'
-import drawForeground from './tools/draw/drawForeground'
-import { createBuffer, getCanvasContext } from './utils/common'
-import { TWO_PI, RAD_FACTOR } from './utils/constants'
+import { legacy, consts, BackgroundColor, FrameDesign, ForegroundType, PointerType } from 'steelseries-tools'
 
-import { BackgroundColor, ColorDef } from './tools/customization/colors'
-import { FrameDesign, PointerType, ForegroundType } from './tools/customization/types'
+import { createBuffer, getCanvasContext } from './utils/common'
 
 export const Clock = function (canvas, parameters) {
   // Get the canvas context and clear it
@@ -31,8 +25,8 @@ export const Clock = function (canvas, parameters) {
   let pointerColor =
     undefined === parameters.pointerColor
       ? pointerType === PointerType.TYPE1
-        ? ColorDef.GRAY
-        : ColorDef.BLACK
+        ? legacy.ColorDef.GRAY
+        : legacy.ColorDef.BLACK
       : parameters.pointerColor
   let backgroundColor =
     undefined === parameters.backgroundColor
@@ -167,7 +161,7 @@ export const Clock = function (canvas, parameters) {
       ctx.lineTo(OUTER_POINT - SMALL_TICK_HEIGHT, 0)
       ctx.closePath()
       ctx.stroke()
-      ctx.rotate(SMALL_TICK_STEP * RAD_FACTOR)
+      ctx.rotate(SMALL_TICK_STEP * consts.RAD_FACTOR)
     }
 
     // Draw hours tickmarks
@@ -178,7 +172,7 @@ export const Clock = function (canvas, parameters) {
       ctx.lineTo(OUTER_POINT - BIG_TICK_HEIGHT, 0)
       ctx.closePath()
       ctx.stroke()
-      ctx.rotate(BIG_TICK_STEP * RAD_FACTOR)
+      ctx.rotate(BIG_TICK_STEP * consts.RAD_FACTOR)
     }
 
     // ctx.translate(-centerX, -centerY)
@@ -299,7 +293,7 @@ export const Clock = function (canvas, parameters) {
           size * 0.26,
           (size * 0.085) / 2,
           0,
-          TWO_PI
+          consts.TWO_PI
         )
         ctx.closePath()
         ctx.stroke()
@@ -321,11 +315,11 @@ export const Clock = function (canvas, parameters) {
           size * 0.490654,
           size * 0.574766
         )
-        grad.addColorStop(0, ColorDef.RED.light.getRgbaColor())
-        grad.addColorStop(0.47, ColorDef.RED.medium.getRgbaColor())
-        grad.addColorStop(1, ColorDef.RED.dark.getRgbaColor())
+        grad.addColorStop(0, legacy.ColorDef.RED.light.getRgbaColor())
+        grad.addColorStop(0.47, legacy.ColorDef.RED.medium.getRgbaColor())
+        grad.addColorStop(1, legacy.ColorDef.RED.dark.getRgbaColor())
         ctx.fillStyle = grad
-        ctx.strokeStyle = ColorDef.RED.dark.getRgbaColor()
+        ctx.strokeStyle = legacy.ColorDef.RED.dark.getRgbaColor()
         ctx.fill()
         ctx.stroke()
         break
@@ -337,7 +331,7 @@ export const Clock = function (canvas, parameters) {
     // draw the knob
     ctx.save()
     ctx.beginPath()
-    ctx.arc(center, center, size * 0.045, 0, TWO_PI)
+    ctx.arc(center, center, size * 0.045, 0, consts.TWO_PI)
     ctx.closePath()
     const grad = ctx.createLinearGradient(
       center - (size * 0.045) / 2,
@@ -362,7 +356,7 @@ export const Clock = function (canvas, parameters) {
         // draw knob
         ctx.fillStyle = '#000000'
         ctx.beginPath()
-        ctx.arc(center, center, (size * 0.088785) / 2, 0, TWO_PI)
+        ctx.arc(center, center, (size * 0.088785) / 2, 0, consts.TWO_PI)
         ctx.closePath()
         ctx.fill()
         break
@@ -385,7 +379,7 @@ export const Clock = function (canvas, parameters) {
         grad.addColorStop(1, '#bec3c9')
         ctx.fillStyle = grad
         ctx.beginPath()
-        ctx.arc(center, center, size * 0.027, 0, TWO_PI)
+        ctx.arc(center, center, size * 0.027, 0, consts.TWO_PI)
         ctx.closePath()
         ctx.fill()
         break
@@ -455,15 +449,15 @@ export const Clock = function (canvas, parameters) {
     initialized = true
 
     if (initFrame && frameVisible) {
-      drawFrame(frameCtx, frameDesign, center, center, size, size)
+      legacy.drawFrame(frameCtx, frameDesign, center, center, size, size)
     }
 
     if (initBackground && backgroundVisible) {
       // Create background in backgroundBuffer
-      drawBackground(backgroundCtx, backgroundColor, center, center, size, size)
+      legacy.drawBackground(backgroundCtx, backgroundColor, center, center, size, size)
 
       // Create custom layer in backgroundBuffer
-      drawRadialCustomImage(backgroundCtx, customLayer, center, center, size, size)
+      legacy.drawRadialCustomImage(backgroundCtx, customLayer, center, center, size, size)
 
       drawTickmarksImage(backgroundCtx)
     }
@@ -476,7 +470,7 @@ export const Clock = function (canvas, parameters) {
 
     if (initForeground && foregroundVisible) {
       drawTopKnob(foregroundCtx, pointerType)
-      drawForeground(foregroundCtx, foregroundType, size, size, false)
+      legacy.drawForeground(foregroundCtx, foregroundType, size, size, false)
     }
   }
 
@@ -694,10 +688,10 @@ export const Clock = function (canvas, parameters) {
       resetBuffers({ background: true, foreground: true, pointers: true })
       pointerType = newPointerType
       if (pointerType.type === 'type1') {
-        pointerColor = ColorDef.GRAY
+        pointerColor = legacy.ColorDef.GRAY
         backgroundColor = BackgroundColor.ANTHRACITE
       } else {
-        pointerColor = ColorDef.BLACK
+        pointerColor = legacy.ColorDef.BLACK
         backgroundColor = BackgroundColor.LIGHT_GRAY
       }
       init({ background: true, foreground: true, pointers: true })
@@ -749,9 +743,9 @@ export const Clock = function (canvas, parameters) {
     // absolute x, y values when drawing to main context
     const shadowOffset = size * 0.006
 
-    const secondPointerAngle = second * ANGLE_STEP * RAD_FACTOR
-    const minutePointerAngle = minute * ANGLE_STEP * RAD_FACTOR
-    const hourPointerAngle = (hour + minute / 60) * ANGLE_STEP * 5 * RAD_FACTOR
+    const secondPointerAngle = second * ANGLE_STEP * consts.RAD_FACTOR
+    const minutePointerAngle = minute * ANGLE_STEP * consts.RAD_FACTOR
+    const hourPointerAngle = (hour + minute / 60) * ANGLE_STEP * 5 * consts.RAD_FACTOR
 
     // draw hour pointer
     // Define rotation center

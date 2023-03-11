@@ -1,4 +1,4 @@
-import { TWO_PI, RAD_FACTOR } from '../../utils/constants'
+import { consts } from 'steelseries-tools'
 
 const drawRoseImage = function (
   ctx,
@@ -27,16 +27,16 @@ const drawRoseImage = function (
       0,
       0,
       imageWidth * 0.26,
-      i * RAD_FACTOR,
-      (i + 15) * RAD_FACTOR,
+      i * consts.RAD_FACTOR,
+      (i + 15) * consts.RAD_FACTOR,
       false
     )
     ctx.arc(
       0,
       0,
       imageWidth * 0.23,
-      (i + 15) * RAD_FACTOR,
-      i * RAD_FACTOR,
+      (i + 15) * consts.RAD_FACTOR,
+      i * consts.RAD_FACTOR,
       true
     )
     ctx.closePath()
@@ -80,14 +80,14 @@ const drawRoseImage = function (
     ctx.fill()
     ctx.stroke()
     ctx.translate(centerX, centerY)
-    ctx.rotate(i * RAD_FACTOR)
+    ctx.rotate(i * consts.RAD_FACTOR)
     ctx.translate(-centerX, -centerY)
   }
 
   // Central ring
   ctx.beginPath()
   ctx.translate(centerX, centerY)
-  ctx.arc(0, 0, imageWidth * 0.1, 0, TWO_PI, false)
+  ctx.arc(0, 0, imageWidth * 0.1, 0, consts.TWO_PI, false)
   ctx.lineWidth = imageWidth * 0.022
   ctx.stroke()
   ctx.translate(-centerX, -centerY)

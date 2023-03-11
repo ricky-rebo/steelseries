@@ -1,4 +1,6 @@
-import { rgbaColor, gradientWrapper, getCanvasContext } from './utils/common'
+import { legacy } from 'steelseries-tools'
+
+import { getCanvasContext } from './utils/common'
 
 export const Battery = function (canvas, parameters) {
   // Get the canvas context and clear it
@@ -19,25 +21,25 @@ export const Battery = function (canvas, parameters) {
   // Constants
   const BORDER_FRACTIONS = [0, 0.4, 1]
   const BORDER_COLORS = [
-    new rgbaColor(177, 25, 2, 1),
-    new rgbaColor(219, 167, 21, 1),
-    new rgbaColor(121, 162, 75, 1)
+    new legacy.rgbaColor(177, 25, 2, 1),
+    new legacy.rgbaColor(219, 167, 21, 1),
+    new legacy.rgbaColor(121, 162, 75, 1)
   ]
 
   const LIQUID_GRADIENT_FRACTIONS = [0, 0.4, 1]
   const LIQUID_COLORS_DARK = [
-    new rgbaColor(198, 39, 5, 1), // 0xC62705
-    new rgbaColor(228, 189, 32, 1), // 0xE4BD20
-    new rgbaColor(163, 216, 102, 1) // 0xA3D866
+    new legacy.rgbaColor(198, 39, 5, 1), // 0xC62705
+    new legacy.rgbaColor(228, 189, 32, 1), // 0xE4BD20
+    new legacy.rgbaColor(163, 216, 102, 1) // 0xA3D866
   ]
   const LIQUID_COLORS_LIGHT = [
-    new rgbaColor(246, 121, 48, 1), // 0xF67930
-    new rgbaColor(246, 244, 157, 1), // 0xF6F49D
-    new rgbaColor(223, 233, 86, 1) // 0xDFE956
+    new legacy.rgbaColor(246, 121, 48, 1), // 0xF67930
+    new legacy.rgbaColor(246, 244, 157, 1), // 0xF6F49D
+    new legacy.rgbaColor(223, 233, 86, 1) // 0xDFE956
   ]
-  const BORDER_GRADIENT = new gradientWrapper(0, 100, BORDER_FRACTIONS, BORDER_COLORS)
-  const LIQUID_GRADIENT_DARK = new gradientWrapper(0, 100, LIQUID_GRADIENT_FRACTIONS, LIQUID_COLORS_DARK)
-  const LIQUID_GRADIENT_LIGHT = new gradientWrapper(0, 100, LIQUID_GRADIENT_FRACTIONS, LIQUID_COLORS_LIGHT)
+  const BORDER_GRADIENT = new legacy.gradientWrapper(0, 100, BORDER_FRACTIONS, BORDER_COLORS)
+  const LIQUID_GRADIENT_DARK = new legacy.gradientWrapper(0, 100, LIQUID_GRADIENT_FRACTIONS, LIQUID_COLORS_DARK)
+  const LIQUID_GRADIENT_LIGHT = new legacy.gradientWrapper(0, 100, LIQUID_GRADIENT_FRACTIONS, LIQUID_COLORS_LIGHT)
 
   // **************   Image creation  ********************
   const createBatteryImage = function (ctx) {

@@ -1,15 +1,24 @@
 import Tween from './libs/tween.js'
-import createKnobImage from './tools/create/createKnobImage'
-import createMeasuredValueImage from './tools/create/createMeasuredValueImage'
+
+import { 
+  legacy,
+  consts,
+  createKnobImage,
+  BackgroundColor,
+  LcdColor,
+  LedColor,
+  GaugeType,
+  KnobType,
+  KnobStyle,
+  FrameDesign,
+  PointerType,
+  ForegroundType,
+  LabelNumberFormat,
+  TickLabelOrientation,
+  TrendState
+} from 'steelseries-tools';
+
 import createTrendIndicator from './tools/create/createTrendIndicator'
-import createThresholdImage from './tools/create/createThresholdImage'
-import drawPointerImage from './tools/draw/drawPointerImage'
-import drawFrame from './tools/draw/drawFrame'
-import drawBackground from './tools/draw/drawBackground'
-import drawRadialCustomImage from './tools/draw/drawRadialCustomImage'
-import { drawRadialTickmarksImage, MAX_MAJOR_TICKS_COUNT } from './tools/draw/drawRadialTickmarksImage.js'
-import drawForeground from './tools/draw/drawForeground'
-import drawTitleImage from './tools/draw/drawTitleImage'
 
 import {
   calcNiceNumber,
@@ -20,21 +29,7 @@ import {
   coalesce,
   createAudioElement
 } from './utils/common'
-import { HALF_PI } from './utils/constants'
-import { getRadialRotationParams } from './utils/radial.js'
 
-import { BackgroundColor, LcdColor, LedColor, ColorDef } from './tools/customization/colors'
-import {
-  GaugeType,
-  KnobType,
-  KnobStyle,
-  FrameDesign,
-  PointerType,
-  ForegroundType,
-  LabelNumberFormat,
-  TickLabelOrientation,
-  TrendState
-} from './tools/customization/types'
 import {
   validBackgroundColor,
   validColor,
@@ -49,6 +44,8 @@ import {
 import { DisplaySingle } from './DisplaySingle.js'
 import { Led } from './Led.js'
 import { Odometer } from './Odometer'
+
+const MAX_MAJOR_TICKS_COUNT = 10;
 
 export const Radial = function (canvas, parameters) {
   // Get the canvas context
@@ -72,7 +69,7 @@ export const Radial = function (canvas, parameters) {
   let backgroundColor = undefined === parameters.backgroundColor ? BackgroundColor.DARK_GRAY : parameters.backgroundColor
   const backgroundVisible = undefined === parameters.backgroundVisible ? true : parameters.backgroundVisible
   let pointerType = undefined === parameters.pointerType ? PointerType.TYPE1 : parameters.pointerType
-  let pointerColor = undefined === parameters.pointerColor ? ColorDef.RED : parameters.pointerColor
+  let pointerColor = undefined === parameters.pointerColor ? legacy.ColorDef.RED : parameters.pointerColor
   const knobType = undefined === parameters.knobType ? KnobType.STANDARD_KNOB : parameters.knobType
   const knobStyle = undefined === parameters.knobStyle ? KnobStyle.SILVER : parameters.knobStyle
   let lcdColor = undefined === parameters.lcdColor ? LcdColor.STANDARD : parameters.lcdColor
@@ -135,7 +132,8 @@ export const Radial = function (canvas, parameters) {
   let initialized = false
 
   // GaugeType specific private variables
-  const { rotationOffset, angleRange } = getRadialRotationParams(gaugeType)
+  // const { rotationOffset, angleRange } = getRadialRotationParams(gaugeType)
+  const { rotationOffset, angleRange } = gaugeType;
   let angleStep
   let angle
 
@@ -284,39 +282,6 @@ export const Radial = function (canvas, parameters) {
         maxY = size * 0.803738
     }
 
-    // Draw max center top post
-    // if (gaugeType.type === 'type1') {
-    //   // Min post
-    //   ctx.drawImage(POST_KNOB, imageWidth * 0.130841, imageHeight * 0.514018)
-
-    //   // Max post
-    //   ctx.drawImage(POST_KNOB, imageWidth * 0.523364, imageHeight * 0.130841)
-    // }
-
-    // if (gaugeType.type === 'type2') {
-    //   // Min post
-    //   ctx.drawImage(POST_KNOB, imageWidth * 0.130841, imageHeight * 0.514018)
-
-    //   // Max post
-    //   ctx.drawImage(POST_KNOB, imageWidth * 0.831775, imageHeight * 0.514018)
-    // }
-
-    // if (gaugeType.type === 'type3') {
-    //   // Draw min center bottom post
-    //   ctx.drawImage(POST_KNOB, imageWidth * 0.523364, imageHeight * 0.831775)
-
-    //   // Draw max right post
-    //   ctx.drawImage(POST_KNOB, imageWidth * 0.831775, imageHeight * 0.514018)
-    // }
-
-    // if (gaugeType.type === 'type4') {
-    //   // Min post
-    //   ctx.drawImage(POST_KNOB, imageWidth * 0.336448, imageHeight * 0.803738)
-
-    //   // Max post
-    //   ctx.drawImage(POST_KNOB, imageWidth * 0.626168, imageHeight * 0.803738)
-    // }
-
     // Min post
     ctx.drawImage(POST_KNOB, minX, minY)
 
@@ -330,7 +295,7 @@ export const Radial = function (canvas, parameters) {
     ctx.save()
 
     ctx.translate(center, center)
-    ctx.rotate(rotationOffset + HALF_PI + (val - minValue) * angleStep)
+    ctx.rotate(rotationOffset + consts.HALF_PI + (val - minValue) * angleStep)
     ctx.translate(-center, -center)
     ctx.drawImage(indicator, refX, refY)
 
@@ -395,7 +360,7 @@ export const Radial = function (canvas, parameters) {
 
     // Create frame in frame buffer (backgroundBuffer)
     if (initFrame && frameVisible) {
-      drawFrame(frameCtx, frameDesign, center, center, size, size)
+      legacy.drawFrame(frameCtx, frameDesign, center, center, size, size)
     }
 
     if (initLed && ledVisible) {
@@ -414,14 +379,14 @@ export const Radial = function (canvas, parameters) {
 
     // Draw threshoild indicator
     if (initThreshold && thresholdVisible) {
-      thresholdBuffer = createThresholdImage(thresholdW, thresholdH, true, false)
+      thresholdBuffer = legacy.createThresholdImage(thresholdW, thresholdH, true, false)
     }
 
     // Draw min measured value indicator
     if (initMinMeasured && minMeasuredValueVisible) {
-      minMeasuredValueBuffer = createMeasuredValueImage(
+      minMeasuredValueBuffer = legacy.createMeasuredValueImage(
         minMaxSize,
-        ColorDef.BLUE.dark.getRgbaColor(),
+        legacy.ColorDef.BLUE.dark.getRgbaColor(),
         true,
         true
       )
@@ -429,20 +394,20 @@ export const Radial = function (canvas, parameters) {
 
     // Draw max measured value indicator
     if (initMaxMeasured && maxMeasuredValueVisible) {
-      maxMeasuredValueBuffer = createMeasuredValueImage(
+      maxMeasuredValueBuffer = legacy.createMeasuredValueImage(
         minMaxSize,
-        ColorDef.RED.medium.getRgbaColor(),
+        legacy.ColorDef.RED.medium.getRgbaColor(),
         true
       )
     }
 
     // Create background in background buffer (backgroundBuffer)
     if (initBackground && backgroundVisible) {
-      drawBackground(backgroundCtx, backgroundColor, center, center, size, size)
+      legacy.drawBackground(backgroundCtx, backgroundColor, center, center, size, size)
 
       // Create custom layer in background buffer (backgroundBuffer)
       if (customLayer !== undefined) {
-        drawRadialCustomImage(backgroundCtx, customLayer, center, center, size, size)
+        legacy.drawRadialCustomImage(backgroundCtx, customLayer, center, center, size, size)
       }
     }
 
@@ -482,7 +447,7 @@ export const Radial = function (canvas, parameters) {
 
       // Create tickmarks in background buffer (backgroundBuffer)
       // drawTickmarksImage(backgroundCtx, labelNumberFormat)
-      drawRadialTickmarksImage(
+      legacy.drawRadialTickmarksImage(
         backgroundCtx,
         size,
         gaugeType,
@@ -498,7 +463,7 @@ export const Radial = function (canvas, parameters) {
       )
 
       // Create title in background buffer (backgroundBuffer)
-      drawTitleImage(
+      legacy.drawTitleImage(
         backgroundCtx,
         size,
         size,
@@ -544,13 +509,13 @@ export const Radial = function (canvas, parameters) {
 
     // Create pointer image in pointer buffer (contentBuffer)
     if (initPointer) {
-      drawPointerImage(pointerCtx, size, pointerType, pointerColor, backgroundColor.labelColor)
+      legacy.drawPointerImage(pointerCtx, size, pointerType, pointerColor, backgroundColor.labelColor)
     }
 
     // Create foreground in foreground buffer (foregroundBuffer)
     if (initForeground && foregroundVisible) {
       const knobVisible = !(pointerType.type === 'type15' || pointerType.type === 'type16')
-      drawForeground(
+      legacy.drawForeground(
         foregroundCtx,
         foregroundType,
         size,
@@ -1265,7 +1230,7 @@ export const Radial = function (canvas, parameters) {
     // Draw pointer on value
     mainCtx.save()
 
-    angle = rotationOffset + HALF_PI + (value - minValue) * angleStep
+    angle = rotationOffset + consts.HALF_PI + (value - minValue) * angleStep
 
     // Define rotation center
     mainCtx.translate(center, center)

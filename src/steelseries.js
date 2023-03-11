@@ -5,18 +5,12 @@
 // Array.prototype.every
 import './utils/polyfill'
 
-// import Radial from './Radial'
-// import RadialBargraph from './RadialBargraph'
 import RadialVertical from './RadialVertical'
-// import Linear from './Linear'
-// import LinearBargraph from './LinearBargraph'
 import WindDirection from './WindDirection'
 import StopWatch from './StopWatch'
-// import Trafficlight from './TrafficLight'
-
-import drawFrame from './tools/draw/drawFrame'
-import drawBackground from './tools/draw/drawBackground'
-import drawForeground from './tools/draw/drawForeground'
+export { RadialVertical }
+export { WindDirection }
+export { StopWatch }
 
 // Direct export
 export { Altimeter } from './Altimeter'
@@ -36,55 +30,4 @@ export { Radial } from './Radial'
 export { RadialBargraph } from './RadialBargraph'
 export { Trafficlight as TrafficLight } from './TrafficLight'
 
-export {
-  rgbaColor,
-  ConicalGradient,
-  gradientWrapper,
-  setAlpha,
-  getColorFromFraction,
-  Section
-} from './utils/common'
-
-export {
-  BackgroundColor,
-  LcdColor,
-  ColorDef,
-  LedColor
-} from './tools/customization/colors'
-
-export {
-  GaugeType,
-  Orientation,
-  KnobType,
-  KnobStyle,
-  FrameDesign,
-  PointerType,
-  ForegroundType,
-  LabelNumberFormat,
-  TickLabelOrientation,
-  TrendState
-} from './tools/customization/types'
-
-// export { Radial }
-// export { RadialBargraph }
-export { RadialVertical }
-// export { Linear }
-// export { LinearBargraph }
-// export { DisplaySingle }
-// export { DisplayMulti }
-// export { Level }
-// export { Compass }
-export { WindDirection }
-// export { Horizon }
-// export { Led }
-// export { Clock }
-// export { Battery }
-export { StopWatch }
-// export { Altimeter }
-// export { Lightbulb as LightBulb }
-// export { Odometer }
-
-// Images
-export { drawFrame }
-export { drawBackground }
-export { drawForeground }
+export { Section } from './utils/common'

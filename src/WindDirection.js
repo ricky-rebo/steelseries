@@ -1,21 +1,16 @@
 import Tween from './libs/tween.js'
+
+import {
+  legacy,
+  consts,
+  BackgroundColor, LcdColor,
+  KnobType, KnobStyle, FrameDesign, PointerType, ForegroundType
+} from 'steelseries-tools'
+
 import createLcdBackgroundImage from './tools/create/createLcdBackgroundImage'
-import drawPointerImage from './tools/draw/drawPointerImage'
-import drawFrame from './tools/draw/drawFrame'
-import drawBackground from './tools/draw/drawBackground'
-import drawRadialCustomImage from './tools/draw/drawRadialCustomImage'
-import drawForeground from './tools/draw/drawForeground'
 import drawRoseImage from './tools/draw/drawRoseImage'
 
-import { BackgroundColor, LcdColor, ColorDef } from './tools/customization/colors'
-import {
-  KnobType, KnobStyle, FrameDesign, PointerType, ForegroundType
-} from './tools/customization/types'
-
-import {
-  createBuffer, getShortestAngle, requestAnimFrame, getCanvasContext
-} from './utils/common'
-import { HALF_PI, TWO_PI, RAD_FACTOR, lcdFontName, stdFontName } from './utils/constants'
+import { createBuffer, getShortestAngle, requestAnimFrame, getCanvasContext } from './utils/common'
 
 const WindDirection = function (canvas, parameters) {
   parameters = parameters || {}
@@ -44,11 +39,11 @@ const WindDirection = function (canvas, parameters) {
       : parameters.pointerTypeAverage
   let pointerColor =
     undefined === parameters.pointerColor
-      ? ColorDef.RED
+      ? legacy.ColorDef.RED
       : parameters.pointerColor
   let pointerColorAverage =
     undefined === parameters.pointerColorAverage
-      ? ColorDef.BLUE
+      ? legacy.ColorDef.BLUE
       : parameters.pointerColorAverage
   const knobType =
     undefined === parameters.knobType
@@ -109,11 +104,11 @@ const WindDirection = function (canvas, parameters) {
   let tweenAverage
   let valueLatest = 0
   let valueAverage = 0
-  const angleStep = RAD_FACTOR
+  const angleStep = consts.RAD_FACTOR
   let angleLatest = this.valueLatest
   let angleAverage = this.valueAverage
-  const rotationOffset = -HALF_PI
-  const angleRange = TWO_PI
+  const rotationOffset = -consts.HALF_PI
+  const angleRange = consts.TWO_PI
   const range = 360
   let repainting = false
 
@@ -135,8 +130,8 @@ const WindDirection = function (canvas, parameters) {
   const centerY = imageHeight / 2
 
   const lcdFontHeight = Math.floor(imageWidth / 10)
-  const stdFont = lcdFontHeight + 'px ' + stdFontName
-  const lcdFont = lcdFontHeight + 'px ' + lcdFontName
+  const stdFont = lcdFontHeight + 'px ' + consts.STD_FONT_NAME
+  const lcdFont = lcdFontHeight + 'px ' + consts.LCD_FONT_NAME
   const lcdWidth = imageWidth * 0.3
   const lcdHeight = imageHeight * 0.12
   const lcdPosX = (imageWidth - lcdWidth) / 2
@@ -290,56 +285,56 @@ const WindDirection = function (canvas, parameters) {
         switch (i) {
           case 0: // E
             ctx.translate(imageWidth * 0.35, 0)
-            ctx.rotate(HALF_PI)
+            ctx.rotate(consts.HALF_PI)
             ctx.font = stdFont
             ctx.fillText(pointSymbols[2], 0, 0)
             ctx.translate(-imageWidth * 0.35, 0)
             break
           case 45: // SE
             ctx.translate(imageWidth * 0.29, 0)
-            ctx.rotate(HALF_PI)
+            ctx.rotate(consts.HALF_PI)
             ctx.font = smlFont
             ctx.fillText(pointSymbols[3], 0, 0)
             ctx.translate(-imageWidth * 0.29, 0)
             break
           case 90: // S
             ctx.translate(imageWidth * 0.35, 0)
-            ctx.rotate(HALF_PI)
+            ctx.rotate(consts.HALF_PI)
             ctx.font = stdFont
             ctx.fillText(pointSymbols[4], 0, 0)
             ctx.translate(-imageWidth * 0.35, 0)
             break
           case 135: // SW
             ctx.translate(imageWidth * 0.29, 0)
-            ctx.rotate(HALF_PI)
+            ctx.rotate(consts.HALF_PI)
             ctx.font = smlFont
             ctx.fillText(pointSymbols[5], 0, 0)
             ctx.translate(-imageWidth * 0.29, 0)
             break
           case 180: // W
             ctx.translate(imageWidth * 0.35, 0)
-            ctx.rotate(HALF_PI)
+            ctx.rotate(consts.HALF_PI)
             ctx.font = stdFont
             ctx.fillText(pointSymbols[6], 0, 0)
             ctx.translate(-imageWidth * 0.35, 0)
             break
           case 225: // NW
             ctx.translate(imageWidth * 0.29, 0)
-            ctx.rotate(HALF_PI)
+            ctx.rotate(consts.HALF_PI)
             ctx.font = smlFont
             ctx.fillText(pointSymbols[7], 0, 0)
             ctx.translate(-imageWidth * 0.29, 0)
             break
           case 270: // N
             ctx.translate(imageWidth * 0.35, 0)
-            ctx.rotate(HALF_PI)
+            ctx.rotate(consts.HALF_PI)
             ctx.font = stdFont
             ctx.fillText(pointSymbols[0], 0, 0)
             ctx.translate(-imageWidth * 0.35, 0)
             break
           case 315: // NE
             ctx.translate(imageWidth * 0.29, 0)
-            ctx.rotate(HALF_PI)
+            ctx.rotate(consts.HALF_PI)
             ctx.font = smlFont
             ctx.fillText(pointSymbols[1], 0, 0)
             ctx.translate(-imageWidth * 0.29, 0)
@@ -385,7 +380,7 @@ const WindDirection = function (canvas, parameters) {
       }
     } else {
       stdFont = Math.floor(0.1 * imageWidth) + 'px serif bold'
-      smlFont = Math.floor(imageWidth * 0.04) + 'px ' + stdFontName
+      smlFont = Math.floor(imageWidth * 0.04) + 'px ' + consts.STD_FONT_NAME
 
       ctx.rotate(angleStep * 5)
       for (i = 5; i <= 360; i += 5) {
@@ -395,28 +390,28 @@ const WindDirection = function (canvas, parameters) {
           switch (i) {
             case 360:
               ctx.translate(CARDINAL_TRANSLATE_X, 0)
-              ctx.rotate(HALF_PI)
+              ctx.rotate(consts.HALF_PI)
               ctx.font = stdFont
               ctx.fillText(pointSymbols[2], 0, 0, TEXT_WIDTH)
               ctx.translate(-CARDINAL_TRANSLATE_X, 0)
               break
             case 90:
               ctx.translate(CARDINAL_TRANSLATE_X, 0)
-              ctx.rotate(HALF_PI)
+              ctx.rotate(consts.HALF_PI)
               ctx.font = stdFont
               ctx.fillText(pointSymbols[4], 0, 0, TEXT_WIDTH)
               ctx.translate(-CARDINAL_TRANSLATE_X, 0)
               break
             case 180:
               ctx.translate(CARDINAL_TRANSLATE_X, 0)
-              ctx.rotate(HALF_PI)
+              ctx.rotate(consts.HALF_PI)
               ctx.font = stdFont
               ctx.fillText(pointSymbols[6], 0, 0, TEXT_WIDTH)
               ctx.translate(-CARDINAL_TRANSLATE_X, 0)
               break
             case 270:
               ctx.translate(CARDINAL_TRANSLATE_X, 0)
-              ctx.rotate(HALF_PI)
+              ctx.rotate(consts.HALF_PI)
               ctx.font = stdFont
               ctx.fillText(pointSymbols[0], 0, 0, TEXT_WIDTH)
               ctx.translate(-CARDINAL_TRANSLATE_X, 0)
@@ -451,7 +446,7 @@ const WindDirection = function (canvas, parameters) {
                 ctx.stroke()
                 val = (i + 90) % 360
                 ctx.translate(TEXT_TRANSLATE_X, 0)
-                ctx.rotate(HALF_PI)
+                ctx.rotate(consts.HALF_PI)
                 ctx.font = smlFont
                 ctx.fillText('0'.substring(val >= 100) + val, 0, 0, TEXT_WIDTH)
                 ctx.translate(-TEXT_TRANSLATE_X, 0)
@@ -481,7 +476,7 @@ const WindDirection = function (canvas, parameters) {
               }
             }
             ctx.translate(TEXT_TRANSLATE_X, 0)
-            ctx.rotate(HALF_PI)
+            ctx.rotate(consts.HALF_PI)
             ctx.font = smlFont
             ctx.fillText(val, 0, 0, TEXT_WIDTH)
             ctx.translate(-TEXT_TRANSLATE_X, 0)
@@ -503,7 +498,7 @@ const WindDirection = function (canvas, parameters) {
       ctx.fillStyle = useColorLabels
         ? pointerColor.medium.getRgbaColor()
         : backgroundColor.labelColor.getRgbaColor()
-      ctx.font = 0.04 * imageWidth + 'px ' + stdFontName
+      ctx.font = 0.04 * imageWidth + 'px ' + consts.STD_FONT_NAME
       ctx.fillText(
         lcdTitleStrings[0],
         imageWidth / 2,
@@ -521,7 +516,7 @@ const WindDirection = function (canvas, parameters) {
       )
       if (titleString.length > 0) {
         ctx.fillStyle = backgroundColor.labelColor.getRgbaColor()
-        ctx.font = 0.0467 * imageWidth + 'px ' + stdFontName
+        ctx.font = 0.0467 * imageWidth + 'px ' + consts.STD_FONT_NAME
         ctx.fillText(
           titleString,
           imageWidth / 2,
@@ -547,7 +542,7 @@ const WindDirection = function (canvas, parameters) {
     initialized = true
 
     if (drawBackground2 && frameVisible) {
-      drawFrame(
+      legacy.drawFrame(
         backgroundContext,
         frameDesign,
         centerX,
@@ -559,7 +554,7 @@ const WindDirection = function (canvas, parameters) {
 
     if (drawBackground2 && backgroundVisible) {
       // Create background in background buffer (backgroundBuffer)
-      drawBackground(
+      legacy.drawBackground(
         backgroundContext,
         backgroundColor,
         centerX,
@@ -569,7 +564,7 @@ const WindDirection = function (canvas, parameters) {
       )
 
       // Create custom layer in background buffer (backgroundBuffer)
-      drawRadialCustomImage(
+      legacy.drawRadialCustomImage(
         backgroundContext,
         customLayer,
         centerX,
@@ -632,14 +627,14 @@ const WindDirection = function (canvas, parameters) {
     }
 
     if (drawPointer) {
-      drawPointerImage(
+      legacy.drawPointerImage(
         pointerContextAverage,
         imageWidth,
         pointerTypeAverage,
         pointerColorAverage,
         backgroundColor.labelColor
       )
-      drawPointerImage(
+      legacy.drawPointerImage(
         pointerContextLatest,
         imageWidth,
         pointerTypeLatest,
@@ -652,7 +647,7 @@ const WindDirection = function (canvas, parameters) {
       const knobVisible =
         !(pointerTypeLatest.type === 'type15' ||
         pointerTypeLatest.type === 'type16')
-      drawForeground(
+        legacy.drawForeground(
         foregroundContext,
         foregroundType,
         imageWidth,

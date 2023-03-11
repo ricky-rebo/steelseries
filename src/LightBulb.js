@@ -2,9 +2,10 @@ import {
   rgbToHsl,
   createBuffer,
   getCanvasContext,
-  isHexColor,
   getColorValues
 } from './utils/common'
+
+import { isHexColor } from './utils/validation'
 
 // TODO fix screw image (and extracxt SVG paths from code ?)
 

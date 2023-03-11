@@ -1,5 +1,5 @@
+import { consts } from 'steelseries-tools'
 import { setAlpha, createBuffer } from '../../utils/common'
-import { TWO_PI } from '../../utils/constants'
 
 const createTrendIndicator = function (width, onSection, colors) {
   const height = width * 2
@@ -77,7 +77,7 @@ const createTrendIndicator = function (width, onSection, colors) {
       trendCtx.fillStyle = fill
 
       trendCtx.beginPath()
-      trendCtx.arc(0.5 * width, 0.2 * height, 0.7 * width, 0, TWO_PI, true)
+      trendCtx.arc(0.5 * width, 0.2 * height, 0.7 * width, 0, consts.TWO_PI, true)
       trendCtx.closePath()
       trendCtx.fill()
     }
@@ -190,7 +190,7 @@ const createTrendIndicator = function (width, onSection, colors) {
       fill.addColorStop(1, setAlpha(ledColor.coronaColor, 0))
       trendCtx.fillStyle = fill
       trendCtx.beginPath()
-      trendCtx.arc(0.5 * width, 0.5 * height, 0.7 * width, 0, TWO_PI, true)
+      trendCtx.arc(0.5 * width, 0.5 * height, 0.7 * width, 0, consts.TWO_PI, true)
       trendCtx.closePath()
       trendCtx.fill()
     }
@@ -269,7 +269,7 @@ const createTrendIndicator = function (width, onSection, colors) {
       fill.addColorStop(1, setAlpha(ledColor.coronaColor, 0))
       trendCtx.fillStyle = fill
       trendCtx.beginPath()
-      trendCtx.arc(0.5 * width, 0.8 * height, 0.7 * width, 0, TWO_PI, true)
+      trendCtx.arc(0.5 * width, 0.8 * height, 0.7 * width, 0, consts.TWO_PI, true)
       trendCtx.closePath()
       trendCtx.fill()
     }

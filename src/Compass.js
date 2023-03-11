@@ -1,20 +1,18 @@
 import Tween from './libs/tween.js'
-import drawFrame from './tools/draw/drawFrame'
-import drawBackground from './tools/draw/drawBackground'
-import drawRadialCustomImage from './tools/draw/drawRadialCustomImage'
-import drawForeground from './tools/draw/drawForeground'
-import drawRoseImage from './tools/draw/drawRoseImage'
-import { createBuffer, getShortestAngle, requestAnimFrame, getCanvasContext } from './utils/common'
-import { HALF_PI, RAD_FACTOR } from './utils/constants'
 
-import { BackgroundColor, ColorDef } from './tools/customization/colors'
-import {
+import { 
+  legacy,
+  consts,
+  BackgroundColor,
   KnobType,
   KnobStyle,
   FrameDesign,
   PointerType,
   ForegroundType
-} from './tools/customization/types'
+} from 'steelseries-tools'
+
+import drawRoseImage from './tools/draw/drawRoseImage'
+import { createBuffer, getShortestAngle, requestAnimFrame, getCanvasContext } from './utils/common'
 
 export const Compass = function (canvas, parameters) {
   // Get the canvas context and clear it
@@ -45,7 +43,7 @@ export const Compass = function (canvas, parameters) {
       : parameters.pointerType
   let pointerColor =
     undefined === parameters.pointerColor
-      ? ColorDef.RED
+      ? legacy.ColorDef.RED
       : parameters.pointerColor
   const knobType =
     undefined === parameters.knobType
@@ -83,7 +81,7 @@ export const Compass = function (canvas, parameters) {
   // Costants
   const center = size / 2
   const shadowOffset = size * 0.006
-  const angleStep = RAD_FACTOR
+  const angleStep = consts.RAD_FACTOR
   const LABEL_IDX = {
     0: 2, // E
     45: 3, // SE
@@ -164,7 +162,7 @@ export const Compass = function (canvas, parameters) {
             : 0.29 // Secondary Labels (NE, SE, SW, NW)
 
           ctx.translate(size * translateFactor, 0)
-          ctx.rotate(HALF_PI)
+          ctx.rotate(consts.HALF_PI)
           ctx.font = (i % 90 === 0) ? stdFont : smlFont
           ctx.fillText(pointSymbols[LABEL_IDX[i]], 0, 0, size)
           ctx.translate(-size * translateFactor, 0)
@@ -199,14 +197,14 @@ export const Compass = function (canvas, parameters) {
         ctx.save()
         if (pointSymbolsVisible && (i % 90 === 0)) {
           ctx.translate(size * 0.35, 0)
-          ctx.rotate(HALF_PI)
+          ctx.rotate(consts.HALF_PI)
           ctx.font = stdFont
           ctx.fillText(pointSymbols[LABEL_IDX[i]], 0, 0, size)
           ctx.translate(-size * 0.35, 0)
         } else {
           val = (i + 90) % 360
           ctx.translate(size * 0.37, 0)
-          ctx.rotate(HALF_PI)
+          ctx.rotate(consts.HALF_PI)
           ctx.font = smlFont
           ctx.fillText('0'.substring(val >= 100) + val, 0, 0, size)
           ctx.translate(-size * 0.37, 0)
@@ -325,12 +323,12 @@ export const Compass = function (canvas, parameters) {
     initialized = true
 
     if (initFrame && frameVisible) {
-      drawFrame(frameCtx, frameDesign, center, center, size, size)
+      legacy.drawFrame(frameCtx, frameDesign, center, center, size, size)
     }
 
     if (initBackground && backgroundVisible) {
-      drawBackground(backgroundCtx, backgroundColor, center, center, size, size)
-      drawRadialCustomImage(backgroundCtx, customLayer, center, center, size, size)
+      legacy.drawBackground(backgroundCtx, backgroundColor, center, center, size, size)
+      legacy.drawRadialCustomImage(backgroundCtx, customLayer, center, center, size, size)
 
       if (roseVisible) {
         drawRoseImage(roseCtx, center, center, size, size, backgroundColor)
@@ -344,7 +342,7 @@ export const Compass = function (canvas, parameters) {
     }
 
     if (initForeground && foregroundVisible) {
-      drawForeground(foregroundCtx, foregroundType, size, size, true, knobType, knobStyle)
+      legacy.drawForeground(foregroundCtx, foregroundType, size, size, true, knobType, knobStyle)
     }
   }
 
@@ -556,7 +554,7 @@ export const Compass = function (canvas, parameters) {
     }
 
     // Define rotation center
-    const angle = HALF_PI + value * angleStep - HALF_PI
+    const angle = consts.HALF_PI + value * angleStep - consts.HALF_PI
     if (rotateFace) {
       mainCtx.save()
       mainCtx.translate(center, center)

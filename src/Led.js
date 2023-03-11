@@ -1,7 +1,7 @@
+import { LedColor } from 'steelseries-tools'
+
 import createLedImage from './tools/create/createLedImage'
 import { getCanvasContext, createBuffer } from './utils/common'
-
-import { LedColor } from './tools/customization/colors'
 
 export const Led = function (canvas, parameters) {
   parameters = parameters || {}

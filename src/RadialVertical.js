@@ -1,14 +1,10 @@
 import Tween from './libs/tween.js'
-import createKnobImage from './tools/create/createKnobImage'
-import createLedImage from './tools/create/createLedImage'
-import createMeasuredValueImage from './tools/create/createMeasuredValueImage'
-import drawPointerImage from './tools/draw/drawPointerImage'
-import drawFrame from './tools/draw/drawFrame'
-import drawBackground from './tools/draw/drawBackground'
-import drawForeground from './tools/draw/drawForeground'
 
-import { BackgroundColor, ColorDef, LedColor } from './tools/customization/colors'
-import {
+import { 
+  legacy,
+  consts,
+  createKnobImage,
+  BackgroundColor, LedColor,
   GaugeType,
   Orientation,
   KnobType,
@@ -17,10 +13,11 @@ import {
   PointerType,
   ForegroundType,
   LabelNumberFormat
-} from './tools/customization/types'
+} from 'steelseries-tools'
 
-import { calcNiceNumber, createBuffer, requestAnimFrame, getCanvasContext } from './utils/common'
-import { HALF_PI, PI, stdFontName, doc } from './utils/constants'
+import createLedImage from './tools/create/createLedImage'
+
+import { calcNiceNumber, createBuffer, requestAnimFrame, getCanvasContext, createAudioElement } from './utils/common'
 
 const RadialVertical = function (canvas, parameters) {
   parameters = parameters || {}
@@ -64,7 +61,7 @@ const RadialVertical = function (canvas, parameters) {
       : parameters.pointerType
   let pointerColor =
     undefined === parameters.pointerColor
-      ? ColorDef.RED
+      ? legacy.ColorDef.RED
       : parameters.pointerColor
   const knobType =
     undefined === parameters.knobType
@@ -126,14 +123,16 @@ const RadialVertical = function (canvas, parameters) {
   mainCtx.canvas.width = size
   mainCtx.canvas.height = size
 
-  let audioElement
+  const audioElement = (playAlarm && alarmSound !== false)
+    ? createAudioElement(alarmSound)
+    : null
 
   // Create audio tag for alarm sound
-  if (playAlarm && alarmSound !== false) {
-    audioElement = doc.createElement('audio')
-    audioElement.setAttribute('src', alarmSound)
-    audioElement.setAttribute('preload', 'auto')
-  }
+  // if (playAlarm && alarmSound !== false) {
+  //   // audioElement = document.createElement('audio')
+  //   // audioElement.setAttribute('src', alarmSound)
+  //   // audioElement.setAttribute('preload', 'auto')
+  // }
   const gaugeType = GaugeType.TYPE5
 
   const self = this
@@ -161,8 +160,8 @@ const RadialVertical = function (canvas, parameters) {
   const maxNoOfMinorTicks = 10
   const maxNoOfMajorTicks = 10
 
-  let rotationOffset = 1.25 * PI
-  let angleRange = HALF_PI
+  let rotationOffset = 1.25 * consts.PI
+  let angleRange = consts.HALF_PI
   let angleStep = angleRange / range
   const shadowOffset = imageWidth * 0.006
   const pointerOffset = (imageWidth * 1.17) / 2
@@ -175,6 +174,9 @@ const RadialVertical = function (canvas, parameters) {
   const centerY = imageHeight * 0.733644
 
   // Misc
+  const tresholdW = size * 0.046728;
+  const tresholdH = tresholdW * 0.9;
+
   const ledPosX = 0.455 * imageWidth
   const ledPosY = 0.51 * imageHeight
 
@@ -224,8 +226,8 @@ const RadialVertical = function (canvas, parameters) {
           ? maxValue
           : threshold
 
-    rotationOffset = 1.25 * PI
-    angleRange = HALF_PI
+    rotationOffset = 1.25 * consts.PI
+    angleRange = consts.HALF_PI
     angleStep = angleRange / range
 
     angle = rotationOffset + (value - minValue) * angleStep
@@ -345,47 +347,6 @@ const RadialVertical = function (canvas, parameters) {
     }
   }
 
-  const createThresholdImage = function () {
-    const thresholdBuffer = doc.createElement('canvas')
-    thresholdBuffer.width = Math.ceil(size * 0.046728)
-    thresholdBuffer.height = Math.ceil(thresholdBuffer.width * 0.9)
-    const thresholdCtx = thresholdBuffer.getContext('2d')
-
-    thresholdCtx.save()
-    const gradThreshold = thresholdCtx.createLinearGradient(
-      0,
-      0.1,
-      0,
-      thresholdBuffer.height * 0.9
-    )
-    gradThreshold.addColorStop(0, '#520000')
-    gradThreshold.addColorStop(0.3, '#fc1d00')
-    gradThreshold.addColorStop(0.59, '#fc1d00')
-    gradThreshold.addColorStop(1, '#520000')
-    thresholdCtx.fillStyle = gradThreshold
-
-    thresholdCtx.beginPath()
-    thresholdCtx.moveTo(thresholdBuffer.width * 0.5, 0.1)
-    thresholdCtx.lineTo(
-      thresholdBuffer.width * 0.9,
-      thresholdBuffer.height * 0.9
-    )
-    thresholdCtx.lineTo(
-      thresholdBuffer.width * 0.1,
-      thresholdBuffer.height * 0.9
-    )
-    thresholdCtx.lineTo(thresholdBuffer.width * 0.5, 0.1)
-    thresholdCtx.closePath()
-
-    thresholdCtx.fill()
-    thresholdCtx.strokeStyle = '#FFFFFF'
-    thresholdCtx.stroke()
-
-    thresholdCtx.restore()
-
-    return thresholdBuffer
-  }
-
   const drawAreaSectionImage = function (ctx, start, stop, color, filled) {
     ctx.save()
     ctx.strokeStyle = color
@@ -428,7 +389,7 @@ const RadialVertical = function (canvas, parameters) {
     ctx.strokeStyle = backgroundColor.labelColor.getRgbaColor()
     ctx.fillStyle = backgroundColor.labelColor.getRgbaColor()
 
-    ctx.font = 0.046728 * imageWidth + 'px ' + stdFontName
+    ctx.font = 0.046728 * imageWidth + 'px ' + consts.STD_FONT_NAME
     const titleWidth = ctx.measureText(titleString).width
     ctx.fillText(
       titleString,
@@ -453,19 +414,19 @@ const RadialVertical = function (canvas, parameters) {
 
     if (Orientation.WEST === orientation) {
       ctx.translate(centerX, centerX)
-      ctx.rotate(-HALF_PI)
+      ctx.rotate(-consts.HALF_PI)
       ctx.translate(-centerX, -centerX)
     }
     if (Orientation.EAST === orientation) {
       ctx.translate(centerX, centerX)
-      ctx.rotate(HALF_PI)
+      ctx.rotate(consts.HALF_PI)
       ctx.translate(-centerX, -centerX)
     }
 
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     const fontSize = Math.ceil(imageWidth * 0.04)
-    ctx.font = fontSize + 'px ' + stdFontName
+    ctx.font = fontSize + 'px ' + consts.STD_FONT_NAME
     ctx.strokeStyle = backgroundColor.labelColor.getRgbaColor()
     ctx.fillStyle = backgroundColor.labelColor.getRgbaColor()
     ctx.translate(centerX, centerY)
@@ -491,7 +452,7 @@ const RadialVertical = function (canvas, parameters) {
       parseFloat(i.toFixed(2)) <= MAX_VALUE_ROUNDED;
       i += minorTickSpacing
     ) {
-      textRotationAngle = +rotationStep + HALF_PI
+      textRotationAngle = +rotationStep + consts.HALF_PI
       majorTickCounter++
       // Draw major tickmarks
       if (majorTickCounter === maxNoOfMinorTicks) {
@@ -575,7 +536,7 @@ const RadialVertical = function (canvas, parameters) {
 
     // Create frame in frame buffer (backgroundBuffer)
     if (drawFrame2 && frameVisible) {
-      drawFrame(
+      legacy.drawFrame(
         frameContext,
         frameDesign,
         centerX,
@@ -587,7 +548,7 @@ const RadialVertical = function (canvas, parameters) {
 
     // Create background in background buffer (backgroundBuffer)
     if (drawBackground2 && backgroundVisible) {
-      drawBackground(
+      legacy.drawBackground(
         backgroundContext,
         backgroundColor,
         centerX,
@@ -616,9 +577,9 @@ const RadialVertical = function (canvas, parameters) {
     // Draw min measured value indicator in minMeasuredValueBuffer
     if (minMeasuredValueVisible) {
       minMeasuredValueCtx.drawImage(
-        createMeasuredValueImage(
+        legacy.createMeasuredValueImage(
           Math.ceil(size * 0.028037),
-          ColorDef.BLUE.dark.getRgbaColor(),
+          legacy.ColorDef.BLUE.dark.getRgbaColor(),
           true,
           true
         ),
@@ -631,9 +592,9 @@ const RadialVertical = function (canvas, parameters) {
     // Draw max measured value indicator in maxMeasuredValueBuffer
     if (maxMeasuredValueVisible) {
       maxMeasuredValueCtx.drawImage(
-        createMeasuredValueImage(
+        legacy.createMeasuredValueImage(
           Math.ceil(size * 0.028037),
-          ColorDef.RED.medium.getRgbaColor(),
+          legacy.ColorDef.RED.medium.getRgbaColor(),
           true
         ),
         0,
@@ -651,11 +612,11 @@ const RadialVertical = function (canvas, parameters) {
         backgroundContext.save()
         if (Orientation.WEST === orientation) {
           backgroundContext.translate(centerX, centerX)
-          backgroundContext.rotate(-HALF_PI)
+          backgroundContext.rotate(-consts.HALF_PI)
           backgroundContext.translate(-centerX, -centerX)
         } else if (Orientation.EAST === orientation) {
           backgroundContext.translate(centerX, centerX)
-          backgroundContext.rotate(HALF_PI)
+          backgroundContext.rotate(consts.HALF_PI)
           backgroundContext.translate(-centerX, -centerX)
         }
         let sectionIndex = section.length
@@ -676,12 +637,12 @@ const RadialVertical = function (canvas, parameters) {
       if (area !== null && area.length > 0) {
         if (Orientation.WEST === orientation) {
           backgroundContext.translate(centerX, centerX)
-          backgroundContext.rotate(-HALF_PI)
+          backgroundContext.rotate(-consts.HALF_PI)
           backgroundContext.translate(-centerX, -centerX)
         }
         if (Orientation.EAST === orientation) {
           backgroundContext.translate(centerX, centerX)
-          backgroundContext.rotate(HALF_PI)
+          backgroundContext.rotate(consts.HALF_PI)
           backgroundContext.translate(-centerX, -centerX)
         }
         let areaIndex = area.length
@@ -710,21 +671,21 @@ const RadialVertical = function (canvas, parameters) {
       backgroundContext.save()
       if (Orientation.WEST === orientation) {
         backgroundContext.translate(centerX, centerX)
-        backgroundContext.rotate(-HALF_PI)
+        backgroundContext.rotate(-consts.HALF_PI)
         backgroundContext.translate(-centerX, -centerX)
       }
       if (Orientation.EAST === orientation) {
         backgroundContext.translate(centerX, centerX)
-        backgroundContext.rotate(HALF_PI)
+        backgroundContext.rotate(consts.HALF_PI)
         backgroundContext.translate(-centerX, -centerX)
       }
       backgroundContext.translate(centerX, centerY)
       backgroundContext.rotate(
-        rotationOffset + (threshold - minValue) * angleStep + HALF_PI
+        rotationOffset + (threshold - minValue) * angleStep + consts.HALF_PI
       )
       backgroundContext.translate(-centerX, -centerY)
       backgroundContext.drawImage(
-        createThresholdImage(),
+        legacy.createThresholdImage(tresholdW, tresholdH, true, true),
         imageWidth * 0.475,
         imageHeight * 0.32
       )
@@ -733,7 +694,7 @@ const RadialVertical = function (canvas, parameters) {
 
     // Create pointer image in pointer buffer (contentBuffer)
     if (drawPointer) {
-      drawPointerImage(
+      legacy.drawPointerImage(
         pointerContext,
         imageWidth * 1.17,
         pointerType,
@@ -746,7 +707,7 @@ const RadialVertical = function (canvas, parameters) {
     if (drawForeground2 && foregroundVisible) {
       const knobVisible =
         !(pointerType.type === 'type15' || pointerType.type === 'type16')
-      drawForeground(
+      legacy.drawForeground(
         foregroundContext,
         foregroundType,
         imageWidth,
@@ -1166,12 +1127,12 @@ const RadialVertical = function (canvas, parameters) {
 
     if (Orientation.WEST === orientation) {
       mainCtx.translate(centerX, centerX)
-      mainCtx.rotate(-HALF_PI)
+      mainCtx.rotate(-consts.HALF_PI)
       mainCtx.translate(-centerX, -centerX)
     }
     if (Orientation.EAST === orientation) {
       mainCtx.translate(centerX, centerX)
-      mainCtx.rotate(HALF_PI)
+      mainCtx.rotate(consts.HALF_PI)
       mainCtx.translate(-centerX, -centerX)
     }
 
@@ -1180,7 +1141,7 @@ const RadialVertical = function (canvas, parameters) {
       mainCtx.save()
       mainCtx.translate(centerX, centerY)
       mainCtx.rotate(
-        rotationOffset + HALF_PI + (minMeasuredValue - minValue) * angleStep
+        rotationOffset + consts.HALF_PI + (minMeasuredValue - minValue) * angleStep
       )
       mainCtx.translate(-centerX, -centerY)
       mainCtx.drawImage(
@@ -1196,7 +1157,7 @@ const RadialVertical = function (canvas, parameters) {
       mainCtx.save()
       mainCtx.translate(centerX, centerY)
       mainCtx.rotate(
-        rotationOffset + HALF_PI + (maxMeasuredValue - minValue) * angleStep
+        rotationOffset + consts.HALF_PI + (maxMeasuredValue - minValue) * angleStep
       )
       mainCtx.translate(-centerX, -centerY)
       mainCtx.drawImage(
@@ -1207,7 +1168,7 @@ const RadialVertical = function (canvas, parameters) {
       mainCtx.restore()
     }
 
-    angle = rotationOffset + HALF_PI + (value - minValue) * angleStep
+    angle = rotationOffset + consts.HALF_PI + (value - minValue) * angleStep
 
     // Define rotation center
     mainCtx.save()
@@ -1227,11 +1188,11 @@ const RadialVertical = function (canvas, parameters) {
     if (foregroundVisible) {
       if (Orientation.WEST === orientation) {
         mainCtx.translate(centerX, centerX)
-        mainCtx.rotate(HALF_PI)
+        mainCtx.rotate(consts.HALF_PI)
         mainCtx.translate(-centerX, -centerX)
       } else if (Orientation.EAST === orientation) {
         mainCtx.translate(centerX, centerX)
-        mainCtx.rotate(-HALF_PI)
+        mainCtx.rotate(-consts.HALF_PI)
         mainCtx.translate(-centerX, -centerX)
       }
       mainCtx.drawImage(foregroundBuffer, 0, 0)

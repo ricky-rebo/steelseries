@@ -1,3 +1,8 @@
+export const isHexColor = function (color) {
+  // Accept both '#abc' and '#abcdef' format
+  return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(color)
+}
+
 export const validBackgroundColor = function (color) {
   // IMPROVE validate rgba colors
   return [

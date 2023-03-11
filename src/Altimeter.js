@@ -1,17 +1,18 @@
 import Tween from './libs/tween.js'
-import drawFrame from './tools/draw/drawFrame'
-import drawBackground from './tools/draw/drawBackground'
-import drawRadialCustomImage from './tools/draw/drawRadialCustomImage'
-import drawForeground from './tools/draw/drawForeground'
-import drawTitleImage from './tools/draw/drawTitleImage'
-
-import { BackgroundColor, LcdColor } from './tools/customization/colors'
-import { KnobType, KnobStyle, FrameDesign, ForegroundType } from './tools/customization/types'
+import {
+  BackgroundColor,
+  LcdColor,
+  KnobType,
+  KnobStyle,
+  FrameDesign,
+  ForegroundType,
+  consts,
+  legacy
+} from "steelseries-tools"
 
 import { DisplaySingle } from './DisplaySingle.js'
 
 import { createBuffer, requestAnimFrame, getCanvasContext } from './utils/common'
-import { TWO_PI, PI, stdFontName } from './utils/constants'
 
 export const Altimeter = function (canvas, parameters) {
   // Get the canvas context and clear it
@@ -75,7 +76,7 @@ export const Altimeter = function (canvas, parameters) {
   const minValue = 0
   const maxValue = 10
 
-  const angleStep100ft = TWO_PI / (maxValue - minValue)
+  const angleStep100ft = consts.TWO_PI / (maxValue - minValue)
   const angleStep1000ft = angleStep100ft / 10
   const angleStep10000ft = angleStep1000ft / 10
 
@@ -86,7 +87,7 @@ export const Altimeter = function (canvas, parameters) {
 
   const unitStringPosY = unitAltPos ? size * 0.68 : false
 
-  const stdFont = Math.floor(size * 0.09) + 'px ' + stdFontName
+  const stdFont = Math.floor(size * 0.09) + 'px ' + consts.STD_FONT_NAME
 
   // Internal Variables
   let value = minValue
@@ -138,7 +139,7 @@ export const Altimeter = function (canvas, parameters) {
     const MAX_LENGTH = size * 0.07
     const RADIUS = size * 0.4
     const CENTER = size / 2
-    const ALPHA_START = -PI
+    const ALPHA_START = -consts.PI
 
     let counter = 0
     let sinValue = 0
@@ -313,21 +314,21 @@ export const Altimeter = function (canvas, parameters) {
 
     // Create frame in frame buffer (backgroundBuffer)
     if (initFrame && frameVisible) {
-      drawFrame(frameCtx, frameDesign, center, center, size, size)
+      legacy.drawFrame(frameCtx, frameDesign, center, center, size, size)
     }
 
     if (initBackground && backgroundVisible) {
       // Create background in background buffer (backgroundBuffer)
-      drawBackground(backgroundCtx, backgroundColor, center, center, size, size)
+      legacy.drawBackground(backgroundCtx, backgroundColor, center, center, size, size)
 
       // Create custom layer in background buffer (backgroundBuffer)
-      drawRadialCustomImage(backgroundCtx, customLayer, center, center, size, size)
+      legacy.drawRadialCustomImage(backgroundCtx, customLayer, center, center, size, size)
 
       // Create tickmarks in background buffer (backgroundBuffer)
       drawTickmarksImage(backgroundCtx)
 
       // Create title in background buffer (backgroundBuffer)
-      drawTitleImage(backgroundCtx, size, size, titleString, unitString, backgroundColor, true, true, unitStringPosY)
+      legacy.drawTitleImage(backgroundCtx, size, size, titleString, unitString, backgroundColor, true, true, unitStringPosY)
     }
 
     // Create lcd background if selected in background buffer (backgroundBuffer)
@@ -351,7 +352,7 @@ export const Altimeter = function (canvas, parameters) {
     }
 
     if (initForeground && foregroundVisible) {
-      drawForeground(
+      legacy.drawForeground(
         foregroundCtx,
         foregroundType,
         size,

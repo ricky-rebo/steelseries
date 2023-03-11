@@ -1,5 +1,6 @@
+import { consts } from 'steelseries-tools'
+
 import { createBuffer, drawToBuffer, getCanvasContext } from './utils/common'
-import { TWO_PI } from "./utils/constants"
 
 export const Trafficlight = function (canvas, parameters) {
   // Get canvas context
@@ -146,7 +147,7 @@ export const Trafficlight = function (canvas, parameters) {
     ctx.save()
     ctx.scale(1, 1)
     ctx.beginPath()
-    ctx.arc(0.5 * width, 0.805755 * height, 0.397959 * width, 0, TWO_PI, false)
+    ctx.arc(0.5 * width, 0.805755 * height, 0.397959 * width, 0, consts.TWO_PI, false)
     const lightGreenFrameFill = ctx.createLinearGradient(0, 0.665467 * height, 0, 0.946043 * height)
     lightGreenFrameFill.addColorStop(0, '#ffffff')
     lightGreenFrameFill.addColorStop(0.05, 'rgb(204, 204, 204)')
@@ -161,7 +162,7 @@ export const Trafficlight = function (canvas, parameters) {
     ctx.save()
     ctx.scale(1.083333, 1)
     ctx.beginPath()
-    ctx.arc(0.461538 * width, 0.816546 * height, 0.367346 * width, 0, TWO_PI, false)
+    ctx.arc(0.461538 * width, 0.816546 * height, 0.367346 * width, 0, consts.TWO_PI, false)
     const lightGreenInnerFill = ctx.createLinearGradient(0, 0.68705 * height, 0, 0.946043 * height)
     lightGreenInnerFill.addColorStop(0, '#000000')
     lightGreenInnerFill.addColorStop(0.35, '#040404')
@@ -174,7 +175,7 @@ export const Trafficlight = function (canvas, parameters) {
     ctx.save()
     ctx.scale(1, 1)
     ctx.beginPath()
-    ctx.arc(0.5 * width, 0.809352 * height, 0.357142 * width, 0, TWO_PI, false)
+    ctx.arc(0.5 * width, 0.809352 * height, 0.357142 * width, 0, consts.TWO_PI, false)
     const lightGreenEffectFill = ctx.createRadialGradient(
       0.5 * width,
       0.809352 * height,
@@ -194,7 +195,7 @@ export const Trafficlight = function (canvas, parameters) {
     ctx.save()
     ctx.scale(1, 1)
     ctx.beginPath()
-    ctx.arc(0.5 * width, 0.809352 * height, 0.357142 * width, 0, TWO_PI, false)
+    ctx.arc(0.5 * width, 0.809352 * height, 0.357142 * width, 0, consts.TWO_PI, false)
     const lightGreenInnerShadowFill = ctx.createLinearGradient(0, 0.68705 * height, 0, 0.917266 * height)
     lightGreenInnerShadowFill.addColorStop(0, '#000000')
     lightGreenInnerShadowFill.addColorStop(1, 'rgba(1, 1, 1, 0)')
@@ -210,7 +211,7 @@ export const Trafficlight = function (canvas, parameters) {
     ctx.save()
     ctx.scale(1, 1)
     ctx.beginPath()
-    ctx.arc(0.5 * width, 0.809352 * height, 0.32653 * width, 0, TWO_PI, false)
+    ctx.arc(0.5 * width, 0.809352 * height, 0.32653 * width, 0, consts.TWO_PI, false)
     const greenOnFill = ctx.createRadialGradient(
       0.5 * width,
       0.809352 * height,
@@ -288,7 +289,7 @@ export const Trafficlight = function (canvas, parameters) {
       0.809352 * height,
       0.32653 * width,
       0,
-      TWO_PI,
+      consts.TWO_PI,
       false
     )
     const greenOffFill = ctx.createRadialGradient(
@@ -313,7 +314,7 @@ export const Trafficlight = function (canvas, parameters) {
       0.809352 * height,
       0.32653 * width,
       0,
-      TWO_PI,
+      consts.TWO_PI,
       false
     )
     const greenOffInnerShadowFill = ctx.createRadialGradient(
@@ -351,7 +352,7 @@ export const Trafficlight = function (canvas, parameters) {
       0.496402 * height,
       0.397959 * width,
       0,
-      TWO_PI,
+      consts.TWO_PI,
       false
     )
     const lightYellowFrameFill = ctx.createLinearGradient(
@@ -378,7 +379,7 @@ export const Trafficlight = function (canvas, parameters) {
       0.507194 * height,
       0.367346 * width,
       0,
-      TWO_PI,
+      consts.TWO_PI,
       false
     )
     const lightYellowInnerFill = ctx.createLinearGradient(
@@ -403,7 +404,7 @@ export const Trafficlight = function (canvas, parameters) {
       0.5 * height,
       0.357142 * width,
       0,
-      TWO_PI,
+      consts.TWO_PI,
       false
     )
     const lightYellowEffectFill = ctx.createRadialGradient(
@@ -431,7 +432,7 @@ export const Trafficlight = function (canvas, parameters) {
       0.5 * height,
       0.357142 * width,
       0,
-      TWO_PI,
+      consts.TWO_PI,
       false
     )
     const lightYellowInnerShadowFill = ctx.createLinearGradient(
@@ -459,7 +460,7 @@ export const Trafficlight = function (canvas, parameters) {
       0.5 * height,
       0.32653 * width,
       0,
-      TWO_PI,
+      consts.TWO_PI,
       false
     )
     const yellowOnFill = ctx.createRadialGradient(
@@ -539,7 +540,7 @@ export const Trafficlight = function (canvas, parameters) {
       0.5 * height,
       0.32653 * width,
       0,
-      TWO_PI,
+      consts.TWO_PI,
       false
     )
     const yellowOffFill = ctx.createRadialGradient(
@@ -564,7 +565,7 @@ export const Trafficlight = function (canvas, parameters) {
       0.5 * height,
       0.32653 * width,
       0,
-      TWO_PI,
+      consts.TWO_PI,
       false
     )
     const yellowOffInnerShadowFill = ctx.createRadialGradient(
@@ -603,7 +604,7 @@ export const Trafficlight = function (canvas, parameters) {
       0.18705 * height,
       0.397959 * width,
       0,
-      TWO_PI,
+      consts.TWO_PI,
       false
     )
     const lightRedFrameFill = ctx.createLinearGradient(
@@ -631,7 +632,7 @@ export const Trafficlight = function (canvas, parameters) {
       0.197841 * height,
       0.367346 * width,
       0,
-      TWO_PI,
+      consts.TWO_PI,
       false
     )
     const lightRedInnerFill = ctx.createLinearGradient(
@@ -657,7 +658,7 @@ export const Trafficlight = function (canvas, parameters) {
       0.190647 * height,
       0.357142 * width,
       0,
-      TWO_PI,
+      consts.TWO_PI,
       false
     )
     const lightRedEffectFill = ctx.createRadialGradient(
@@ -685,7 +686,7 @@ export const Trafficlight = function (canvas, parameters) {
       0.190647 * height,
       0.357142 * width,
       0,
-      TWO_PI,
+      consts.TWO_PI,
       false
     )
     const lightRedInnerShadowFill = ctx.createLinearGradient(
@@ -713,7 +714,7 @@ export const Trafficlight = function (canvas, parameters) {
       0.190647 * height,
       0.32653 * width,
       0,
-      TWO_PI,
+      consts.TWO_PI,
       false
     )
     const redOnFill = ctx.createRadialGradient(
@@ -794,7 +795,7 @@ export const Trafficlight = function (canvas, parameters) {
       0.190647 * height,
       0.32653 * width,
       0,
-      TWO_PI,
+      consts.TWO_PI,
       false
     )
     const redOffFill = ctx.createRadialGradient(
@@ -819,7 +820,7 @@ export const Trafficlight = function (canvas, parameters) {
       0.190647 * height,
       0.32653 * width,
       0,
-      TWO_PI,
+      consts.TWO_PI,
       false
     )
     const redOffInnerShadowFill = ctx.createRadialGradient(

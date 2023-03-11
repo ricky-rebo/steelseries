@@ -1,5 +1,5 @@
+import { consts } from 'steelseries-tools'
 import { setAlpha, createBuffer } from '../../utils/common'
-import { TWO_PI } from '../../utils/constants'
 
 const createLedImage = function (size, state, ledColor) {
   let ledBuffer
@@ -32,7 +32,7 @@ const createLedImage = function (size, state, ledColor) {
         ledCtx.fillStyle = grad
 
         ledCtx.beginPath()
-        ledCtx.arc(ledCenterX, ledCenterY, (size * 0.5) / 2, 0, TWO_PI, true)
+        ledCtx.arc(ledCenterX, ledCenterY, (size * 0.5) / 2, 0, consts.TWO_PI, true)
         ledCtx.closePath()
         ledCtx.fill()
 
@@ -51,7 +51,7 @@ const createLedImage = function (size, state, ledColor) {
         ledCtx.fillStyle = grad
 
         ledCtx.beginPath()
-        ledCtx.arc(ledCenterX, ledCenterY, (size * 0.5) / 2, 0, TWO_PI, true)
+        ledCtx.arc(ledCenterX, ledCenterY, (size * 0.5) / 2, 0, consts.TWO_PI, true)
         ledCtx.closePath()
         ledCtx.fill()
 
@@ -72,7 +72,7 @@ const createLedImage = function (size, state, ledColor) {
           0.35 * size + (0.2 * size) / 2,
           size * 0.2,
           0,
-          TWO_PI,
+          consts.TWO_PI,
           true
         )
         ledCtx.closePath()
@@ -95,7 +95,7 @@ const createLedImage = function (size, state, ledColor) {
         ledCtx.fillStyle = grad
 
         ledCtx.beginPath()
-        ledCtx.arc(ledCenterX, ledCenterY, (size * 0.5) / 2, 0, TWO_PI, true)
+        ledCtx.arc(ledCenterX, ledCenterY, (size * 0.5) / 2, 0, consts.TWO_PI, true)
         ledCtx.closePath()
         ledCtx.fill()
 
@@ -114,7 +114,7 @@ const createLedImage = function (size, state, ledColor) {
         ledCtx.fillStyle = grad
 
         ledCtx.beginPath()
-        ledCtx.arc(ledCenterX, ledCenterY, (size * 0.5) / 2, 0, TWO_PI, true)
+        ledCtx.arc(ledCenterX, ledCenterY, (size * 0.5) / 2, 0, consts.TWO_PI, true)
         ledCtx.closePath()
         ledCtx.fill()
 
@@ -135,7 +135,7 @@ const createLedImage = function (size, state, ledColor) {
           0.35 * size + (0.2 * size) / 2,
           size * 0.2,
           0,
-          TWO_PI,
+          consts.TWO_PI,
           true
         )
         ledCtx.closePath()
@@ -159,7 +159,7 @@ const createLedImage = function (size, state, ledColor) {
         ledCtx.fillStyle = grad
 
         ledCtx.beginPath()
-        ledCtx.arc(ledCenterX, ledCenterY, size / 2, 0, TWO_PI, true)
+        ledCtx.arc(ledCenterX, ledCenterY, size / 2, 0, consts.TWO_PI, true)
         ledCtx.closePath()
         ledCtx.fill()
         break

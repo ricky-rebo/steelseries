@@ -1,12 +1,11 @@
 import Tween from './libs/tween.js'
-import drawLinearBackgroundImage from './tools/draw/linear/drawLinearBackgroundImage'
-import drawLinearIndicator from './tools/draw/linear/drawLinearIndicator.js'
-import drawLinearForegroundImage from './tools/draw/linear/drawLinearForegroundImage'
-import drawLinearFrameImage from './tools/draw/linear/drawLinearFrameImage'
-import drawLinearTickmarksImage from './tools/draw/linear/drawLinearTickmarksImage'
-import drawTitleImage from './tools/draw/drawTitleImage'
-import createMeasuredValueImage from './tools/create/createMeasuredValueImage'
-import createThresholdImage from './tools/create/createThresholdImage'
+
+import { 
+  legacy,
+  consts,
+  BackgroundColor, LcdColor, LedColor,
+  GaugeType, FrameDesign, LabelNumberFormat
+} from 'steelseries-tools'
 
 import { DisplaySingle } from './DisplaySingle'
 import { Led } from './Led'
@@ -19,10 +18,6 @@ import {
   requestAnimFrame,
   getCanvasContext
 } from './utils/common'
-import { HALF_PI } from './utils/constants'
-
-import { BackgroundColor, LcdColor, ColorDef, LedColor } from './tools/customization/colors'
-import { GaugeType, FrameDesign, LabelNumberFormat } from './tools/customization/types'
 
 export const Linear = function (canvas, parameters) {
   // Get the canvas context
@@ -69,7 +64,7 @@ export const Linear = function (canvas, parameters) {
     ? true
     : parameters.backgroundVisible
   let valueColor =
-    undefined === parameters.valueColor ? ColorDef.RED : parameters.valueColor
+    undefined === parameters.valueColor ? legacy.ColorDef.RED : parameters.valueColor
   const lcdColor =
     undefined === parameters.lcdColor ? LcdColor.STANDARD : parameters.lcdColor
   const lcdVisible =
@@ -219,12 +214,12 @@ export const Linear = function (canvas, parameters) {
 
     // Create frame in frame buffer (backgroundBuffer)
     if (initFrame && frameVisible) {
-      drawLinearFrameImage(frameCtx, frameDesign, width, height, vertical)
+      legacy.drawLinearFrameImage(frameCtx, frameDesign, width, height, vertical)
     }
 
     // Create background in background buffer (backgroundBuffer)
     if (initBackground && backgroundVisible) {
-      drawLinearBackgroundImage(backgroundCtx, backgroundColor, width, height, vertical)
+      legacy.drawLinearBackgroundImage(backgroundCtx, backgroundColor, width, height, vertical)
     }
 
     // draw value background
@@ -246,9 +241,9 @@ export const Linear = function (canvas, parameters) {
 
     // Draw min measured value indicator in minMeasuredValueBuffer
     if (initIndicators && minMeasuredValueVisible) {
-      minMeasuredValueBuffer = createMeasuredValueImage(
+      minMeasuredValueBuffer = legacy.createMeasuredValueImage(
         indicatorSize,
-        ColorDef.BLUE.dark.getRgbaColor(),
+        legacy.ColorDef.BLUE.dark.getRgbaColor(),
         false,
         vertical
       )
@@ -256,9 +251,9 @@ export const Linear = function (canvas, parameters) {
 
     // Draw max measured value indicator in maxMeasuredValueBuffer
     if (initIndicators && maxMeasuredValueVisible) {
-      maxMeasuredValueBuffer = createMeasuredValueImage(
+      maxMeasuredValueBuffer = legacy.createMeasuredValueImage(
         indicatorSize,
-        ColorDef.RED.medium.getRgbaColor(),
+        legacy.ColorDef.RED.medium.getRgbaColor(),
         false,
         vertical
       )
@@ -266,7 +261,7 @@ export const Linear = function (canvas, parameters) {
 
     // Draw tickmarks and strings
     if (initBackground && backgroundVisible) {
-      drawLinearTickmarksImage(
+      legacy.drawLinearTickmarksImage(
         backgroundCtx,
         width,
         height,
@@ -280,7 +275,7 @@ export const Linear = function (canvas, parameters) {
       )
 
       // Create title in background buffer (backgroundBuffer)
-      drawTitleImage(
+      legacy.drawTitleImage(
         backgroundCtx,
         width,
         height,
@@ -296,9 +291,9 @@ export const Linear = function (canvas, parameters) {
 
     // Draw threshold image to background context
     if (initBackground && thresholdVisible) {
-      drawLinearIndicator(
+      legacy.drawLinearIndicator(
         backgroundCtx,
-        createThresholdImage(indicatorSize, indicatorSize, false, vertical),
+        legacy.createThresholdImage(indicatorSize, indicatorSize, false, vertical),
         threshold,
         minValue,
         maxValue,
@@ -328,7 +323,7 @@ export const Linear = function (canvas, parameters) {
 
     // Create foreground in foreground buffer (foregroundBuffer)
     if (initForeground && foregroundVisible) {
-      drawLinearForegroundImage(foregroundCtx, width, height, vertical, false)
+      legacy.drawLinearForegroundImage(foregroundCtx, width, height, vertical, false)
     }
   }
 
@@ -450,7 +445,7 @@ export const Linear = function (canvas, parameters) {
       ctx.translate(width / 2, 0)
     } else {
       ctx.translate(width / 2, height / 2)
-      ctx.rotate(HALF_PI)
+      ctx.rotate(consts.HALF_PI)
       ctx.translate(0, -width / 2 + width * 0.05)
     }
 
@@ -552,7 +547,7 @@ export const Linear = function (canvas, parameters) {
       ctx.translate(width / 2, 0)
     } else {
       ctx.translate(width / 2, height / 2)
-      ctx.rotate(HALF_PI)
+      ctx.rotate(consts.HALF_PI)
       ctx.translate(0, -width / 2 + width * 0.05)
     }
 
@@ -1034,8 +1029,8 @@ export const Linear = function (canvas, parameters) {
     }
 
     // Draw min measured value indicator
-    if (minMeasuredValueVisible) {
-      drawLinearIndicator(
+    if (minMeasuredValueVisible && minMeasuredValueBuffer) {
+      legacy.drawLinearIndicator(
         mainCtx,
         minMeasuredValueBuffer,
         minMeasuredValue,
@@ -1048,8 +1043,8 @@ export const Linear = function (canvas, parameters) {
     }
 
     // Draw max measured value indicator
-    if (maxMeasuredValueVisible) {
-      drawLinearIndicator(
+    if (maxMeasuredValueVisible && maxMeasuredValueBuffer) {
+      legacy.drawLinearIndicator(
         mainCtx,
         maxMeasuredValueBuffer,
         maxMeasuredValue,

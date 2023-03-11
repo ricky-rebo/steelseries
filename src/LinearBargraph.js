@@ -1,13 +1,13 @@
 import Tween from './libs/tween.js'
-import createMeasuredValueImage from './tools/create/createMeasuredValueImage'
-import createThresholdImage from './tools/create/createThresholdImage.js'
+
+import { 
+  legacy,
+  ColorDef,
+  BackgroundColor, LcdColor, LedColor,
+  GaugeType, FrameDesign, LabelNumberFormat
+} from 'steelseries-tools'
+
 import { drawActiveBargraphLed } from './tools/draw/drawActiveBargraphLed.js'
-import drawLinearFrameImage from './tools/draw/linear/drawLinearFrameImage'
-import drawLinearBackgroundImage from './tools/draw/linear/drawLinearBackgroundImage'
-import drawLinearForegroundImage from './tools/draw/linear/drawLinearForegroundImage'
-import drawLinearIndicator from './tools/draw/linear/drawLinearIndicator.js'
-import drawLinearTickmarksImage from './tools/draw/linear/drawLinearTickmarksImage.js'
-import drawTitleImage from './tools/draw/drawTitleImage'
 
 import { DisplaySingle } from './DisplaySingle.js'
 import { Led } from './Led.js'
@@ -15,15 +15,12 @@ import { Led } from './Led.js'
 import {
   calcNiceNumber,
   createBuffer,
-  customColorDef,
   requestAnimFrame,
   getCanvasContext,
   createAudioElement,
   setInRange
 } from './utils/common'
 
-import { BackgroundColor, LcdColor, ColorDef, LedColor } from './tools/customization/colors'
-import { GaugeType, FrameDesign, LabelNumberFormat } from './tools/customization/types'
 import { validBackgroundColor, validColor, validFrameDesign } from './utils/validation.js'
 
 export const LinearBargraph = function (canvas, parameters) {
@@ -36,7 +33,7 @@ export const LinearBargraph = function (canvas, parameters) {
   const height = undefined === parameters.height ? mainCtx.canvas.height : parameters.height
   let minValue = undefined === parameters.minValue ? 0 : parameters.minValue
   let maxValue = undefined === parameters.maxValue ? minValue + 100 : parameters.maxValue
-  let valueColor = undefined === parameters.valueColor ? ColorDef.RED : parameters.valueColor
+  let valueColor = undefined === parameters.valueColor ? legacy.ColorDef.RED : parameters.valueColor
   let section = undefined === parameters.section ? null : parameters.section
   let useValueSection = undefined === parameters.useValueSection ? false : parameters.useValueSection
   let valueGradient = undefined === parameters.valueGradient ? null : parameters.valueGradient
@@ -269,7 +266,8 @@ export const LinearBargraph = function (canvas, parameters) {
           Math.min((currentValue - minValue) / gradRange, 1),
           0
         )
-        ledColor = customColorDef(valueGradient.getColorAt(fraction).getRgbaColor())
+        // ledColor = customColorDef(valueGradient.getColorAt(fraction).getRgbaColor())
+        ledColor = ColorDef.fromColorString(valueGradient.getColorAt(fraction).getRgbaColor())
       } else if (isSectionsVisible) {
         currentSection = sectionPixels.find(({ start, stop }) => (offset >= start && offset <= stop))
         if (currentSection) { ledColor = currentSection.color }
@@ -347,17 +345,17 @@ export const LinearBargraph = function (canvas, parameters) {
 
     // Create frame in frame buffer (backgroundBuffer)
     if (initFrame && frameVisible) {
-      drawLinearFrameImage(frameCtx, frameDesign, width, height, vertical)
+      legacy.drawLinearFrameImage(frameCtx, frameDesign, width, height, vertical)
     }
 
     // Create background in background buffer (backgroundBuffer)
     if (initBackground) {
       if (backgroundVisible) {
         // Draw background image
-        drawLinearBackgroundImage(backgroundCtx, backgroundColor, width, height, vertical)
+        legacy.drawLinearBackgroundImage(backgroundCtx, backgroundColor, width, height, vertical)
 
         // Draw scale tickmarks
-        drawLinearTickmarksImage(
+        legacy.drawLinearTickmarksImage(
           backgroundCtx,
           width,
           height,
@@ -371,7 +369,7 @@ export const LinearBargraph = function (canvas, parameters) {
         )
 
         // Draw strings
-        drawTitleImage(
+        legacy.drawTitleImage(
           backgroundCtx,
           width,
           height,
@@ -389,9 +387,9 @@ export const LinearBargraph = function (canvas, parameters) {
 
       // Draw threshold indicator
       if (thresholdVisible) {
-        drawLinearIndicator(
+        legacy.drawLinearIndicator(
           backgroundCtx,
-          createThresholdImage(indicatorSize, indicatorSize, false, vertical),
+          legacy.createThresholdImage(indicatorSize, indicatorSize, false, vertical),
           threshold,
           minValue,
           maxValue,
@@ -409,9 +407,9 @@ export const LinearBargraph = function (canvas, parameters) {
 
     // Draw min measured value indicator in minMeasuredValueBuffer
     if (minMeasuredValueVisible) {
-      minMeasuredValueBuffer = createMeasuredValueImage(
+      minMeasuredValueBuffer = legacy.createMeasuredValueImage(
         indicatorSize,
-        ColorDef.BLUE.dark.getRgbaColor(),
+        legacy.ColorDef.BLUE.dark.getRgbaColor(),
         false,
         vertical
       )
@@ -419,9 +417,9 @@ export const LinearBargraph = function (canvas, parameters) {
 
     // Draw max measured value indicator in maxMeasuredValueBuffer
     if (maxMeasuredValueVisible) {
-      maxMeasuredValueBuffer = createMeasuredValueImage(
+      maxMeasuredValueBuffer = legacy.createMeasuredValueImage(
         indicatorSize,
-        ColorDef.RED.medium.getRgbaColor(),
+        legacy.ColorDef.RED.medium.getRgbaColor(),
         false,
         vertical
       )
@@ -457,14 +455,15 @@ export const LinearBargraph = function (canvas, parameters) {
         sectionPixels.push({
           start: ((section[sectionIndex].start + Math.abs(minValue)) / (maxValue - minValue)) * fullSize - ledWidth2,
           stop: ((section[sectionIndex].stop + Math.abs(minValue)) / (maxValue - minValue)) * fullSize - ledWidth2,
-          color: customColorDef(section[sectionIndex].color)
+          // color: customColorDef(section[sectionIndex].color)
+          color: ColorDef.fromColorString(section[sectionIndex].color)
         })
       } while (sectionIndex > 0)
     }
 
     // Create foreground in foreground buffer (foregroundBuffer)
     if (initForeground && foregroundVisible) {
-      drawLinearForegroundImage(foregroundCtx, width, height, vertical, false)
+      legacy.drawLinearForegroundImage(foregroundCtx, width, height, vertical, false)
     }
 
     initialized = true

@@ -1,12 +1,7 @@
 import Tween from './libs/tween.js'
-import drawFrame from './tools/draw/drawFrame'
-import drawBackground from './tools/draw/drawBackground'
-import drawForeground from './tools/draw/drawForeground'
 
-import { BackgroundColor, ColorDef } from './tools/customization/colors'
-import { FrameDesign, ForegroundType } from './tools/customization/types'
+import { legacy, consts, BackgroundColor, FrameDesign, ForegroundType } from 'steelseries-tools'
 
-import { HALF_PI, TWO_PI, PI, RAD_FACTOR, stdFontName } from './utils/constants'
 import { createBuffer, requestAnimFrame, getCanvasContext } from './utils/common'
 
 export const Level = function (canvas, parameters) {
@@ -42,7 +37,7 @@ export const Level = function (canvas, parameters) {
       : parameters.backgroundVisible
   let pointerColor =
     undefined === parameters.pointerColor
-      ? ColorDef.RED
+      ? legacy.ColorDef.RED
       : parameters.pointerColor
   let foregroundType =
     undefined === parameters.foregroundType
@@ -66,7 +61,7 @@ export const Level = function (canvas, parameters) {
   // Constants
   const center = size / 2
 
-  const angleStep = TWO_PI / 360
+  const angleStep = consts.TWO_PI / 360
   const decimals = decimalsVisible ? 1 : 0
 
   const self = this
@@ -141,17 +136,17 @@ export const Level = function (canvas, parameters) {
     let smlFont
 
     if (size <= 100) {
-      smlFont = '6px ' + stdFontName
-      stdFont = '8px ' + stdFontName
+      smlFont = '6px ' + consts.STD_FONT_NAME
+      stdFont = '8px ' + consts.STD_FONT_NAME
     } else if (size <= 200) {
-      smlFont = '8px ' + stdFontName
-      stdFont = '10px ' + stdFontName
+      smlFont = '8px ' + consts.STD_FONT_NAME
+      stdFont = '10px ' + consts.STD_FONT_NAME
     } else if (size <= 300) {
-      smlFont = '10px ' + stdFontName
-      stdFont = '12px ' + stdFontName
+      smlFont = '10px ' + consts.STD_FONT_NAME
+      stdFont = '12px ' + consts.STD_FONT_NAME
     } else {
-      smlFont = '12px ' + stdFontName
-      stdFont = '14px ' + stdFontName
+      smlFont = '12px ' + consts.STD_FONT_NAME
+      stdFont = '14px ' + consts.STD_FONT_NAME
     }
 
     ctx.textAlign = 'center'
@@ -180,106 +175,106 @@ export const Level = function (canvas, parameters) {
       switch (i) {
         case 0:
           ctx.translate(size * 0.31, 0)
-          ctx.rotate(i * RAD_FACTOR + HALF_PI)
+          ctx.rotate(i * consts.RAD_FACTOR + consts.HALF_PI)
           ctx.font = stdFont
           ctx.fillText('0\u00B0', 0, 0, size)
-          ctx.rotate(-(i * RAD_FACTOR) + HALF_PI)
+          ctx.rotate(-(i * consts.RAD_FACTOR) + consts.HALF_PI)
           ctx.translate(-size * 0.31, 0)
 
           ctx.translate(size * 0.41, 0)
-          ctx.rotate(i * RAD_FACTOR - HALF_PI)
+          ctx.rotate(i * consts.RAD_FACTOR - consts.HALF_PI)
           ctx.font = smlFont
           ctx.fillText('0%', 0, 0, size)
           break
         case 45:
           ctx.translate(size * 0.31, 0)
-          ctx.rotate(i * RAD_FACTOR + 0.25 * PI)
+          ctx.rotate(i * consts.RAD_FACTOR + 0.25 * consts.PI)
           ctx.font = stdFont
           ctx.fillText('45\u00B0', 0, 0, size)
-          ctx.rotate(-(i * RAD_FACTOR) + 0.25 * PI)
+          ctx.rotate(-(i * consts.RAD_FACTOR) + 0.25 * consts.PI)
           ctx.translate(-size * 0.31, 0)
 
           ctx.translate(size * 0.31, size * 0.085)
-          ctx.rotate(i * RAD_FACTOR - 0.25 * PI)
+          ctx.rotate(i * consts.RAD_FACTOR - 0.25 * consts.PI)
           ctx.font = smlFont
           ctx.fillText('100%', 0, 0, size)
           break
         case 90:
           ctx.translate(size * 0.31, 0)
-          ctx.rotate(i * RAD_FACTOR)
+          ctx.rotate(i * consts.RAD_FACTOR)
           ctx.font = stdFont
           ctx.fillText('90\u00B0', 0, 0, size)
-          ctx.rotate(-(i * RAD_FACTOR))
+          ctx.rotate(-(i * consts.RAD_FACTOR))
           ctx.translate(-size * 0.31, 0)
 
           ctx.translate(size * 0.21, 0)
-          ctx.rotate(i * RAD_FACTOR)
+          ctx.rotate(i * consts.RAD_FACTOR)
           ctx.font = smlFont
           ctx.fillText('\u221E', 0, 0, size)
           break
         case 135:
           ctx.translate(size * 0.31, 0)
-          ctx.rotate(i * RAD_FACTOR - 0.25 * PI)
+          ctx.rotate(i * consts.RAD_FACTOR - 0.25 * consts.PI)
           ctx.font = stdFont
           ctx.fillText('45\u00B0', 0, 0, size)
-          ctx.rotate(-(i * RAD_FACTOR) - 0.25 * PI)
+          ctx.rotate(-(i * consts.RAD_FACTOR) - 0.25 * consts.PI)
           ctx.translate(-size * 0.31, 0)
 
           ctx.translate(size * 0.31, -size * 0.085)
-          ctx.rotate(i * RAD_FACTOR + 0.25 * PI)
+          ctx.rotate(i * consts.RAD_FACTOR + 0.25 * consts.PI)
           ctx.font = smlFont
           ctx.fillText('100%', 0, 0, size)
           break
         case 180:
           ctx.translate(size * 0.31, 0)
-          ctx.rotate(i * RAD_FACTOR - HALF_PI)
+          ctx.rotate(i * consts.RAD_FACTOR - consts.HALF_PI)
           ctx.font = stdFont
           ctx.fillText('0\u00B0', 0, 0, size)
-          ctx.rotate(-(i * RAD_FACTOR) - HALF_PI)
+          ctx.rotate(-(i * consts.RAD_FACTOR) - consts.HALF_PI)
           ctx.translate(-size * 0.31, 0)
 
           ctx.translate(size * 0.41, 0)
-          ctx.rotate(i * RAD_FACTOR + HALF_PI)
+          ctx.rotate(i * consts.RAD_FACTOR + consts.HALF_PI)
           ctx.font = smlFont
           ctx.fillText('0%', 0, 0, size)
           ctx.translate(-size * 0.41, 0)
           break
         case 225:
           ctx.translate(size * 0.31, 0)
-          ctx.rotate(i * RAD_FACTOR - 0.75 * PI)
+          ctx.rotate(i * consts.RAD_FACTOR - 0.75 * consts.PI)
           ctx.font = stdFont
           ctx.fillText('45\u00B0', 0, 0, size)
-          ctx.rotate(-(i * RAD_FACTOR) - 0.75 * PI)
+          ctx.rotate(-(i * consts.RAD_FACTOR) - 0.75 * consts.PI)
           ctx.translate(-size * 0.31, 0)
 
           ctx.translate(size * 0.31, size * 0.085)
-          ctx.rotate(i * RAD_FACTOR + 0.75 * PI)
+          ctx.rotate(i * consts.RAD_FACTOR + 0.75 * consts.PI)
           ctx.font = smlFont
           ctx.fillText('100%', 0, 0, size)
           break
         case 270:
           ctx.translate(size * 0.31, 0)
-          ctx.rotate(i * RAD_FACTOR - PI)
+          ctx.rotate(i * consts.RAD_FACTOR - consts.PI)
           ctx.font = stdFont
           ctx.fillText('90\u00B0', 0, 0, size)
-          ctx.rotate(-(i * RAD_FACTOR) - PI)
+          ctx.rotate(-(i * consts.RAD_FACTOR) - consts.PI)
           ctx.translate(-size * 0.31, 0)
 
           ctx.translate(size * 0.21, 0)
-          ctx.rotate(i * RAD_FACTOR - PI)
+          ctx.rotate(i * consts.RAD_FACTOR - consts.PI)
           ctx.font = smlFont
           ctx.fillText('\u221E', 0, 0, size)
           break
         case 315:
           ctx.translate(size * 0.31, 0)
-          ctx.rotate(i * RAD_FACTOR - 1.25 * PI)
+          ctx.rotate(i * consts.RAD_FACTOR - 1.25 * consts.PI)
           ctx.font = stdFont
           ctx.fillText('45\u00B0', 0, 0, size)
-          ctx.rotate(-(i * RAD_FACTOR) - 1.25 * PI)
+          ctx.rotate(-(i * consts.RAD_FACTOR) - 1.25 * consts.PI)
           ctx.translate(-size * 0.31, 0)
 
           ctx.translate(size * 0.31, -size * 0.085)
-          ctx.rotate(i * RAD_FACTOR + 1.25 * PI)
+          ctx.rotate(i * consts.RAD_FACTOR + 1.25 * consts.PI)
           ctx.font = smlFont
           ctx.fillText('100%', 0, 0, size)
           break
@@ -479,11 +474,11 @@ export const Level = function (canvas, parameters) {
     const initForeground = undefined === buffers.foreground ? false : buffers.foreground
 
     if (initFrame && frameVisible) {
-      drawFrame(frameCtx, frameDesign, center, center, size, size)
+      legacy.drawFrame(frameCtx, frameDesign, center, center, size, size)
     }
 
     if (initBackground && backgroundVisible) {
-      drawBackground(backgroundCtx, backgroundColor, center, center, size, size)
+      legacy.drawBackground(backgroundCtx, backgroundColor, center, center, size, size)
       drawTickmarksImage(backgroundCtx)
     }
 
@@ -498,7 +493,7 @@ export const Level = function (canvas, parameters) {
     }
 
     if (initForeground && foregroundVisible) {
-      drawForeground(foregroundCtx, foregroundType, size, size, false)
+      legacy.drawForeground(foregroundCtx, foregroundType, size, size, false)
     }
   }
 
@@ -698,7 +693,7 @@ export const Level = function (canvas, parameters) {
       mainCtx.drawImage(frameBuffer, 0, 0)
     }
 
-    const angle = HALF_PI + value * angleStep - HALF_PI
+    const angle = consts.HALF_PI + value * angleStep - consts.HALF_PI
     if (rotateFace) {
       mainCtx.translate(center, center)
       mainCtx.rotate(-angle)
@@ -729,18 +724,18 @@ export const Level = function (canvas, parameters) {
     if (textOrientationFixed) {
       mainCtx.restore()
       sizeFactor = decimalsVisible ? 0.1 : 0.15
-      mainCtx.font = size * sizeFactor + 'px ' + stdFontName
+      mainCtx.font = size * sizeFactor + 'px ' + consts.STD_FONT_NAME
       mainCtx.fillText(visibleValue.toFixed(decimals) + '\u00B0', center, center, size * 0.35)
     } else {
       sizeFactor = decimalsVisible ? 0.5 : 0.2
-      mainCtx.font = size * sizeFactor + 'px ' + stdFontName
+      mainCtx.font = size * sizeFactor + 'px ' + consts.STD_FONT_NAME
       mainCtx.fillText(visibleValue.toFixed(decimals) + '\u00B0', center, center, size * 0.35)
       mainCtx.restore()
     }
 
     // Draw step pointer image
     mainCtx.translate(center, center)
-    mainCtx.rotate(angle + stepValue * RAD_FACTOR)
+    mainCtx.rotate(angle + stepValue * consts.RAD_FACTOR)
     mainCtx.translate(-center, -center)
     mainCtx.drawImage(stepPointerBuffer, 0, 0)
     mainCtx.restore()

@@ -1,7 +1,7 @@
-import createLcdBackgroundImage from './tools/create/createLcdBackgroundImage'
-import { LcdColor } from './tools/customization/colors'
+import { consts, LcdColor } from 'steelseries-tools'
 
-import { stdFontName, lcdFontName } from './utils/constants'
+import createLcdBackgroundImage from './tools/create/createLcdBackgroundImage'
+
 import {
   roundedRectangle,
   createBuffer,
@@ -56,8 +56,8 @@ export const DisplaySingle = function (canvas, parameters) {
 
   // Constants
   const fontHeight = Math.floor(height / 1.5)
-  const stdFont = fontHeight + 'px ' + stdFontName
-  const lcdFont = fontHeight + 'px ' + lcdFontName
+  const stdFont = fontHeight + 'px ' + consts.STD_FONT_NAME
+  const lcdFont = fontHeight + 'px ' + consts.LCD_FONT_NAME
 
   const self = this
 
@@ -105,7 +105,7 @@ export const DisplaySingle = function (canvas, parameters) {
       let unitWidth = 0
       if (unitStringVisible) {
         ctx.save()
-        ctx.font = Math.floor(height / 2.5) + 'px ' + stdFontName
+        ctx.font = Math.floor(height / 2.5) + 'px ' + consts.STD_FONT_NAME
         unitWidth = ctx.measureText(unitString).width
         ctx.restore()
       }
@@ -119,14 +119,14 @@ export const DisplaySingle = function (canvas, parameters) {
 
       // Draw unitString text
       if (unitStringVisible) {
-        ctx.font = Math.floor(height / 2.5) + 'px ' + stdFontName
+        ctx.font = Math.floor(height / 2.5) + 'px ' + consts.STD_FONT_NAME
         ctx.fillText(unitString, width - 2 - scrollX, height * 0.5 + fontHeight * vPos)
       }
 
       // Draw headerString text
       if (headerStringVisible) {
         ctx.textAlign = 'center'
-        ctx.font = Math.floor(height / 3.5) + 'px ' + stdFontName
+        ctx.font = Math.floor(height / 3.5) + 'px ' + consts.STD_FONT_NAME
         ctx.fillText(headerString, width / 2, height * 0.3)
       }
     } else {

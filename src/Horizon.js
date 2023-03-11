@@ -1,11 +1,8 @@
 import Tween from './libs/tween.js'
-import drawFrame from './tools/draw/drawFrame'
-import drawForeground from './tools/draw/drawForeground'
-import { HALF_PI, TWO_PI, PI, RAD_FACTOR, stdFontName } from './utils/constants'
-import { createBuffer, requestAnimFrame, getCanvasContext } from './utils/common'
 
-import { ColorDef } from './tools/customization/colors'
-import { FrameDesign, ForegroundType } from './tools/customization/types'
+import { legacy, consts, FrameDesign, ForegroundType } from 'steelseries-tools'
+
+import { createBuffer, requestAnimFrame, getCanvasContext } from './utils/common'
 
 export const Horizon = function (canvas, parameters) {
   // Get the canvas context
@@ -28,7 +25,7 @@ export const Horizon = function (canvas, parameters) {
     ? true
     : parameters.foregroundVisible
   let pointerColor = undefined === parameters.pointerColor
-    ? ColorDef.WHITE
+    ? legacy.ColorDef.WHITE
     : parameters.pointerColor
 
   // Set the size - also clears the canvas
@@ -38,7 +35,7 @@ export const Horizon = function (canvas, parameters) {
   // Constants
   const center = size / 2
 
-  const pitchPixel = (PI * size) / 360
+  const pitchPixel = (consts.PI * size) / 360
 
   const self = this
 
@@ -60,7 +57,7 @@ export const Horizon = function (canvas, parameters) {
   let frameCtx = frameBuffer.getContext('2d')
 
   // Buffer for pointer image painting code
-  const backgroundBuffer = createBuffer(size, size * PI)
+  const backgroundBuffer = createBuffer(size, size * consts.PI)
   let backgroundCtx = backgroundBuffer.getContext('2d')
 
   // Buffer for indicator painting code
@@ -76,7 +73,7 @@ export const Horizon = function (canvas, parameters) {
     ctx.save()
 
     const w = size
-    const h = size * PI
+    const h = size * consts.PI
 
     const fontSize = w * 0.04
     const stepSizeY = (h / 360) * 5
@@ -98,7 +95,7 @@ export const Horizon = function (canvas, parameters) {
     ctx.fillStyle = '#37596e'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
-    ctx.font = fontSize + 'px ' + stdFontName
+    ctx.font = fontSize + 'px ' + consts.STD_FONT_NAME
 
     // Positive ticks
     let stepTen = false
@@ -205,11 +202,11 @@ export const Horizon = function (canvas, parameters) {
 
     // Tickmarks
     ctx.translate(center, center)
-    ctx.rotate(-HALF_PI)
+    ctx.rotate(-consts.HALF_PI)
     ctx.translate(-center, -center)
 
     const step = 5
-    const stepRad = 5 * RAD_FACTOR
+    const stepRad = 5 * consts.RAD_FACTOR
     let angle
     for (angle = -90; angle <= 90; angle += step) {
       const heightFactor = (angle % 45 === 0 || angle === 0) ? 0.113 : ((angle % 15 === 0) ? 0.103785 : 0.093785)
@@ -263,7 +260,7 @@ export const Horizon = function (canvas, parameters) {
     initialized = true
 
     if (initFrame && frameVisible) {
-      drawFrame(frameCtx, frameDesign, center, center, size, size)
+      legacy.drawFrame(frameCtx, frameDesign, center, center, size, size)
     }
 
     if (initBackground) {
@@ -278,7 +275,7 @@ export const Horizon = function (canvas, parameters) {
       drawHorizonForegroundImage(foregroundCtx)
 
       if (foregroundVisible) {
-        drawForeground(foregroundCtx, foregroundType, size, size)
+        legacy.drawForeground(foregroundCtx, foregroundType, size, size)
       }
     }
   }
@@ -300,7 +297,7 @@ export const Horizon = function (canvas, parameters) {
     if (resetBackground) {
       // Buffer for pointer image painting code
       backgroundBuffer.width = size
-      backgroundBuffer.height = size * PI
+      backgroundBuffer.height = size * consts.PI
       backgroundCtx = backgroundBuffer.getContext('2d')
     }
 
@@ -516,13 +513,13 @@ export const Horizon = function (canvas, parameters) {
 
     // Set the clipping area
     mainCtx.beginPath()
-    mainCtx.arc(center, center, (size * 0.831775) / 2, 0, TWO_PI, true)
+    mainCtx.arc(center, center, (size * 0.831775) / 2, 0, consts.TWO_PI, true)
     mainCtx.closePath()
     mainCtx.clip()
 
     // Rotate around roll
     mainCtx.translate(center, center)
-    mainCtx.rotate(-(roll * RAD_FACTOR))
+    mainCtx.rotate(-(roll * consts.RAD_FACTOR))
     mainCtx.translate(-center, 0)
 
     // Translate about dive

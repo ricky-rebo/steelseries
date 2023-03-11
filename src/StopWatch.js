@@ -1,19 +1,12 @@
-import drawFrame from './tools/draw/drawFrame'
-import drawBackground from './tools/draw/drawBackground'
-import drawRadialCustomImage from './tools/draw/drawRadialCustomImage'
-import drawForeground from './tools/draw/drawForeground'
 import {
-  createBuffer,
-  getCanvasContext} from './utils/common'
-import {
-  TWO_PI,
-  PI,
-  RAD_FACTOR,
-  stdFontName
-} from "./utils/constants"
+  legacy,
+  consts,
+  BackgroundColor,
+  FrameDesign,
+  ForegroundType
+} from 'steelseries-tools'
 
-import { BackgroundColor, ColorDef } from './tools/customization/colors'
-import { FrameDesign, ForegroundType } from './tools/customization/types'
+import { createBuffer, getCanvasContext } from './utils/common'
 
 const Stopwatch = function (canvas, parameters) {
   parameters = parameters || {}
@@ -26,7 +19,7 @@ const Stopwatch = function (canvas, parameters) {
     undefined === parameters.frameVisible ? true : parameters.frameVisible
   let pointerColor =
     undefined === parameters.pointerColor
-      ? ColorDef.BLACK
+      ? legacy.ColorDef.BLACK
       : parameters.pointerColor
   let backgroundColor =
     undefined === parameters.backgroundColor
@@ -90,7 +83,7 @@ const Stopwatch = function (canvas, parameters) {
     y_offset
   ) {
     const STD_FONT_SIZE = text_scale * width
-    const STD_FONT = STD_FONT_SIZE + 'px ' + stdFontName
+    const STD_FONT = STD_FONT_SIZE + 'px ' + consts.STD_FONT_NAME
     const TEXT_WIDTH = width * 0.15
     const THIN_STROKE = 0.5
     const MEDIUM_STROKE = 1
@@ -113,8 +106,8 @@ const Stopwatch = function (canvas, parameters) {
     let sinValue = 0
     let cosValue = 0
     let alpha // angle for the tickmarks
-    const ALPHA_START = -PI
-    const ANGLE_STEPSIZE = TWO_PI / range
+    const ALPHA_START = -consts.PI
+    const ANGLE_STEPSIZE = consts.TWO_PI / range
 
     ctx.width = ctx.height = width
     ctx.save()
@@ -296,7 +289,7 @@ const Stopwatch = function (canvas, parameters) {
     // Draw the rings
     ctx.beginPath()
     radius = (imageWidth * 0.06542) / 2
-    ctx.arc(centerX, centerY, radius, 0, TWO_PI)
+    ctx.arc(centerX, centerY, radius, 0, consts.TWO_PI)
     grad = ctx.createLinearGradient(
       centerX - radius,
       centerX + radius,
@@ -312,7 +305,7 @@ const Stopwatch = function (canvas, parameters) {
     ctx.fill()
     ctx.beginPath()
     radius = (imageWidth * 0.046728) / 2
-    ctx.arc(centerX, centerY, radius, 0, TWO_PI)
+    ctx.arc(centerX, centerY, radius, 0, consts.TWO_PI)
     grad = ctx.createRadialGradient(
       centerX,
       centerX,
@@ -423,7 +416,7 @@ const Stopwatch = function (canvas, parameters) {
       smallPointerY_Offset + smallPointerSize / 2,
       radius,
       0,
-      TWO_PI
+      consts.TWO_PI
     )
     ctx.fillStyle = '#C48200'
     ctx.closePath()
@@ -435,7 +428,7 @@ const Stopwatch = function (canvas, parameters) {
       smallPointerY_Offset + smallPointerSize / 2,
       radius,
       0,
-      TWO_PI
+      consts.TWO_PI
     )
     ctx.fillStyle = '#999999'
     ctx.closePath()
@@ -447,7 +440,7 @@ const Stopwatch = function (canvas, parameters) {
       smallPointerY_Offset + smallPointerSize / 2,
       radius,
       0,
-      TWO_PI
+      consts.TWO_PI
     )
     ctx.fillStyle = '#000000'
     ctx.closePath()
@@ -479,7 +472,7 @@ const Stopwatch = function (canvas, parameters) {
     initialized = true
 
     if (drawFrame2 && frameVisible) {
-      drawFrame(
+      legacy.drawFrame(
         frameContext,
         frameDesign,
         centerX,
@@ -491,7 +484,7 @@ const Stopwatch = function (canvas, parameters) {
 
     if (drawBackground2 && backgroundVisible) {
       // Create background in background buffer (backgroundBuffer)
-      drawBackground(
+      legacy.drawBackground(
         backgroundContext,
         backgroundColor,
         centerX,
@@ -501,7 +494,7 @@ const Stopwatch = function (canvas, parameters) {
       )
 
       // Create custom layer in background buffer (backgroundBuffer)
-      drawRadialCustomImage(
+      legacy.drawRadialCustomImage(
         backgroundContext,
         customLayer,
         centerX,
@@ -527,7 +520,7 @@ const Stopwatch = function (canvas, parameters) {
     }
 
     if (drawForeground2 && foregroundVisible) {
-      drawForeground(
+      legacy.drawForeground(
         foregroundContext,
         foregroundType,
         imageWidth,
@@ -718,12 +711,8 @@ const Stopwatch = function (canvas, parameters) {
     // absolute x, y values when drawing to main context
     const shadowOffset = imageWidth * 0.006
 
-    const rotationAngle =
-      (minutePointerAngle + 2 * Math.sin(minutePointerAngle * RAD_FACTOR)) *
-      RAD_FACTOR
-    const secRotationAngle =
-      (secondPointerAngle + 2 * Math.sin(secondPointerAngle * RAD_FACTOR)) *
-      RAD_FACTOR
+    const rotationAngle = (minutePointerAngle + 2 * Math.sin(minutePointerAngle * consts.RAD_FACTOR)) * consts.RAD_FACTOR
+    const secRotationAngle = (secondPointerAngle + 2 * Math.sin(secondPointerAngle * consts.RAD_FACTOR)) * consts.RAD_FACTOR
 
     // Draw the minute pointer
     // Define rotation center

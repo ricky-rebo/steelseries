@@ -1,35 +1,33 @@
 import Tween from './libs/tween.js'
-import createTrendIndicator from './tools/create/createTrendIndicator'
-import { drawActiveBargraphLed } from './tools/draw/drawActiveBargraphLed'
-import drawFrame from './tools/draw/drawFrame'
-import drawBackground from './tools/draw/drawBackground'
-import drawRadialCustomImage from './tools/draw/drawRadialCustomImage'
-import { drawRadialTickmarksImage, MAX_MAJOR_TICKS_COUNT } from './tools/draw/drawRadialTickmarksImage.js'
-import drawForeground from './tools/draw/drawForeground'
-import drawTitleImage from './tools/draw/drawTitleImage'
 
-import {
-  calcNiceNumber,
-  createBuffer,
-  customColorDef,
-  requestAnimFrame,
-  getCanvasContext,
-  createAudioElement,
-  coalesce,
-  setInRange
-} from './utils/common'
-import { HALF_PI, TWO_PI, RAD_FACTOR, DEG_FACTOR } from './utils/constants'
-import { getRadialRotationParams } from './utils/radial'
-
-import { BackgroundColor, LcdColor, ColorDef, LedColor } from './tools/customization/colors'
-import {
+import { 
+  legacy,
+  consts,
+  ColorDef,
+  BackgroundColor,
+  LcdColor,
+  LedColor,
   GaugeType,
   FrameDesign,
   ForegroundType,
   LabelNumberFormat,
   TickLabelOrientation,
   TrendState
-} from './tools/customization/types'
+} from 'steelseries-tools'
+
+import createTrendIndicator from './tools/create/createTrendIndicator'
+import { drawActiveBargraphLed } from './tools/draw/drawActiveBargraphLed'
+
+import {
+  calcNiceNumber,
+  createBuffer,
+  requestAnimFrame,
+  getCanvasContext,
+  createAudioElement,
+  coalesce,
+  setInRange
+} from './utils/common'
+
 import {
   validBackgroundColor,
   validColor,
@@ -41,6 +39,8 @@ import {
 
 import { Led } from './Led.js'
 import { DisplaySingle } from './DisplaySingle.js'
+
+const MAX_MAJOR_TICKS_COUNT = 10;
 
 export const RadialBargraph = function (canvas, parameters) {
   // Get the canvas context
@@ -63,7 +63,7 @@ export const RadialBargraph = function (canvas, parameters) {
   const frameVisible = undefined === parameters.frameVisible ? true : parameters.frameVisible
   let backgroundColor = undefined === parameters.backgroundColor ? BackgroundColor.DARK_GRAY : parameters.backgroundColor
   const backgroundVisible = undefined === parameters.backgroundVisible ? true : parameters.backgroundVisible
-  let valueColor = undefined === parameters.valueColor ? ColorDef.RED : parameters.valueColor
+  let valueColor = undefined === parameters.valueColor ? legacy.ColorDef.RED : parameters.valueColor
   const lcdColor = undefined === parameters.lcdColor ? LcdColor.STANDARD : parameters.lcdColor
   const lcdVisible = undefined === parameters.lcdVisible ? true : parameters.lcdVisible
   const lcdDecimals = undefined === parameters.lcdDecimals ? 2 : parameters.lcdDecimals
@@ -169,8 +169,9 @@ export const RadialBargraph = function (canvas, parameters) {
   const BARGRAPH_LED_WIDTH = Math.ceil(SIZE * 0.060747)
   const BARGRAPH_LED_HEIGHT = Math.ceil(SIZE * 0.023364)
 
-  const { rotationOffset, angleRange: ANGLE_RANGE } = getRadialRotationParams(gaugeType)
-  const ANGLE_RANGE_DEGREES = ANGLE_RANGE * DEG_FACTOR
+  // const { rotationOffset, angleRange: ANGLE_RANGE } = getRadialRotationParams(gaugeType)
+  const { rotationOffset, angleRange: ANGLE_RANGE } = gaugeType;
+  const ANGLE_RANGE_DEGREES = ANGLE_RANGE * consts.DEG_FACTOR
   const BARGRAPH_OFFSET = getBargraphOffset(gaugeType)
 
   // Create audio tag for alarm sound
@@ -252,18 +253,18 @@ export const RadialBargraph = function (canvas, parameters) {
 
     // Create frame in frame buffer (frameBuffer)
     if (initFrame && frameVisible) {
-      drawFrame(frameCtx, frameDesign, CENTER, CENTER, SIZE, SIZE)
+      legacy.drawFrame(frameCtx, frameDesign, CENTER, CENTER, SIZE, SIZE)
     }
 
     // Create background in background buffer (backgroundBuffer)
     if (initBackground && backgroundVisible) {
-      drawBackground(backgroundCtx, backgroundColor, CENTER, CENTER, SIZE, SIZE)
+      legacy.drawBackground(backgroundCtx, backgroundColor, CENTER, CENTER, SIZE, SIZE)
 
       // Create custom layer in background buffer (backgroundBuffer)
-      drawRadialCustomImage(backgroundCtx, customLayer, CENTER, CENTER, SIZE, SIZE)
+      legacy.drawRadialCustomImage(backgroundCtx, customLayer, CENTER, CENTER, SIZE, SIZE)
 
       // Create tickmarks in background buffer
-      drawRadialTickmarksImage(
+      legacy.drawRadialTickmarksImage(
         backgroundCtx,
         SIZE,
         gaugeType,
@@ -279,7 +280,7 @@ export const RadialBargraph = function (canvas, parameters) {
       )
 
       // Create title in background buffer
-      drawTitleImage(backgroundCtx, SIZE, SIZE, titleString, unitString, backgroundColor, true, true)
+      legacy.drawTitleImage(backgroundCtx, SIZE, SIZE, titleString, unitString, backgroundColor, true, true)
     }
 
     if (initLed) {
@@ -316,7 +317,8 @@ export const RadialBargraph = function (canvas, parameters) {
       sectionAngles = section.map(item => ({
         start: ((Math.abs(minValue) + item.start) / (maxValue - minValue)) * ANGLE_RANGE_DEGREES,
         stop: ((Math.abs(minValue) + item.stop) / (maxValue - minValue)) * ANGLE_RANGE_DEGREES,
-        color: customColorDef(item.color)
+        // color: customColorDef(item.color)
+        color: ColorDef.fromColorString(item.color)
       }))
     }
 
@@ -327,7 +329,7 @@ export const RadialBargraph = function (canvas, parameters) {
 
     // Create foreground in foreground buffer (foregroundBuffer)
     if (initForeground && foregroundVisible) {
-      drawForeground(foregroundCtx, foregroundType, SIZE, SIZE, false)
+      legacy.drawForeground(foregroundCtx, foregroundType, SIZE, SIZE, false)
     }
 
     // Create the trend indicator buffers
@@ -383,9 +385,9 @@ export const RadialBargraph = function (canvas, parameters) {
     ctx.lineWidth = SIZE * 0.085
     ctx.beginPath()
     ctx.translate(CENTER, CENTER)
-    ctx.rotate(rotationOffset - 4 * RAD_FACTOR)
+    ctx.rotate(rotationOffset - 4 * consts.RAD_FACTOR)
     ctx.translate(-CENTER, -CENTER)
-    ctx.arc(CENTER, CENTER, SIZE * 0.35514, 0, ANGLE_RANGE + 8 * RAD_FACTOR, false)
+    ctx.arc(CENTER, CENTER, SIZE * 0.35514, 0, ANGLE_RANGE + 8 * consts.RAD_FACTOR, false)
     ctx.rotate(-rotationOffset)
 
     const ledTrackFrameGradient = ctx.createLinearGradient(0, 0.107476 * SIZE, 0, 0.897195 * SIZE)
@@ -402,9 +404,9 @@ export const RadialBargraph = function (canvas, parameters) {
     ctx.lineWidth = SIZE * 0.075
     ctx.beginPath()
     ctx.translate(CENTER, CENTER)
-    ctx.rotate(rotationOffset - 4 * RAD_FACTOR)
+    ctx.rotate(rotationOffset - 4 * consts.RAD_FACTOR)
     ctx.translate(-CENTER, -CENTER)
-    ctx.arc(CENTER, CENTER, SIZE * 0.35514, 0, ANGLE_RANGE + 8 * RAD_FACTOR, false)
+    ctx.arc(CENTER, CENTER, SIZE * 0.35514, 0, ANGLE_RANGE + 8 * consts.RAD_FACTOR, false)
     ctx.rotate(-rotationOffset)
 
     const ledTrackMainGradient = ctx.createLinearGradient(0, 0.112149 * SIZE, 0, 0.892523 * SIZE)
@@ -432,7 +434,7 @@ export const RadialBargraph = function (canvas, parameters) {
     for (let angle = 0; angle <= ANGLE_RANGE_DEGREES; angle += 5) {
       ctx.save()
       ctx.translate(CENTER, CENTER)
-      ctx.rotate(angle * RAD_FACTOR + BARGRAPH_OFFSET)
+      ctx.rotate(angle * consts.RAD_FACTOR + BARGRAPH_OFFSET)
       ctx.translate(-CENTER, -CENTER)
       ctx.beginPath()
       ctx.rect(SIZE * 0.116822, SIZE * 0.485981, SIZE * 0.060747, SIZE * 0.023364)
@@ -461,9 +463,8 @@ export const RadialBargraph = function (canvas, parameters) {
           Math.min((currentValue - minValue) / valueGradient.getRange(), 1),
           0
         )
-        activeLedColor = customColorDef(
-          valueGradient.getColorAt(fraction).getRgbaColor()
-        )
+        // activeLedColor = customColorDef(valueGradient.getColorAt(fraction).getRgbaColor())
+        activeLedColor = ColorDef.fromColorString(valueGradient.getColorAt(fraction).getRgbaColor())
       } else if (isSectionsVisible) {
         const color = sectionAngles.find((entry) => (angle >= entry.start && angle < entry.stop))
         if (color) activeLedColor = color
@@ -477,7 +478,7 @@ export const RadialBargraph = function (canvas, parameters) {
       // Draw Led
       ctx.save()
       ctx.translate(CENTER, CENTER)
-      ctx.rotate(angle * RAD_FACTOR + BARGRAPH_OFFSET)
+      ctx.rotate(angle * consts.RAD_FACTOR + BARGRAPH_OFFSET)
       ctx.translate(-CENTER, -CENTER)
       ctx.drawImage(activeLedBuffer, ACTIVE_LED_POS_X, ACTIVE_LED_POS_Y)
       ctx.restore()
@@ -1046,8 +1047,8 @@ function getBargraphOffset (gaugeType) {
   switch (gaugeType.type) {
     case 'type1':
     case 'type2': return 0
-    case 'type3': return -HALF_PI
+    case 'type3': return -consts.HALF_PI
     case 'type4':
-    default: return -TWO_PI / 6
+    default: return -consts.TWO_PI / 6
   }
 }
